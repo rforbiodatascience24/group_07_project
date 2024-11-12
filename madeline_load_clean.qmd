@@ -1,0 +1,76 @@
+---
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+# Load Libraries
+
+```{r}
+library(GEOquery)
+library(tidyverse)
+```
+
+# Load series and platform data from GEO
+
+```{r}
+data <- getGEO("GSE11512", 
+               GSEMatrix =TRUE, 
+               getGPL=FALSE)
+expr_set <- data[[1]] 
+```
+
+# Access and Clean Data
+
+## Access pheno data
+
+No NA values detected
+
+```{r}
+pheno_data <- phenoData(expr_set)
+pheno_df <- pheno_data@data
+```
+
+## Access assay data
+
+No NA values detected
+
+```{r}
+assay_df <- exprs(expr_set)
+assay_df <- as.data.frame(assay_df)
+```
+
+## Organize pheno_data
+
+### select necessary attributes
+
+species, sex, and age
+
+```{r}
+selected_pheno <- pheno_df |>
+  select(species = organism_ch1,
+         age_days = "age:ch1",
+         sex = "sex:ch1")
+```
+
+### encode species, sex
+
+Species can be human, chimpanzee, or macaque Sex can be M or F
+
+```{r}
+selected_pheno <- selected_pheno |>
+  mutate(
+    sex = ifelse(sex == "Male", "M", "F"),
+    species = ifelse(species == "Homo sapiens", "Human", 
+                     ifelse(species == "Pan troglodytes", "Chimpanzee", "Macaque"))
+  )
+```
+
+### tidy age
+
+remove "days" and convert to numeric
+
+```{r}
+selected_pheno <- selected_pheno |>
+  mutate(age_days = as.numeric(gsub(" days", "", age_days)))
+```
