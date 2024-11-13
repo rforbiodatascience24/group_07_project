@@ -33,7 +33,8 @@ pheno_df <- pheno_data@data
 
 ## Access assay data
 
-No NA values detected
+No NA values detected. values are "Quantile normalized log2-transformed
+signal intensities"
 
 ```{r}
 assay_df <- exprs(expr_set)
@@ -47,7 +48,7 @@ assay_df <- as.data.frame(assay_df)
 species, sex, and age
 
 ```{r}
-selected_pheno <- pheno_df |>
+shortened_pheno <- pheno_df |>
   select(species = organism_ch1,
          age_days = "age:ch1",
          sex = "sex:ch1")
@@ -58,7 +59,7 @@ selected_pheno <- pheno_df |>
 Species can be human, chimpanzee, or macaque Sex can be M or F
 
 ```{r}
-selected_pheno <- selected_pheno |>
+shortened_pheno <- shortened_pheno |>
   mutate(
     sex = ifelse(sex == "Male", "M", "F"),
     species = ifelse(species == "Homo sapiens", "Human", 
@@ -71,6 +72,39 @@ selected_pheno <- selected_pheno |>
 remove "days" and convert to numeric
 
 ```{r}
-selected_pheno <- selected_pheno |>
+shortened_pheno <- shortened_pheno |>
   mutate(age_days = as.numeric(gsub(" days", "", age_days)))
+```
+
+# Organize assay_df
+
+give gene column a header for pivoting
+
+```{r}
+assay_df <- assay_df |>
+  rownames_to_column(var = "gene")
+```
+
+# Join and Example Filter Function for single sample
+
+```{r}
+# reshape assay_df to long format
+assay_df_long <- assay_df |>
+  pivot_longer(
+    cols = -gene,
+    names_to = "ID",
+    values_to = "expression_value"
+  )
+
+# give "ID" column a header
+shortened_pheno <- shortened_pheno |>
+  rownames_to_column(var = "ID")
+
+# join assay long with shortened_pheno by ID
+combined_df <- assay_df_long |>
+  inner_join(shortened_pheno, by = "ID")
+
+# filter for a specific ID
+filtered_df <- combined_df |>
+  filter(ID == "GSM289915")
 ```
