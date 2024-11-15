@@ -1,0 +1,38 @@
+---
+title: "Data wrangling"
+format: html
+editor: visual
+---
+
+```{r}
+library("tidyverse")
+library(Biobase)
+library(GEOquery)
+```
+
+We use `Biobase` to extract the data of interest, as our data is formated as ExpressionSet.
+
+```{r}
+
+
+gset <- getGEO("GSE11512", GSEMatrix =TRUE, getGPL=FALSE)
+
+gset <- gset[[1]]
+
+#Extract expression data
+expr_data <- exprs(gset) |>
+  as_tibble(rownames = "gene")
+
+# Reshape expression dat
+expr_data_long <- expr_data |>
+  gather(sample, expression_value, -gene)
+
+expr_data_wide <- expr_data_long |>
+  spread(sample, gene)
+
+#Extract phenotype data
+pheno_data <- phenoData(gset) |>
+  pData() |>
+  as_tibble()
+
+```
