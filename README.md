@@ -1,1 +1,3 @@
-# group_07_project
+# Group 07 Project
+
+## Contributors 
