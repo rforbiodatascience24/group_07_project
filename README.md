@@ -1,21 +1,6 @@
-<<<<<<< HEAD
-# Group 07 Project
-
-## Contributors
-
-Anne Sofie Jokumsen
-
-Madeline Shah
-
-Sophia Cash: Student ID: s225099, Github User: Soph-DTU
-
-Bedri Burak Duraksoy
-
-Norbi Balint
-=======
 # Project Contributors
 s244028, Sjofski
-[student id], [GitHub username]
+s225099, Soph-DTU
 [student id], [GitHub username]
 [student id], [GitHub username]
 [student id], [GitHub username]
@@ -38,4 +23,7 @@ s244028, Sjofski
 - Visualize data, create plots, consider patchwork and The glamout of graphics (https://www.youtube.com/watch?v=h5cTacaWE6I)
 
 Currently the data are loaded and cleaned using the libraries "GEOquery" and "Biobase". We should consider looking into making our own script, based on Biobase.
->>>>>>> 901a49edb3850b7be45f7461c5a55158b3b63dd1
+
+
+# Paper analyzing data / similar data
+https://doi.org/10.1073/pnas.0900544106
