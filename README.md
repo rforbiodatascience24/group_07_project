@@ -1,9 +1,9 @@
 # Project Contributors
-s244028, Sjofski
-s225099, Soph-DTU
-[student id], [GitHub username]
-[student id], [GitHub username]
-[student id], [GitHub username]
+s244028 (Sjofski),
+s225099 (Soph-DTU),
+[student id] ([GitHub username]),
+[student id] ([GitHub username]),
+[student id] ([GitHub username])
 
 # To do, all
 - Add yourself at the top of this doc
