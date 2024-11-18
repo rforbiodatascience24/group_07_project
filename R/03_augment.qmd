@@ -1,1 +1,82 @@
+---
+title: "Augmented Data, organized"
+output: html
+execute:
+  echo: true
+---
 
+This script will handle the first part of the augmentation, namely, extracting the data of interest, editing naming and observation format, and joining our two data frames into one.
+
+For this, we will make use of `tidyverse` .
+
+```{r}
+#| output: false
+
+library("tidyverse")
+```
+
+For the expression data, we need to remove the '\_at' from the gene names. Also, all genes start with 'ENSG' followed by a number, where only the last 6 digits are unique for each gene, and thus we have chosen to remove 'ENS' the non-unique 0s for better readability.
+
+```{r}
+#| output: false
+
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the expr dataset
+expr_data <- read_tsv(file = file.path(processed_data_dir,
+                                         "02.1_dat_clean_expr.tsv"))
+
+# Apply above described augmentatitons
+expr_data_augment <- expr_data |>
+  rename_with(~ sub("00000", "", .), starts_with("ENSG")) |>
+  rename_with(~ gsub("ENS|_at", "", .), starts_with("ENSG"))
+```
+
+For the phenotype data, we extract the columns 'geo_accession', 'organism_ch1', 'age:ch1', 'sex:ch1.1', 'tissue:ch1.2' an rename the columns - in opposite order.
+
+```{r}
+#| output: false
+
+# Load the pheno dataset
+pheno_data <- read_tsv(file = file.path(processed_data_dir,
+                                         "02.2_dat_clean_pheno.tsv"))
+
+# extract above columns
+pheno_data_filter <- pheno_data |>
+  rename(sample = geo_accession,
+         organism = organism_ch1,
+         age = `age:ch1`,
+         sex = `sex:ch1`,
+         tissue = `tissue:ch1`) |>
+  select(sample, organism, age, sex, tissue)
+```
+
+We also change the observations of new 'Age' column to only contain number.
+
+```{r}
+#| output: false
+
+pheno_data_augment <- pheno_data_filter |>
+  mutate(age = gsub("\\D", "", age))
+```
+
+Finally, we join the two data frames by the shared column 'sample'.
+
+```{r}
+#| output: false
+
+pheno_expr_data_joined <- full_join(expr_data_augment,
+                                    pheno_data_augment,
+                                    by = "sample")
+```
+
+We finish by writing a new *03_dat_joined.tsv* file.
+
+```{r}
+#| output: false
+
+pheno_expr_data_joined |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "03_dat_joined.tsv"))
+```
