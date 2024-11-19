@@ -1,6 +1,7 @@
 ---
 title: "Load Data"
 output: html
+output-dir: results
 execute:
   echo: true
 ---

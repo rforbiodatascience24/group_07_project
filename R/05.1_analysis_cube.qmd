@@ -1,6 +1,7 @@
 ---
 title: "Variance explained analysis"
 output: html
+output-dir: results
 execute:
   echo: true
 ---
@@ -105,3 +106,4 @@ pheno_data_tidy |>
   write_tsv(file = file.path(processed_data_dir,
                                          "05.1_cube_analysis.tsv"))
 ```
+

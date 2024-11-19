@@ -1,6 +1,7 @@
 ---
 title: "Clean Data"
 output: html
+output-dir: results
 execute:
   echo: true
 ---
@@ -72,3 +73,4 @@ pheno_data_tidy |>
   write_tsv(file = file.path(processed_data_dir,
                              "02.2_dat_clean_pheno.tsv"))
 ```
+
