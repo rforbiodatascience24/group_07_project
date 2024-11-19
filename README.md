@@ -40,8 +40,6 @@ Mad (see below) -- Visualize PCA and gene expression over age
 Soph & Sof (see below )-- Visualze multiple regression and heterochronic expression test
 Soph & Sof - Presentation
 
-- Currently the data are loaded and cleaned using the libraries "GEOquery" and "Biobase". We should consider looking into making our own script, based on Biobase.
-
 -   Augment data, extract relevant attributes (there are two separate
     tibbles to do this on)
 -   Augment data, format attribute names and values (there are two
@@ -62,7 +60,7 @@ based on Biobase.
 
 # Paper analyzing data / similar data
 
-\_<https://doi.org/10.1073/pnas.0900544106_>
+\_<https://doi.org/10.1073/pnas.0900544106>
 
 findings from paper to display:
 
