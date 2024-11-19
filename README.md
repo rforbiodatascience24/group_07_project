@@ -3,7 +3,7 @@ s244028, Sjofski,
 
 s225099, Soph-DTU,
 
-[student id], [GitHub username],
+s241901, madelineshah4,
 
 [student id], [GitHub username],
 
