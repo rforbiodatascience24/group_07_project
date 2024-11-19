@@ -103,6 +103,7 @@ differential gene expression at differing developmental states
 "we find that the neotenic shift affects a limited group of genes
 expressed in the brain rather than the entire brain" conclusion based on
 fig 3 and appendices, comparing to earlier studies
+
 =======
 Mad - "age explains the largest part of the total expression variation at 29%, followed by species at 17% and sex at <2" - fig 1B
 
@@ -156,7 +157,7 @@ Plot 1, variance explained
 
 -   **NEED**: variance explained and expected variance explained
     (maybe?) in gene expression for age, species, and sex for each
-    species (will do separate bars for each of the 3 species)
+    species (will do separate bars for each of the 3 species) - created in 5.1 > cube regression done, calculating variance explained from R squared
 
 -   show that age explains the largest part of gene expression
 
