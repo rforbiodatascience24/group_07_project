@@ -47,7 +47,7 @@ The raw data consists of two subsets of data that contain the gene expressions a
 processed_data_dir <- file.path("..","data")
 
 # Write tsv file for expression data
-expr_data <- exprs(gset)  # Extract expression data
+expr_data <- exprs(gset)
 write.table(expr_data,
             file = file.path(processed_data_dir,
                              "01.1_dat_load_expr.tsv"),
@@ -57,7 +57,7 @@ write.table(expr_data,
             quote = FALSE)
 
 # Write tsv file for phenotype data
-pheno_data <- pData(phenoData(gset))  # Extract phenotype data
+pheno_data <- pData(phenoData(gset))
 write.table(pheno_data,
             file = file.path(processed_data_dir,
                              "01.2_dat_load_pheno.tsv"),
