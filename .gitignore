@@ -4,3 +4,4 @@
 .Ruserdata
 data/_raw/
 data/
+folder_name/*.R

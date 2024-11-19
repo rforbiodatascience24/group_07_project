@@ -20,8 +20,8 @@ Load data and perform initial cleaning and basic augmentation.
 #| output: false
 
 purl("01_load.qmd", output = "01_load.R")
-purl("02_clean.qmd", output = "01_load.R")
-purl("03_augment_joined.qmd", output = "01_load.R")
+purl("02_clean.qmd", output = "02_clean.R")
+purl("03_augment_joined.qmd", output = "03_augment_joined.R")
 
 source("01_load.R")
 source("02_clean.R")
