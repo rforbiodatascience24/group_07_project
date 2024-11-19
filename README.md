@@ -40,11 +40,11 @@ findings from paper to display:
 
 "delay is not uniform across the human transcriptome but affects a specific subset of genes that play a potential role in neural development"
 
-"age explains the largest part of the total expression variation at 29%, followed by species at 17% and sex at <2" - fig 1B
+Mad - "age explains the largest part of the total expression variation at 29%, followed by species at 17% and sex at <2" - fig 1B
 
-"71% of the 7,958 genes expressed in the human brain change significantly during postnatal development" fig 1C
+MAd - "71% of the 7,958 genes expressed in the human brain change significantly during postnatal development" fig 1C
 
-"among all genes that change during prefrontal cortex development, approximately half change with age differently in the 2 species" - fig 1D
+Mad - "among all genes that change during prefrontal cortex development, approximately half change with age differently in the 2 species" - fig 1D
 
 "we could confidently assign 299 to one of these 4 categories. Of these 299 genes, approximately the same proportions (15 to 25%) fall into categories ii, iii, and iv. In contrast, we find approximately twice as many genes (38%) in category i, human neotenic genes" fig 3A
 
