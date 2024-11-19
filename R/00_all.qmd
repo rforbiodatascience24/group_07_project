@@ -1,0 +1,29 @@
+---
+title: "Call all scripts"
+output: html
+execute:
+  echo: true
+---
+
+Load `quarto` library to render files. Load `knitr` to execute .qmd files as .R scripts.
+
+```{r}
+#| output: false
+
+library("quarto")
+library("knitr")
+```
+
+Load data and perform initial cleaning and basic augmentation.
+
+```{r}
+#| output: false
+
+purl("01_load.qmd", output = "01_load.R")
+purl("02_clean.qmd", output = "01_load.R")
+purl("03_augment_joined.qmd", output = "01_load.R")
+
+source("01_load.R")
+source("02_clean.R")
+source("03_augment_joined.R")
+```

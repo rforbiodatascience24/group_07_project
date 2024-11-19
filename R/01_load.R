@@ -1,24 +1,8 @@
----
-title: "Augmented Data, organized"
-output: html
-output-dir: results
-execute:
-  echo: true
----
-
-This script will handle the first part of the augmentation, namely, extracting the data of interest, editing naming and observation format, and joining our two data frames into one.
-
-For this, we will make use of `tidyverse` .
-
-```{r}
 #| output: false
 
 library("tidyverse")
-```
 
-For the expression data, we need to remove the '\_at' from the gene names. Also, all genes start with 'ENSG' followed by a number, where only the last 6 digits are unique for each gene, and thus we have chosen to remove 'ENS' the non-unique 0s for better readability.
 
-```{r}
 #| output: false
 
 # Set path for processed data directory
@@ -32,11 +16,8 @@ expr_data <- read_tsv(file = file.path(processed_data_dir,
 expr_data_augment <- expr_data |>
   rename_with(~ sub("00000", "", .), starts_with("ENSG")) |>
   rename_with(~ gsub("ENS|_at", "", .), starts_with("ENSG"))
-```
 
-For the phenotype data, we extract the columns 'geo_accession', 'organism_ch1', 'age:ch1', 'sex:ch1.1', 'tissue:ch1.2' an rename the columns - in opposite order.
 
-```{r}
 #| output: false
 
 # Load the pheno dataset
@@ -51,11 +32,8 @@ pheno_data_filter <- pheno_data |>
          sex = `sex:ch1`,
          tissue = `tissue:ch1`) |>
   select(sample, species, age, sex, tissue)
-```
 
-We also change the observations of new 'Age' column to only contain number, substitute Male and Female to M and F, and change the Latin name for the species.
 
-```{r}
 #| output: false
 
 pheno_data_augment <- pheno_data_filter |>
@@ -66,25 +44,18 @@ pheno_data_augment <- pheno_data_filter |>
          species = case_when(species == "Homo sapiens" ~ "Human",
                              species == "Pan troglodytes" ~ "Chimpanzee",
                              species == "Macaca mulatta" ~ "Macaque"))
-```
 
-Finally, we join the two data frames by the shared column 'sample'.
 
-```{r}
 #| output: false
 
 pheno_expr_data_joined <- full_join(pheno_data_augment,
                                     expr_data_augment,
                                     by = "sample")
-```
 
-We finish by writing a new *03_dat_joined.tsv* file.
 
-```{r}
 #| output: false
 
 pheno_expr_data_joined |>
   write_tsv(file = file.path(processed_data_dir,
                              "03_dat_joined.tsv"))
-```
 
