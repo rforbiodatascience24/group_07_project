@@ -121,20 +121,9 @@ Ontogenesis
 
 Multiple regression models
 
-Heterochronic expression
-
-Phyloontogenetic categories:
-
-(i) human neoteny–expression changes occurred on the human lineage, and
-    human expression corresponds to that in younger chimpanzees
-
-(ii) human acceleration–expression changes occurred on the human
-     lineage, and human expression corresponds to that in older
-     chimpanzees
-
-(iii) chimpanzee neoteny
-
-(iv) chimpanzee acceleration
+Heterochronic expression test - used to compare gene expression trajectories to to classify genes based on the relative timing of expression across species
+- neotony: species 1 expression curve fits better with a significant positive age shift when compared to species 2
+- acceleration: gene expression changes occur faster or earlier in species 1 compared to species 2
 
 # Madeline's Notes on Research Paper
 
