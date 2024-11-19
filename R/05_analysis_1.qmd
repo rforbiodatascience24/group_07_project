@@ -1,1 +1,35 @@
+---
+title: "Analysis 1"
+output: html
+execute:
+  echo: true
+---
 
+# Plot 1
+
+## Variance Explained in Gene Expression for Sex and Age for each Species
+
+```{r}
+
+```
+
+# Plot 2
+
+## Significant Differences cause by Age or Species Differences in Humans vs both Primates
+
+Plot species on bottom and bars for sex and age
+
+```{r}
+
+```
+
+# Plot 3
+
+## Percent Change in All Postnatal Expressions
+
+### Data Preparation
+
+```{r}
+
+
+```
