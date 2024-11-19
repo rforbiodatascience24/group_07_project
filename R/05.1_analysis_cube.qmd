@@ -1,0 +1,107 @@
+---
+title: "Variance explained analysis"
+output: html
+execute:
+  echo: true
+---
+
+For the first analysis, we determine the impact of the variables age and sex, using the variance explained from a cubic regression model referenced in the paper (https://doi.org/10.1073/pnas.0900544106). For this we use the packages `tidyverse` and `broom` .
+
+```{r}
+#| output: false
+
+library("tidyverse")
+library("broom")
+```
+
+We load the augmented joined data.
+
+```{r}
+#| output: false
+
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the dataset
+data <- read_tsv(file = file.path(processed_data_dir,
+                                         "03_dat_joined.tsv"))
+```
+
+```{r}
+#| output: false
+
+data_long <- data |>
+  pivot_longer(cols = starts_with("G"),
+               names_to = "gene")
+
+```
+
+```{r}
+#| output: false
+
+data_long_nested <- data_long |>
+  group_by(gene) |>
+  nest() |>
+  mutate(
+    # Fit cubic regression model for age
+    age_model = map(
+      .x = data,
+      .f = ~ lm(formula = value ~ poly((age / 365.24), 3),
+                data = .x)),
+    # Extract R-squared
+    age_r_squared = map(
+      .x = age_model,
+      .f = ~ tibble(r.squared = pluck(summary(.x), "r.squared"))),
+    # Fit linear regression model for species
+    species_model = map(
+      .x = data,
+      .f = ~ lm(formula = value ~ species, data = .x)),
+        # Extract R-squared
+    species_r_squared = map(
+      .x = species_model,
+      .f = ~ tibble(r.squared = pluck(summary(.x), "r.squared"))),
+    # Fit linear regression model for sex
+    sex_model = map(
+      .x = data,
+      .f = ~ lm(formula = value ~ sex, data = .x)),
+    # Extract R-squared
+    sex_r_squared = map(
+      .x = sex_model,
+      .f = ~ tibble(r.squared = pluck(summary(.x), "r.squared"))),
+    # Remove models
+    age_model = NULL,
+    species_model = NULL,
+    sex_model = NULL)
+    
+```
+
+```{r}
+#| output: false
+
+data_summary_cube <- data_long_nested |>
+  # Variance calculations performed row-wise
+  rowwise() |>
+  mutate(
+    total_r_squared = age_r_squared + species_r_squared + sex_r_squared,
+    age_variance_explained = age_r_squared / total_r_squared,
+    species_variance_explained = species_r_squared / total_r_squared,
+    sex_variance_explained = sex_r_squared / total_r_squared) |>
+  unnest(cols = data) |>
+  group_by(species) |>
+  dplyr::select(species,
+                gene,
+                age_variance_explained,
+                species_variance_explained,
+                sex_variance_explained) |>
+  distinct(species, gene, .keep_all = TRUE)
+
+```
+
+```{r}
+#| output: false
+
+# Write variance explained data to TSV file
+pheno_data_tidy |>
+  write_tsv(file = file.path(processed_data_dir,
+                                         "05.1_cube_analysis.tsv"))
+```
