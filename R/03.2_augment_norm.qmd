@@ -1,0 +1,20 @@
+---
+title: "Analysis 1"
+output: html
+execute:
+  echo: true
+---
+
+# Normalization of Age
+
+Age for all species will be normalized based on average life expectancy from birth found online from the following sources
+
+-   human: 26061 days (as of 2021) from [WHO](https://data.who.int/indicators/i/90E2E48)
+
+-   chimpanzee : 12008.5 days from [Research Paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC8364750/)
+
+-   macaque: 5475 days from [The Macaque Website](https://macaques.nc3rs.org.uk/about-macaques/life-history)
+
+```{r}
+
+```
