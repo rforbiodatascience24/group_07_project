@@ -18,7 +18,6 @@ s241901, madelineshah4,
 
 # To do, all
 
-<<<<<<< HEAD
 -   Add yourself at the top of this doc
 -   Check that all code commited follows
     <https://r4bds.github.io/code_styling.htmlllows>
@@ -43,7 +42,6 @@ Soph & Sof (see below )-- Visualze multiple regression and heterochronic express
 Soph & Sof - Presentation
 
 - Currently the data are loaded and cleaned using the libraries "GEOquery" and "Biobase". We should consider looking into making our own script, based on Biobase.
->>>>>>> aa951cc4f0f589a7941f42bbf6e95cd15c6e1f37
 
 -   Augment data, extract relevant attributes (there are two separate
     tibbles to do this on)
@@ -79,7 +77,6 @@ other primates"
 specific subset of genes that play a potential role in neural
 development"
 
-<<<<<<< HEAD
 "age explains the largest part of the total expression variation at 29%,
 followed by species at 17% and sex at \<2" - fig 1B
 
@@ -117,7 +114,6 @@ Mad - "among all genes that change during prefrontal cortex development, approxi
 Soph & Soph - "we could confidently assign 299 to one of these 4 categories. Of these 299 genes, approximately the same proportions (15 to 25%) fall into categories ii, iii, and iv. In contrast, we find approximately twice as many genes (38%) in category i, human neotenic genes" fig 3A
 
 Soph & Sof - "our test detects a substantial delay in postnatal development of the prefrontal cortex compared with the caudate nucleus on the gene expression level" - appendix, possible side figure related to timing of differential gene expression at differing developmental states
->>>>>>> aa951cc4f0f589a7941f42bbf6e95cd15c6e1f37
 
 # Good to know terms
 
@@ -128,7 +124,6 @@ Ontogenesis
 Multiple regression models
 
 Heterochronic expression
-<<<<<<< HEAD
 
 Phyloontogenetic categories:
 
@@ -204,4 +199,3 @@ Plot 3, change in postnatal expression
 -   for age, add an average (find online) sexual maturity line for each
     species
 =======
->>>>>>> aa951cc4f0f589a7941f42bbf6e95cd15c6e1f37
