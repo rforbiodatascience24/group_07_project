@@ -30,7 +30,6 @@ s241901, madelineshah4,
 
 # To do, to be divided - maybe into different analyses?
 =======
-# To do, to be divided - maybe into different analyses?
 - [v] Augment data, extract relevant attributes (there are two separate tibbles to do this on)
 - [v] Augment data, format attribute names and values (there are two separate tibbles to do this on)
 - [v] Augment data, join data into one tibble
