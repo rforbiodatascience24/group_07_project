@@ -45,20 +45,25 @@ pheno_data <- read_tsv(file = file.path(processed_data_dir,
 # extract above columns
 pheno_data_filter <- pheno_data |>
   rename(sample = geo_accession,
-         organism = organism_ch1,
+         species = organism_ch1,
          age = `age:ch1`,
          sex = `sex:ch1`,
          tissue = `tissue:ch1`) |>
-  select(sample, organism, age, sex, tissue)
+  select(sample, species, age, sex, tissue)
 ```
 
-We also change the observations of new 'Age' column to only contain number.
+We also change the observations of new 'Age' column to only contain number, substitute Male and Female to M and F, and change the Latin name for the species.
 
 ```{r}
 #| output: false
 
 pheno_data_augment <- pheno_data_filter |>
-  mutate(age = gsub("\\D", "", age))
+  mutate(age = gsub("\\D", "", age),
+         sex = case_when(sex == "Female" ~ "F",
+                         sex == "Male" ~ "M"),
+         species = case_when(species == "Homo sapiens" ~ "Human",
+                             species == "Pan troglodytes" ~ "Chimpanzee",
+                             species == "Macaca mulatta" ~ "Macaque"))
 ```
 
 Finally, we join the two data frames by the shared column 'sample'.
@@ -66,8 +71,8 @@ Finally, we join the two data frames by the shared column 'sample'.
 ```{r}
 #| output: false
 
-pheno_expr_data_joined <- full_join(expr_data_augment,
-                                    pheno_data_augment,
+pheno_expr_data_joined <- full_join(pheno_data_augment,
+                                    expr_data_augment,
                                     by = "sample")
 ```
 
