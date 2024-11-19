@@ -163,6 +163,7 @@ Plot 1, variance explained
 
 Plot 2, significant human gene change
 
+- multiple regression used for fig 1c done by norbert
 -   **NEED**: yes or no significant change based on age (Age +/-) and
     yes or no significant change based on species (Sp +/-) count
 
