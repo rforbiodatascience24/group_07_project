@@ -1,0 +1,110 @@
+---
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+# Load Libraries
+
+```{r}
+library(GEOquery)
+library(tidyverse)
+```
+
+# Load series and platform data from GEO
+
+```{r}
+data <- getGEO("GSE11512", 
+               GSEMatrix =TRUE, 
+               getGPL=FALSE)
+expr_set <- data[[1]] 
+```
+
+# Access and Clean Data
+
+## Access pheno data
+
+No NA values detected
+
+```{r}
+pheno_data <- phenoData(expr_set)
+pheno_df <- pheno_data@data
+```
+
+## Access assay data
+
+No NA values detected. values are "Quantile normalized log2-transformed
+signal intensities"
+
+```{r}
+assay_df <- exprs(expr_set)
+assay_df <- as.data.frame(assay_df)
+```
+
+## Organize pheno_data
+
+### select necessary attributes
+
+species, sex, and age
+
+```{r}
+shortened_pheno <- pheno_df |>
+  select(species = organism_ch1,
+         age_days = "age:ch1",
+         sex = "sex:ch1")
+```
+
+### encode species, sex
+
+Species can be human, chimpanzee, or macaque Sex can be M or F
+
+```{r}
+shortened_pheno <- shortened_pheno |>
+  mutate(
+    sex = ifelse(sex == "Male", "M", "F"),
+    species = ifelse(species == "Homo sapiens", "Human", 
+                     ifelse(species == "Pan troglodytes", "Chimpanzee", "Macaque"))
+  )
+```
+
+### tidy age
+
+remove "days" and convert to numeric
+
+```{r}
+shortened_pheno <- shortened_pheno |>
+  mutate(age_days = as.numeric(gsub(" days", "", age_days)))
+```
+
+# Organize assay_df
+
+give gene column a header for pivoting
+
+```{r}
+assay_df <- assay_df |>
+  rownames_to_column(var = "gene")
+```
+
+# Join and Example Filter Function for single sample
+
+```{r}
+# reshape assay_df to long format
+assay_df_long <- assay_df |>
+  pivot_longer(
+    cols = -gene,
+    names_to = "ID",
+    values_to = "expression_value"
+  )
+
+# give "ID" column a header
+shortened_pheno <- shortened_pheno |>
+  rownames_to_column(var = "ID")
+
+# join assay long with shortened_pheno by ID
+combined_df <- assay_df_long |>
+  inner_join(shortened_pheno, by = "ID")
+
+# filter for a specific ID
+filtered_df <- combined_df |>
+  filter(ID == "GSM289915")
+```
