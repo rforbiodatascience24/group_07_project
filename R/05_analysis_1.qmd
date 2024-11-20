@@ -5,6 +5,18 @@ execute:
   echo: true
 ---
 
+# Load Libraries
+
+In the first analysis we will ...TODO... To do this we will download the `tidyverse` package to use `dplyr`, `tidyr`, and `ggplot2`.
+
+```{r}
+#| output: false
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
 # Plot 1
 
 ## Variance Explained in Gene Expression for Sex and Age for each Species
@@ -29,7 +41,60 @@ Plot species on bottom and bars for sex and age
 
 ### Data Preparation
 
+First we will reshape the normalized (by age) data to long format.
+
 ```{r}
+normalized_joined_long <- normalized_joined |>
+  pivot_longer(cols = starts_with("G"), 
+               names_to = "gene", 
+               values_to = "expression") |>
+  group_by(species, gene) |>
+  mutate(min_age = min(normalized_age),
+         percent_change = abs((expression - expression[normalized_age == min_age]) / expression[normalized_age == min_age] * 100)) |>
+  ungroup()
+```
 
+Then the percent change in gene expression relative to the the youngest observation in a given species for each gene.
 
+```{r}
+average_change <- normalized_joined_long |>
+  group_by(species, sample, normalized_age) |>
+  summarise(avg_percent_change = mean(percent_change)) |>
+  ungroup()
+```
+
+### Plot Creation
+
+The plot will display the percent change in all genes since the youngest observation. The age (x-axis) is normalized, where 1 is the average life expectancy of each species. Values closer to 0 represent the youngest observations.
+
+A sexual maturity line will be added for each of the given ages:
+
+-   Human: 5931.25 days from [Human Development: A Life-Span View](https://books.google.dk/books?id=E-n5E7oyCgoC&pg=PA296&redir_esc=y)
+
+-   Chimpanzee: 2555 days from [WWF](https://wwf.panda.org/discover/knowledge_hub/endangered_species/great_apes/chimpanzees/#:~:text=Although%20chimpanzees%20reach%20sexual%20maturity,until%20they%20are%20over%2060.)
+
+-   Macaque: 1788.5 days from [NIH](https://pmc.ncbi.nlm.nih.gov/articles/PMC10092073/#:~:text=Cynomolgus%20macaque%20sexual%20maturation%20is,for%20CMs%20based%20on%20different)
+
+To calculate where the line should go on the normalized age scale, the values are normalized using the average life expectancy. The normalized sexual maturity ages are as follows:
+
+-   Human: 0.2276
+
+-   Chimpanzee: 0.2125
+
+-   Macaque: 0.3264
+
+"(*D*) The percentage of global expression change relative to newborns. One-hundred percent change was designated as the difference between the youngest and oldest individuals (in humans or chimpanzees) in terms of the summary measure of global expression (see *Materials and Methods*). Each point represents an individual."
+
+```{r}
+ggplot(average_change, aes(x = normalized_age, y = avg_percent_change, color = species)) +
+  geom_point() +
+  labs(title = "Percent Change in all Postnatal Expression by Normalized Age",
+       x = "Normalized Age", 
+       y = "Average % Change in Gene Expression", 
+       color = "Species") +
+  theme_minimal() +
+  scale_color_manual(values = c("Human" = "maroon2", "Chimpanzee" = "blue2", "Macaque" = "chartreuse4")) +
+  geom_vline(xintercept = 0.2276, linetype = "dashed", color = "maroon2", size = 1) +  # Human
+  geom_vline(xintercept = 0.2125, linetype = "dashed", color = "blue2", size = 1) +    # Chimpanzee
+  geom_vline(xintercept = 0.3264, linetype = "dashed", color = "chartreuse4", size = 1)
 ```

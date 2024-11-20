@@ -7,7 +7,7 @@ execute:
 
 # Normalization of Age
 
-Age for all species will be normalized based on average life expectancy from birth found online from the following sources
+A new dataframe named normalized_joined will be created. Normalized age values will be added to a new column named normalized_age, moved to the front of the dataframe, and rounded to 4 decimal places. Age for all species will be normalized based on average life expectancy from birth found online from the following sources.
 
 -   human: 26061 days (as of 2021) from [WHO](https://data.who.int/indicators/i/90E2E48)
 
@@ -16,5 +16,11 @@ Age for all species will be normalized based on average life expectancy from bir
 -   macaque: 5475 days from [The Macaque Website](https://macaques.nc3rs.org.uk/about-macaques/life-history)
 
 ```{r}
-
+normalized_joined <- pheno_expr_data_joined |>
+  mutate(normalized_age = case_when(
+    species == "Human" ~ round(age / 26061, 4),
+    species == "Chimpanzee" ~ round(age / 12008.5, 4),
+    species == "Macaque" ~ round(age / 5475, 4)
+  )) |>
+  select(normalized_age, everything(), -age)
 ```
