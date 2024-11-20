@@ -1,22 +1,8 @@
----
-title: "Clean Data"
-output: html
-output-dir: results
-execute:
-  echo: true
----
-
-Load `tidyverse` library for tidying and cleaning data (<https://tidyverse.tidyverse.org/>).
-
-```{r}
 #| output: false
 
 library("tidyverse")
-```
 
-Create tibble of `pheno_data` and `expr_data`. Tidy `expr_data` into a wide data set with `gene` as columns.
 
-```{r}
 #| output: false
 
 # Set path for processed data directory
@@ -56,11 +42,8 @@ pheno_data <- read.table(file = file.path(processed_data_dir,
 # Tidy phenotype data
 pheno_data_tidy <- pheno_data |>
   as_tibble()
-```
 
-Write into each their *dat_clean.tsv* file.
 
-```{r}
 #| output: false
 
 # Write cleaned expression data to TSV file
@@ -72,5 +55,4 @@ expr_data_tidy_wide |>
 pheno_data_tidy |>
   write_tsv(file = file.path(processed_data_dir,
                              "02.2_dat_clean_pheno.tsv"))
-```
 

@@ -1,33 +1,16 @@
----
-title: "Load Data"
-output: html
-output-dir: results
-execute:
-  echo: true
----
-
-Load `GEOquery` library, which is used to retrieve datasets from NCBI's Gene Expression Omnibus(<https://www.bioconductor.org/packages//2.10/bioc/html/GEOquery.html>). Also load `Biobase`, explained further down, and `tidyverse`.
-
-```{r}
 #| output: false
 
 library("GEOquery")
 library("Biobase")
 library("tidyverse")
-```
 
-Fetch data set *GSE11512* and extract first argument acording to the GEO data set structure.
 
-```{r}
 #| output: false
 
 gset <- getGEO("GSE11512", GSEMatrix = TRUE, getGPL = FALSE) |>
   pluck(1)
-```
 
-Save the data set as an .RDS file in *\_raw.*
 
-```{r}
 #| output: false
 
 # Set path for raw data directory and check if exists
@@ -37,11 +20,8 @@ if (!dir.exists(raw_data_dir)) {
   message("Created directory: ", raw_data_dir)}
 
 saveRDS(gset, file = file.path(raw_data_dir, "GSE11512.RDS"))
-```
 
-The raw data consists of two subsets of data that contain the gene expressions and phenotypes of subjects. These are loaded into each their *dat_load.tsv* file. We use `Biobase` to extract the data of interest, as our data is formated as an 'ExpressionSet' (<https://www.bioconductor.org/packages//2.10/bioc/html/Biobase.html>).
 
-```{r}
 #| output: false
 
 # Set path for processed data directory
@@ -66,4 +46,4 @@ write.table(pheno_data,
             row.names = TRUE,
             col.names = NA,
             quote = TRUE)
-```
+
