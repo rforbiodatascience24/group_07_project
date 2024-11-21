@@ -4,4 +4,5 @@
 .Ruserdata
 data/_raw/
 data/
-folder_name/*.R
+R/*.R
+!R/99_proj_func.R

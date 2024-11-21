@@ -47,7 +47,7 @@ data_long_nested <- data_long |>
     # Fit cubic regression model for age
     age_model = map(
       .x = data,
-      .f = ~ lm(formula = value ~ poly((age / 365.24), 3),
+      .f = ~ lm(formula = value ~ poly(age, 3),
                 data = .x)),
     # Extract R-squared
     age_r_squared = map(
@@ -106,4 +106,3 @@ pheno_data_tidy |>
   write_tsv(file = file.path(processed_data_dir,
                                          "05.1_cube_analysis.tsv"))
 ```
-
