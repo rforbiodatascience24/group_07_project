@@ -50,7 +50,7 @@ pheno_data_filter <- pheno_data |>
          age = `age:ch1`,
          sex = `sex:ch1`,
          tissue = `tissue:ch1`) |>
-  select(sample, species, age, sex, tissue)
+  dplyr::select(sample, species, age, sex, tissue)
 ```
 
 We also change the observations of new 'Age' column to only contain number, substitute Male and Female to M and F, and change the Latin name for the species.

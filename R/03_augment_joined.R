@@ -31,7 +31,7 @@ pheno_data_filter <- pheno_data |>
          age = `age:ch1`,
          sex = `sex:ch1`,
          tissue = `tissue:ch1`) |>
-  select(sample, species, age, sex, tissue)
+  dplyr::select(sample, species, age, sex, tissue)
 
 
 #| output: false
