@@ -35,7 +35,7 @@ s241901, madelineshah4,
 - [v] Augment data, join data into one tibble
 Norb -- Augment data, nest tibble to prepare for multiple regression, extract variables, unnest tibble
 Bad -- Augment data, nest tibble to prepare for heterochronic expression test, extract variables, unnest tibble
-Sof -- PCA
+- [v] PCA
 Mad (see below) -- Visualize PCA and gene expression over age
 Soph & Sof (see below )-- Visualze multiple regression and heterochronic expression test
 Soph & Sof - Presentation
