@@ -31,14 +31,14 @@ pheno_data_filter <- pheno_data |>
          age = `age:ch1`,
          sex = `sex:ch1`,
          tissue = `tissue:ch1`) |>
-  select(sample, species, age, sex, tissue)
+  dplyr::select(sample, species, age, sex, tissue)
 
 
 #| output: false
 
 pheno_data_augment <- pheno_data_filter |>
   mutate(age = gsub("\\D", "", age) |>
-           parse_number(),
+           parse_number() / 365.24,
          sex = case_when(sex == "Female" ~ "F",
                          sex == "Male" ~ "M"),
          species = case_when(species == "Homo sapiens" ~ "Human",

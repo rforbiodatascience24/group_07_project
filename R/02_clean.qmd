@@ -73,4 +73,3 @@ pheno_data_tidy |>
   write_tsv(file = file.path(processed_data_dir,
                              "02.2_dat_clean_pheno.tsv"))
 ```
-

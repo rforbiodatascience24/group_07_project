@@ -1,0 +1,250 @@
+---
+title: "Cube Regression Analysis"
+output: html
+output-dir: results
+execute:
+  echo: true
+---
+
+For this analysis, we follow the description found in the appendix of *Somel et al*. Herein it it described how the global gene expression is calculated using the `MASS` package. As this package contains a separate `select()` function, we use `dplyr::select()` for the `select()` function of the `dplyr` package,
+
+```{r}
+#| output: false
+
+library("tidyverse")
+library("broom")
+library("MASS")
+```
+
+We load the data set.
+
+```{r}
+#| output: false
+
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the dataset
+data <- read_tsv(file = file.path(processed_data_dir,
+                                         "03_dat_joined.tsv"))
+```
+
+We start by fitting a polynomial (cubic) regression model to each gene and species, calculating the `r_squared` and `p_value` using ANOVA test. As described by the appendix age is usually log transformed for this type of analysis.
+
+```{r}
+#| output: false
+
+# Create long data frame
+data_cube <- data |>
+  pivot_longer(
+    cols = starts_with("G"),
+    names_to = "gene",
+    values_to = "expression"
+  ) |>
+  mutate(log_age = log2(age + 1)) |>
+  group_by(gene, species) |>
+  nest()
+
+# Perform cubic regression and ANOVA analysis
+data_cube_reg <- data_cube |>
+  mutate(
+    cubic_model = map(data,
+                      ~ lm(expression ~ poly(log_age, 3),
+                          data = .)),
+    r_squared = map_dbl(cubic_model, ~ summary(.) |>
+                          pluck("r.squared")),
+    p_value = map_dbl(cubic_model, ~ anova(.) |>
+                        tidy() |> 
+                        filter(term == "poly(log_age, 3)") |> 
+                        pull(p.value)))
+```
+
+We also want to extract the coefficients from the cube regression models for future analyses.
+
+```{r}
+#| output: false
+
+data_cube_coef <- data_cube_reg |>
+  mutate(coefficients = map(.x = cubic_model,
+                            ~ tidy(.x))) |>
+  mutate(intercept = map_dbl(coefficients,
+                             ~filter(.,
+                                     term == "(Intercept)") |>
+                               pull(estimate)),
+         poly1 = map_dbl(coefficients,
+                         ~filter(.,
+                                 term == "poly(log_age, 3)1") |>
+                           pull(estimate)),
+         poly2 = map_dbl(coefficients,
+                         ~filter(.,
+                                 term == "poly(log_age, 3)2") |>
+                           pull(estimate)),
+         poly3 = map_dbl(coefficients,
+                         ~filter(., term == "poly(log_age, 3)3") |>
+                           pull(estimate))) |>
+  dplyr::select(-cubic_model,
+                -coefficients,
+                -data) |>
+  distinct() |>
+  ungroup()
+
+```
+
+We then identify genes displaying a significant change in expression level and filter them from our original dataset.
+
+```{r}
+#| output: false
+
+# Identify significant genes
+significant_genes <- data_cube_reg |> 
+  filter(p_value < 0.05 &
+           r_squared > 0.2) |> 
+  pull(gene) |> 
+  unique()
+
+# Extract genes
+significant_data <- data_cube |> 
+  filter(gene %in% significant_genes) |> 
+  unnest(cols = c(data)) |>
+  ungroup() |>
+  pivot_wider(names_from = gene,
+              values_from = expression)
+
+```
+
+To obtain a one-dimensional summary measure of expression variation, we calculate the matrix of Euclidean distances among the samples.
+
+```{r}
+#| output: false
+
+dist_matrix <- significant_data |>
+  dplyr::select(-species, -age, -log_age, -sample) |>
+  dist() |>
+  as.matrix()
+```
+
+We then apply monotonic regression to collapse the distance into a single dimension.
+
+```{r}
+#| output: false
+
+# Apply monotonic regression
+mds_result <- isoMDS(dist_matrix,
+                     k = 1)
+
+# Add result to data
+significant_data <- significant_data |> 
+  mutate(global_expression = mds_result |>
+           pluck("points") |>
+           as.numeric())
+```
+
+Next, we calculate the percent change in global expression, with 0% and 100% being equal to the expression levels for the youngest and the oldest sample, respectively.
+
+```{r}
+#| output: false
+
+scaled_data <- significant_data |> 
+  group_by(species) |> 
+  mutate(
+    min_global = filter(cur_data(),
+                        age == min(age)) |>
+      pull(global_expression),
+    max_global = filter(cur_data(),
+                        age == max(age)) |>
+      pull(global_expression),
+    percent_global =
+      (global_expression - min_global) / c(max_global - min_global) * 100) |>
+  ungroup()
+```
+
+Finally, the global gene expression for each sample is plotted, color-coded by species.
+
+A sexual maturity line is added for each of the given ages:
+
+-   Human: 16.2 years from [Human Development: A Life-Span View](https://books.google.dk/books?id=E-n5E7oyCgoC&pg=PA296&redir_esc=y)
+
+-   Chimpanzee: 7 years days from [WWF](https://wwf.panda.org/discover/knowledge_hub/endangered_species/great_apes/chimpanzees/#:~:text=Although%20chimpanzees%20reach%20sexual%20maturity,until%20they%20are%20over%2060.)
+
+-   Macaque: 4.9 years days from [NIH](https://pmc.ncbi.nlm.nih.gov/articles/PMC10092073/#:~:text=Cynomolgus%20macaque%20sexual%20maturation%20is,for%20CMs%20based%20on%20different)
+
+```{r}
+plot_global_expression <- scaled_data |> 
+  ggplot(map = aes(x = age,
+                   y = percent_global,
+                   color = species)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm",
+              formula = y ~ log2(x+1),
+              se = FALSE) +
+  geom_vline(xintercept = 16.2,
+             linetype = "dashed",
+             color = "maroon2", size = 0.5) +  # Human
+  geom_vline(xintercept = 7,
+             linetype = "dashed",
+             color = "blue2", size = 0.5) +    # Chimpanzee
+  geom_vline(xintercept = 4.9,
+             linetype = "dashed",
+             color = "chartreuse4",
+             size = 0.5) +                    # Macaque
+  labs(
+    title = "Global Expression Trajectories (Percentage of Variation)",
+    x = "Age (Years)",
+    y = "Global Expression (%)") +
+  scale_x_continuous(limits = c(0, 50)) +
+  scale_y_continuous(limits = c(0, 100)) +
+  theme_minimal() +
+  theme_minimal() +
+  scale_color_manual(values = c("Human" = "maroon2",
+                                "Chimpanzee" = "blue2",
+                                "Macaque" = "chartreuse4"))
+
+plot_global_expression
+```
+
+Plot looking closer at the Macaque age span.
+
+```{r}
+plot_global_expression_mac <- scaled_data |> 
+  ggplot(map = aes(x = age,
+                   y = percent_global,
+                   color = species)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm",
+              formula = y ~ log2(x+1),
+              se = FALSE) +
+  geom_vline(xintercept = 16.2,
+             linetype = "dashed",
+             color = "maroon2", size = 0.5) +  # Human
+  geom_vline(xintercept = 7,
+             linetype = "dashed",
+             color = "blue2", size = 0.5) +    # Chimpanzee
+  geom_vline(xintercept = 4.9,
+             linetype = "dashed",
+             color = "chartreuse4",
+             size = 0.5) +                    # Macaque
+  labs(
+    title = "Global Expression Trajectories (Percentage of Variation)",
+    x = "Age (Years)",
+    y = "Global Expression (%)") +
+  scale_x_continuous(limits = c(0, 20)) +
+  scale_y_continuous(limits = c(0, 100)) +
+  theme_minimal() +
+  scale_color_manual(values = c("Human" = "maroon2",
+                                "Chimpanzee" = "blue2",
+                                "Macaque" = "chartreuse4"))
+
+plot_global_expression_mac
+```
+
+We finish by writing our data sets to tsv files.
+
+```{r}
+#| output: false
+
+scaled_data |> write_tsv(file = file.path(processed_data_dir,
+                                          "05.2.1_dat_global_expr.tsv"))
+
+data_cube_coef |> write_tsv(file = file.path(processed_data_dir,
+                                             "05.2.2_dat_cube.tsv"))
+```
