@@ -35,12 +35,10 @@ s241901, madelineshah4,
 - [v] Augment data, join data into one tibble
 Norb -- Augment data, nest tibble to prepare for multiple regression, extract variables, unnest tibble
 Bad -- Augment data, nest tibble to prepare for heterochronic expression test, extract variables, unnest tibble
-Sof -- PCA
+- [v] PCA
 Mad (see below) -- Visualize PCA and gene expression over age
 Soph & Sof (see below )-- Visualze multiple regression and heterochronic expression test
 Soph & Sof - Presentation
-
-- Currently the data are loaded and cleaned using the libraries "GEOquery" and "Biobase". We should consider looking into making our own script, based on Biobase.
 
 -   Augment data, extract relevant attributes (there are two separate
     tibbles to do this on)
@@ -62,7 +60,7 @@ based on Biobase.
 
 # Paper analyzing data / similar data
 
-\_<https://doi.org/10.1073/pnas.0900544106_>
+\_<https://doi.org/10.1073/pnas.0900544106>
 
 findings from paper to display:
 
@@ -103,6 +101,7 @@ differential gene expression at differing developmental states
 "we find that the neotenic shift affects a limited group of genes
 expressed in the brain rather than the entire brain" conclusion based on
 fig 3 and appendices, comparing to earlier studies
+
 =======
 Mad - "age explains the largest part of the total expression variation at 29%, followed by species at 17% and sex at <2" - fig 1B
 
@@ -122,20 +121,9 @@ Ontogenesis
 
 Multiple regression models
 
-Heterochronic expression
-
-Phyloontogenetic categories:
-
-(i) human neoteny–expression changes occurred on the human lineage, and
-    human expression corresponds to that in younger chimpanzees
-
-(ii) human acceleration–expression changes occurred on the human
-     lineage, and human expression corresponds to that in older
-     chimpanzees
-
-(iii) chimpanzee neoteny
-
-(iv) chimpanzee acceleration
+Heterochronic expression test - used to compare gene expression trajectories to to classify genes based on the relative timing of expression across species
+- neotony: species 1 expression curve fits better with a significant positive age shift when compared to species 2
+- acceleration: gene expression changes occur faster or earlier in species 1 compared to species 2
 
 # Madeline's Notes on Research Paper
 
@@ -156,7 +144,7 @@ Plot 1, variance explained
 
 -   **NEED**: variance explained and expected variance explained
     (maybe?) in gene expression for age, species, and sex for each
-    species (will do separate bars for each of the 3 species)
+    species (will do separate bars for each of the 3 species) - created in 5.1 > cube regression done, calculating variance explained from R squared
 
 -   show that age explains the largest part of gene expression
 
@@ -164,6 +152,7 @@ Plot 1, variance explained
 
 Plot 2, significant human gene change
 
+- multiple regression used for fig 1c done by norbert
 -   **NEED**: yes or no significant change based on age (Age +/-) and
     yes or no significant change based on species (Sp +/-) count
 
