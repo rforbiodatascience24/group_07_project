@@ -15,6 +15,20 @@ In the first analysis we will ...TODO... To do this we will download the `tidyve
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(broom)
+```
+
+First we will reshape the normalized (by age) data to long format for plotting use.
+
+```{r}
+normalized_joined_long <- normalized_joined |>
+  pivot_longer(cols = starts_with("G"), 
+               names_to = "gene", 
+               values_to = "expression") |>
+  group_by(species, gene) |>
+  mutate(min_age = min(normalized_age),
+         percent_change = abs((expression - expression[normalized_age == min_age]) / expression[normalized_age == min_age] * 100)) |>
+  ungroup()
 ```
 
 # Plot 1
@@ -29,10 +43,89 @@ library(ggplot2)
 
 ## Significant Differences cause by Age or Species Differences in Humans vs both Primates
 
-Plot species on bottom and bars for sex and age
+Assess significant expression change due to normalized age. 0.05 threshold using LM
 
 ```{r}
+significance <- normalized_joined_long |>
+  group_by(gene) |>
+  summarize(
+    model = list(lm(expression ~ normalized_age)),
+    .groups = "drop"
+  ) |>
+  mutate(
+    tidy_model = map(model, tidy)
+  ) |>
+  unnest(tidy_model) |>
+  filter(term == "normalized_age") |>
+  select(gene, p_value = p.value) |>
+  mutate(
+    q_value = p.adjust(p_value, method = "fdr"),
+    sig_age = ifelse(q_value < 0.10, 1, 0) # 10% FDR as used in report
+  
+  )
 
+normalized_joined_long <- normalized_joined_long |>
+  left_join(significance |> select(gene, sig_age), by = "gene")
+```
+
+Significance tests for expression change due to species using 0.05 threshold in ANOVA.
+
+```{r}
+significance <- normalized_joined_long |>
+  group_by(gene) |>
+  summarize(
+    model = list(aov(expression ~ species)),
+    .groups = "drop"
+  ) |>
+  mutate(
+    tidy_model = map(model, tidy)
+  ) |>
+  unnest(tidy_model) |>
+  filter(term == "species") |>
+  select(gene, p_value = p.value) |>
+  mutate(
+    q_value = p.adjust(p_value, method = "fdr"),
+    sig_sp = ifelse(q_value < 0.10, 1, 0) # 10% FDR as used in report
+  )
+
+normalized_joined_long <- normalized_joined_long |>
+  left_join(significance |> select(gene, sig_sp), by = "gene")
+```
+
+Pie chart showing counts for significance
+
+```{r}
+donut_data <- normalized_joined_long |>
+  mutate(
+    category = case_when(
+      sig_age == 1 & sig_sp == 1 ~ "Significant Age & Species",
+      sig_age == 0 & sig_sp == 1 ~ "Non-significant Age, Significant Species",
+      sig_age == 0 & sig_sp == 0 ~ "Non-significant Age & Species",
+      sig_age == 1 & sig_sp == 0 ~ "Significant Age, Non-significant Species"
+    )
+  ) |>
+  count(category) |>
+  mutate(percentage = n / sum(n) * 100)
+    
+ggplot(donut_data, 
+       aes(x = 2, 
+           y = n, 
+           fill = category)) +
+  geom_bar(stat = "identity", 
+           width = 1, 
+           color = "white") +
+  coord_polar(theta = "y") +
+  theme_void() +
+  xlim(0.5, 2.5) +  #donut hole size
+  geom_text(aes(
+    y = cumsum(n) - n / 2, # position percentages
+    label = paste0(round(percentage, 1), "%")
+  ), color = "white", 
+  size = 4) +
+  labs(fill = "Attribute Significance", 
+       title = "Significant Change in Gene Expression by Age or Species",
+       subtitle = "Significance level = 0.05") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 # Plot 3
@@ -41,20 +134,7 @@ Plot species on bottom and bars for sex and age
 
 ### Data Preparation
 
-First we will reshape the normalized (by age) data to long format.
-
-```{r}
-normalized_joined_long <- normalized_joined |>
-  pivot_longer(cols = starts_with("G"), 
-               names_to = "gene", 
-               values_to = "expression") |>
-  group_by(species, gene) |>
-  mutate(min_age = min(normalized_age),
-         percent_change = abs((expression - expression[normalized_age == min_age]) / expression[normalized_age == min_age] * 100)) |>
-  ungroup()
-```
-
-Then the percent change in gene expression relative to the the youngest observation in a given species for each gene.
+FInd the percent change in gene expression relative to the the youngest observation in a given species for each gene.
 
 ```{r}
 average_change <- normalized_joined_long |>
