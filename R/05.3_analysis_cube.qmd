@@ -41,7 +41,7 @@ data_cube <- data |>
     names_to = "gene",
     values_to = "expression"
   ) |>
-  mutate(log_age = log2(age + 1)) |>
+  mutate(log_age = log2(age + 1.1)) |>
   group_by(gene, species) |>
   nest()
 
@@ -82,9 +82,12 @@ data_cube_coef <- data_cube_reg |>
          poly3 = map_dbl(coefficients,
                          ~filter(., term == "poly(log_age, 3)3") |>
                            pull(estimate))) |>
+  unnest(cols = c(data)) |>
   dplyr::select(-cubic_model,
                 -coefficients,
-                -data) |>
+                -sample,
+                -sex,
+                -expression) |>
   distinct() |>
   ungroup()
 
