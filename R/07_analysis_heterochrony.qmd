@@ -1,0 +1,122 @@
+---
+title: "Heterochrony expression test"
+output: html
+output-dir: results
+execute:
+  echo: true
+---
+
+```{r}
+#| output: false
+
+library("tidyverse")
+library("broom")
+
+source("99_proj_func.R")
+```
+
+Age normalized, significant expression changes, modeld gene expression trajectories.
+
+```{r}
+#| output: false
+
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load cube analyzed dataset
+data_cube <- read_tsv(file = file.path(processed_data_dir,
+                                      "06.2_dat_cube.tsv"))
+```
+
+```{r}
+class_model <- function(data_frame){
+  classification <- data_frame |>
+    mutate(class = case_when(
+      p_value < 0.5 ~ case_when(
+        age_shift > 0 ~ "Neogenic",
+        age_shift < 0 ~ "Accelerated",
+        TRUE ~ "Unclassified"),
+      TRUE ~ "Unclassified"))
+  
+  neogenic <- classification |>
+    filter(class == "Neogenic") |>
+    pull(gene)
+  
+  accelerated <- classification |>
+    filter(class == "Accelerated") |>
+    pull(gene)
+
+  unclassified <- classification |>
+    filter(class == "Unclassified") |>
+    pull(gene)
+  
+  # Return
+  list(
+    neogenic = neogenic,
+    accelerated = accelerated,
+    unclassified = unclassified)}
+```
+
+```{r}
+test1 <- test |> class_model()
+
+```
+
+```{r}
+human_chimp_shift <- human_chimp_filtered |>
+  group_by(gene) |>
+  nest() |>
+  mutate(
+    shift_modeling = map(.x = data,
+                         .f = ~ shift_model(data_frame = .x))) |>
+  mutate(
+    age_shift = map_dbl(shift_modeling, "age_shift"),
+    expr_shift = map_dbl(shift_modeling, "expr_shift"),
+    p_value = map_dbl(shift_modeling, "p_value"),
+    rss_diff = map_dbl(shift_modeling, "rss_diff")) |>
+  dplyr::select(-shift_modeling)
+```
+
+```{r}
+human_chimp_class <- human_chimp_shift |> 
+  mutate(class = case_when(
+    p_value < 0.5 ~ case_when(
+      age_shift > 0 ~ "Neogenic",
+      age_shift < 0 ~ "Accelerated",
+      TRUE ~ "Unclassified"),
+    TRUE ~ "Unclassified"))
+```
+
+**Model Gene Expression Trajectories**:
+
+-   Fit expression trajectories across ages for humans and chimpanzees, assuming similar ontogenetic shapes.
+
+-   Use models (e.g., linear regression) to describe age-related expression changes for each gene.
+
+**Estimate Timing Differences**:
+
+-   Introduce an "age-shift" or "expression-shift" between species to align the expression curves.
+
+-   Evaluate whether these shifts significantly improve the model fit (e.g., F-test or likelihood ratio test).
+
+**Classify Heterochronic Genes**:
+
+-   Based on the direction and magnitude of shifts:
+
+    -   **Human Neoteny**: Human expression resembles younger chimpanzees.
+
+    -   **Human Acceleration**: Human expression resembles older chimpanzees.
+
+    -   **Chimpanzee Neoteny/Acceleration**: Reciprocal classification for chimpanzees.
+
+```{r}
+# Extract delayed and accelerated genes for Human vs. Chimpanzee
+human_chimp_neogenic <- human_chimp_class |> 
+  filter(class == "Neogenic") |> 
+  pull(gene)
+
+human_chimp_accelerated <- human_chimp_class |> 
+  filter(class == "Accelerated") |> 
+  pull(gene)
+
+```
