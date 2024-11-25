@@ -230,7 +230,7 @@ We then we calculate and plot the PVE.
 #| output: false
 
 plot_pve_pc_all <- var_explained_pc |>
-  calculate_var_explained_prop() |>
+  calculate_pve() |>
   
   ggplot(aes(x = 1,
              y = Mean_PVE,
@@ -244,7 +244,8 @@ plot_pve_pc_all <- var_explained_pc |>
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
     panel.grid.major.y = element_line(color = "gray80"),
-    axis.text.x = element_blank())
+    axis.text.x = element_blank()) +
+  ylim(0, 1) 
 
 plot_pve_pc_all
 ```
@@ -280,49 +281,17 @@ var_explained_pc <- pca_thres_df |>
 ```{r}
 #| output: false
 
-# Make into function
-
 var_explained_human <- pca_thres_df |>
-  filter(species == "Human") |>
-  group_by(PC) |>
-  nest() |>
-  mutate(
-    var_explained = map(
-      .x = data,
-      .f = ~ calculate_var_explained(
-        data_frame = .x,
-        principal_component = "value",
-        factors= c("log_age", "sex_num")))) |>
-  unnest(cols = c(var_explained)) |>
-  dplyr::select(-data)
+  apply_variance_explained(spec = "Human",
+                           factors = c("log_age", "sex_num"))
 
-var_explained_chimp <- pca_thres_df |>
-  filter(species == "Chimpanzee") |>
-  group_by(PC) |>
-  nest() |>
-  mutate(
-    var_explained = map(
-      .x = data,
-      .f = ~ calculate_var_explained(
-        data_frame = .x,
-        principal_component = "value",
-        factors= c("log_age", "sex_num")))) |>
-  unnest(cols = c(var_explained)) |>
-  dplyr::select(-data)
+var_explained_chimp <- ca_thres_df |>
+  apply_variance_explained(spec = "Chimpanzee",
+                           factors = c("log_age", "sex_num"))
 
-var_explained_macaque <- pca_thres_df |>
-  filter(species == "Macaque") |>
-  group_by(PC) |>
-  nest() |>
-  mutate(
-    var_explained = map(
-      .x = data,
-      .f = ~ calculate_var_explained(
-        data_frame = .x,
-        principal_component = "value",
-        factors= c("log_age", "sex_num")))) |>
-  unnest(cols = c(var_explained)) |>
-  dplyr::select(-data)
+var_explained_macaque <- ca_thres_df |>
+  apply_variance_explained(spec = "Macaque",
+                           factors = c("log_age", "sex_num"))
 ```
 
 ```{r}
@@ -361,7 +330,8 @@ plot_pve_summary <- pve_summary |>
   theme(
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
-    panel.grid.major.y = element_line(color = "gray80"))
+    panel.grid.major.y = element_line(color = "gray80")) +
+  ylim(0, 1)
 
 plot_pve_summary
 ```

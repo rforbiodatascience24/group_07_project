@@ -1,7 +1,9 @@
 
 calculate_var_explained <- function(data_frame,
                                     principal_component,
-                                    factors) {
+                                    factors)
+
+  {
 
   # Input:
   # data_frame: PCA results and metadata
@@ -41,14 +43,42 @@ calculate_var_explained <- function(data_frame,
            Total_R2 = total_r2,
            Reduced_R2 = reduced_r2)})
 
-  return(var_explained_df)}
+  return(var_explained_df)
+
+  }
+
+
+apply_variance_explained <- function(data_frame,
+                                     species_rows,
+                                     factors_c)
+
+  {
+
+  data_frame |>
+    filter(species == species_rows) |>
+    group_by(PC) |>
+    nest() |>
+    mutate(
+      var_explained = map(
+        .x = data,
+        .f = ~ calculate_var_explained(
+          data_frame = .x,
+          principal_component = "value",
+          factors = factors_c))) |>
+    unnest(cols = c(var_explained)) |>
+    dplyr::select(-data)
+
+  }
 
 
 
+calculate_pve <- function(data_frame)
 
+  {
 
-calculate_var_explained_prop <- function(data_frame) {
   data_frame |>
     group_by(Factor) |>
     summarize(Mean_PVE = mean(Var_Explained / Total_R2)) |>
-    ungroup()}
+    ungroup()
+
+  }
