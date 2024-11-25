@@ -98,10 +98,5 @@ ggplot(data = percent_grey,
   labs(title = "Proportion of Gray-Matter-Specific Genes", 
        subtitle = "by Phyloontogentic Catagories: <span style='color:#ff0000'>Accelerated</span> vs. <span style='color:#0000FF'>Neotenic</span>",
        y = NULL,
-       x = "(%)")
-```
-
-# Figure 3C
-
-```{r}
+       x = "%")
 ```
