@@ -31,15 +31,14 @@ data <- read_tsv(file = file.path(processed_data_dir,
                                          "03_dat_joined.tsv"))
 ```
 
-For the PCA, do numeric encoding of our non-numeric variables of interest and scale our data as preaparation.
+For the PCA, do numeric encoding of our non-numeric variables of interest and scale our data as preparation.
 
 ```{r}
 #| output: false
 
 # Numeric encoding and extraction
 pca_data <- data |>
-  mutate(log_age = log2(age + 1.1),
-         sex_num = case_when(sex == "M" ~ 1,
+  mutate(sex_num = case_when(sex == "M" ~ 1,
                              TRUE ~ 0),
          species_num = case_when(species == "Human" ~ 0,
                                  species == "Chimpanzee" ~ 1,
