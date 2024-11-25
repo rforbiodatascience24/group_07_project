@@ -246,8 +246,8 @@ We finish by writing our data sets to tsv files.
 #| output: false
 
 scaled_data |> write_tsv(file = file.path(processed_data_dir,
-                                          "05.2.1_dat_global_expr.tsv"))
+                                          "06.1_dat_global_expr.tsv"))
 
 data_cube_coef |> write_tsv(file = file.path(processed_data_dir,
-                                             "05.2.2_dat_cube.tsv"))
+                                             "06.2_dat_cube.tsv"))
 ```

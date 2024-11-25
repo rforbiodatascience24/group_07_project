@@ -1,0 +1,349 @@
+---
+title: "Principle Component Analysis"
+output: html
+output-dir: results
+execute:
+  echo: true
+---
+
+For the principal component analysis (PCA) itself, we use `prcomp`, and for the proportion of variation explained, we use the functions described in *99_proj_func*. To ensure proper calling of `select()`, we use `dplyr::select()`.
+
+```{r}
+#| output: false
+
+library("tidyverse")
+library("broom")
+library("patchwork")
+
+source("99_proj_func.R")
+```
+
+We load the data set.
+
+```{r}
+#| output: false
+
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the dataset
+data <- read_tsv(file = file.path(processed_data_dir,
+                                         "03_dat_joined.tsv"))
+```
+
+For the PCA, do numeric encoding of our non-numeric variables of interest and scale our data as preaparation.
+
+```{r}
+#| output: false
+
+# Numeric encoding and extraction
+pca_data <- data |>
+  mutate(log_age = log2(age + 1.1),
+         sex_num = case_when(sex == "M" ~ 1,
+                             TRUE ~ 0),
+         species_num = case_when(species == "Human" ~ 0,
+                                 species == "Chimpanzee" ~ 1,
+                                 TRUE ~ 2)) |>
+  dplyr::select(where(is.numeric))
+
+# Scale gene expression (variance = 1
+pca_data_scaled <- pca_data |>
+  scale()
+```
+
+We then apply the `prcomp()` function and save projected data in proper tidy format.
+
+```{r}
+#| output: false
+
+# Perform PCA
+pca_results <- pca_data_scaled |>
+  prcomp(scale. = FALSE)
+
+# Save results for projection
+pca_proj_df <- pca_results |> 
+  pluck("x") |> 
+  as_tibble() |> 
+  mutate(species = data |>
+           pull(species),
+         age = data |>
+           pull(age),
+         sex = data |>
+           pull(sex),
+         log_age = pca_data |>
+           pull(log_age),
+         species_num = pca_data |>
+           pull(species_num),
+         sex_num = pca_data |>
+           pull(sex_num))
+```
+
+We also save the standard deviation and calculate the variance explained and cumulative variance.
+
+```{r}
+#| output: false
+
+pca_var_df <- pca_results |> 
+  pluck("sdev") |> 
+  tibble(sdev = _ ) |>
+  mutate(
+    PC = paste0("PC",
+                row_number()),
+    variance_explained = (sdev^2 / sum(sdev^2)) * 100,
+    cumulative_variance = cumsum(variance_explained)) |> 
+  dplyr::select(PC,
+         variance_explained,
+         cumulative_variance)
+```
+
+The projection data is visualized by plotting the data onto the first two principal components, along with details about age, species, and sex.
+
+```{r}
+# Generate pairwise PC combinations
+plot_pca_proj <- pca_proj_df |> 
+  ggplot(aes(x = PC1,
+             y = PC2,
+             color = species,
+             size = age,
+             shape = sex)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Principle component analysis") +
+  theme_minimal()
+
+plot_pca_proj
+```
+
+For the variance calculation, we make a plot of the cumulative along side the variance explained over all principal components.
+
+```{r}
+# Change observations of column 'PC' to type factor 
+plot_pca_var <- pca_var_df |>
+  mutate(PC = factor(PC,
+                       levels = paste0("PC",
+                                       seq_len(nrow(pca_var_df))))) |>
+  
+  ggplot(aes(x = PC,
+             y = variance_explained)) +
+  geom_bar(stat = "identity") +
+  geom_line(aes(y = cumulative_variance, group = 1)) +
+  geom_point(aes(y = cumulative_variance)) +
+  geom_hline(yintercept = 95,
+             linetype = "dashed",
+             color = "darkgreen",
+             linewidth = .5) +
+  geom_hline(yintercept = 90,
+             linetype = "dashed",
+             color = "lightgreen",
+             linewidth = .5) +
+  geom_hline(yintercept = 1,
+             linetype = "dashed",
+             color = "darkred",
+             linewidth = .5) +
+  labs(
+    x = "Principal Component",
+    y = "Variance Explained (%)",
+    title = "Variance Explained by Principal Components") +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_line(color = "gray80"),
+    axis.text.x = element_blank())
+
+plot_pca_var
+```
+
+For the proportion of variance explained (PVE), combine our to data frames by the principal component.
+
+```{r}
+pca_proj_long_df <- pca_proj_df |>
+  pivot_longer(
+    cols = starts_with("PC"),
+    names_to = "PC",
+    values_to = "value")
+
+
+  
+
+pca_results_df <- pca_var_df |> 
+  left_join(pca_proj_long_df,
+            by = "PC")
+```
+
+We start by examining the PVE for each principle component with a variance explained over the threshold of 1%.
+
+We now calculate the variance explained by factor for each principal component.
+
+```{r}
+#| output: false
+
+var_explained_pc_all <- pca_results_df |>
+  mutate(PC = factor(PC,
+                       levels = paste0("PC",
+                                       seq_len(nrow(pca_var_df))))) |>
+  group_by(PC) |>
+  nest() |>
+  mutate(
+    var_explained = map(
+      .x = data,
+      .f = ~ calculate_var_explained(
+        data_frame = .x,
+        principal_component = "value",
+        factors= c("log_age", "species_num", "sex_num")))) |>
+  unnest(cols = c(var_explained)) |>
+  dplyr::select(-data)
+```
+
+We plot the variance explained for each principal component.
+
+```{r}
+var_explained_pc_all |>
+  group_by(PC) |>
+  mutate(Var_Explained = Var_Explained / sum(Var_Explained)) |>
+  ungroup() |>
+  
+  ggplot(aes(x = 2,
+             y = Var_Explained,
+             fill = Factor)) +
+  geom_bar(stat = "identity",
+           width = 1,
+           colour = "white") +
+  coord_polar(theta = "y") +
+  facet_wrap(~PC,
+             ncol = 20) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Proportion of Variance Explained Across PCs",
+    fill = "Factor"
+  ) +
+  theme_void() +
+  theme(
+    strip.text = element_text(size = 5, face = "bold"),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "bottom") +
+  xlim(1, 2.5) 
+```
+
+We then we calculate and plot the PVE.
+
+```{r}
+#| output: false
+
+plot_pve_pc_all <- var_explained_pc |>
+  calculate_pve() |>
+  
+  ggplot(aes(x = 1,
+             y = Mean_PVE,
+             fill = Factor)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "",
+       y = "Proportion of Variance Explained (%)",
+       title = "Proportion of Variance Explained in all principal components") +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_line(color = "gray80"),
+    axis.text.x = element_blank()) +
+  ylim(0, 1) 
+
+plot_pve_pc_all
+```
+
+Since sex is mainly represented in the principal components with the least variance explained, and we don't want these to skew our further analysis, we filter our data for principal components with a variance explained over 1%.
+
+```{r}
+#| output: false
+
+pca_thres_df <- pca_results_df |>
+  filter(variance_explained >= 1)
+```
+
+We repeat the above analysis for the filtered data and for each species.
+
+```{r}
+#| output: false
+
+var_explained_pc <- pca_thres_df |>
+  group_by(PC) |>
+  nest() |>
+  mutate(
+    var_explained = map(
+      .x = data,
+      .f = ~ calculate_var_explained(
+        data_frame = .x,
+        principal_component = "value",
+        factors= c("log_age", "species_num", "sex_num")))) |>
+  unnest(cols = c(var_explained)) |>
+  dplyr::select(-data)
+```
+
+```{r}
+#| output: false
+
+var_explained_human <- pca_thres_df |>
+  apply_variance_explained(spec = "Human",
+                           fact = c("log_age", "sex_num"))
+
+var_explained_chimp <- ca_thres_df |>
+  apply_variance_explained(spec = "Chimpanzee",
+                           fact = c("log_age", "sex_num"))
+
+var_explained_macaque <- ca_thres_df |>
+  apply_variance_explained(spec = "Macaque",
+                           fact = c("log_age", "sex_num"))
+```
+
+```{r}
+#| output: false
+
+pve_human <- var_explained_human |>
+  calculate_var_explained_prop() |>
+  mutate(Species = "Human")
+
+pve_chimp <- var_explained_chimp |>
+  calculate_var_explained_prop() |>
+  mutate(Species = "Chimpanzee")
+
+pve_macaque <- var_explained_macaque |>
+  calculate_var_explained_prop() |>
+  mutate(Species = "Macaque")
+
+pve_summary <- bind_rows(pve_human,
+                         pve_chimp,
+                         pve_macaque)
+```
+
+```{r}
+
+plot_pve_summary <- pve_summary |>
+  ggplot(aes(x = Species,
+             y = Mean_PVE,
+             fill = Factor)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Species",
+    y = "Proportion of Variance Explained (%)",
+    title = "Proportion of Variance Explained Across Species"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_line(color = "gray80")) +
+  ylim(0, 1)
+
+plot_pve_summary
+```
+
+```{r}
+#| output: false
+
+pca_results_df |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "05.1_dat_pca.tsv"))
+
+pve_summary |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "05.2_dat_pve.tsv"))
+```
