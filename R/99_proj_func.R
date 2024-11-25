@@ -49,13 +49,13 @@ calculate_var_explained <- function(data_frame,
 
 
 apply_variance_explained <- function(data_frame,
-                                     species_rows,
-                                     factors_c)
+                                     spec,
+                                     fact)
 
   {
 
   data_frame |>
-    filter(species == species_rows) |>
+    filter(species == spec) |>
     group_by(PC) |>
     nest() |>
     mutate(
@@ -64,7 +64,7 @@ apply_variance_explained <- function(data_frame,
         .f = ~ calculate_var_explained(
           data_frame = .x,
           principal_component = "value",
-          factors = factors_c))) |>
+          factors = fact))) |>
     unnest(cols = c(var_explained)) |>
     dplyr::select(-data)
 

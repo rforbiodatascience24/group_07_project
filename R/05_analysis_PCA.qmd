@@ -229,7 +229,7 @@ We then we calculate and plot the PVE.
 ```{r}
 #| output: false
 
-plot_pve_pc_all <- var_explained_pc |>
+plot_pve_pc_all <- var_explained_pc_all |>
   calculate_pve() |>
   
   ggplot(aes(x = 1,
@@ -283,30 +283,33 @@ var_explained_pc <- pca_thres_df |>
 
 var_explained_human <- pca_thres_df |>
   apply_variance_explained(spec = "Human",
-                           factors = c("log_age", "sex_num"))
+                           fact = c("log_age", "sex_num"))
 
-var_explained_chimp <- ca_thres_df |>
+var_explained_chimp <- pca_thres_df |>
   apply_variance_explained(spec = "Chimpanzee",
-                           factors = c("log_age", "sex_num"))
+                           fact = c("log_age", "sex_num"))
 
-var_explained_macaque <- ca_thres_df |>
+var_explained_macaque <- pca_thres_df |>
   apply_variance_explained(spec = "Macaque",
-                           factors = c("log_age", "sex_num"))
+                           fact = c("log_age", "sex_num"))
 ```
 
 ```{r}
 #| output: false
 
+pve_pc <- var_explained_pc |>
+  calculate_pve()
+
 pve_human <- var_explained_human |>
-  calculate_var_explained_prop() |>
+  calculate_pve() |>
   mutate(Species = "Human")
 
 pve_chimp <- var_explained_chimp |>
-  calculate_var_explained_prop() |>
+  calculate_pve() |>
   mutate(Species = "Chimpanzee")
 
 pve_macaque <- var_explained_macaque |>
-  calculate_var_explained_prop() |>
+  calculate_pve() |>
   mutate(Species = "Macaque")
 
 pve_summary <- bind_rows(pve_human,
