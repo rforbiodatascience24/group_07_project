@@ -10,11 +10,14 @@ This document contains the specifications used for the plots of this project. We
 
 ```{r}
 library("tidyverse")
+
 library("RColorBrewer")
 library("ggplot2")
 ```
 
+
 Our data contains two main groups of variables, 'species' and 'attributes', and one alternating variable that requires distinction by color. We thus use a tricolor palette consisting of the secondary colors purple, green, and orange.
+
 
 ```{r}
 tricolor_palette <- c("purple", "green", "orange")
@@ -44,6 +47,7 @@ alternative_colors <- rgb(colorRamp(alternative_base_colors)
                            length.out = length(alternative_base_colors))),
                       maxColorValue = 255)
 ```
+
 
 Then we create a data frame with the colors according the their labels.
 
@@ -96,4 +100,5 @@ processed_data_dir <- file.path("..","data")
 color_palette |>
   write_tsv(file = file.path(processed_data_dir,
                              "04_col_pal.tsv"))
+
 ```
