@@ -162,16 +162,44 @@ t4 <- t2 |> mutate(species=t[c("s")])
 ```
 
 ```{r}
-expr_factors <- expr_data_tidy_wide |> 
-  mutate(species = pheno_data_tidy[c("title")]) |> 
-  mutate(age = pheno_data_tidy[c("characteristics_ch1")]) |> 
-  mutate(age = str_extract(age, "\\d+\\.?\\d*"))
-  
-
-```
-
-```{r}
 pheno_data_tidy |> mutate(age = str_extract(characteristics_ch1, "\\d+\\.?\\d*"))
 ```
 
 Columns must be extracted in a different way.
+
+```{r}
+pheno_data_tidy_with_age_species <- pheno_data_tidy |> 
+  filter(grepl("Human dorsolateral", title) | grepl("Chimpanzee", title)) %>%
+  mutate(species_marker = case_when(
+    grepl("Human dorsolateral", title) ~ 0,
+    grepl("Chimpanzee", title) ~ 1
+  ))
+pheno_data_tidy_with_age_species <- pheno_data_tidy_with_age_species |> 
+  mutate(age = str_extract(characteristics_ch1, "\\d+\\.?\\d*"))
+  
+print(pheno_data_tidy_with_age_species)
+```
+
+```{r}
+pheno_data_tidy_all_species <- pheno_data |> 
+  mutate(species_marker = case_when(
+    grepl("Human dorsolateral", title) ~ 0,
+    grepl("Chimpanzee", title) ~ 1,
+    TRUE ~ NA_real_
+  ))
+pheno_data_tidy_all_species <- pheno_data_tidy_all_species |> 
+    mutate(age = as.numeric(str_extract(characteristics_ch1, "\\d+\\.?\\d*")))
+print(pheno_data_tidy_all_species)  
+```
+
+```{r}
+expr_factors <- expr_data_tidy_wide |>
+  mutate(species = pheno_data_tidy_all_species |> pull(species_marker)) |> 
+  mutate(age = pheno_data_tidy_all_species |> pull(age)) 
+
+```
+
+```{r}
+expr_factors |> 
+  select(tail(3750))
+```
