@@ -17,7 +17,7 @@ s241901, madelineshah4,
 [student id], [GitHub username]
 
 # To do, all
-=======
+
 -   Add yourself at the top of this doc
 -   Check that all code commited follows
     <https://r4bds.github.io/code_styling.htmlllows>
@@ -29,7 +29,7 @@ s241901, madelineshah4,
     been properly edited
 
 # To do, to be divided
-=======
+
 -   Visualize data, create plots, consider patchwork and the glamour of
     graphics (<https://www.youtube.com/watch?v=h5cTacaWE6I>)
     - Fig 1: PCA and pve of PCs
@@ -42,7 +42,7 @@ s241901, madelineshah4,
 - presentation
 
 # Paper analyzing data / similar data
-=======
+
 
 <https://doi.org/10.1073/pnas.0900544106>
 
@@ -86,7 +86,7 @@ differential gene expression at differing developmental states
 expressed in the brain rather than the entire brain" conclusion based on
 fig 3 and appendices, comparing to earlier studies
 
-=======
+
 
 # Good to know terms
 
