@@ -1,7 +1,6 @@
 ---
 title: "Augmented Data, organized"
 output: html
-output-dir: results
 execute:
   echo: true
   output: false
@@ -23,7 +22,8 @@ processed_data_dir <- file.path("..","data")
 
 # Load the expr dataset
 expr_data <- read_tsv(file = file.path(processed_data_dir,
-                                         "02.1_dat_clean_expr.tsv"))
+                                         "02.1_dat_clean_expr.tsv"),
+                      show_col_types = FALSE)
 
 # Apply above described augmentatitons
 expr_data_augment <- expr_data |>

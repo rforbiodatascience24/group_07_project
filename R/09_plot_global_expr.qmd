@@ -1,0 +1,86 @@
+---
+title: "Principle Component Analysis"
+output: html
+output-dir: results
+execute:
+  echo: true
+  output: false
+---
+
+For the ...
+
+```{r}
+library("tidyverse")
+library("broom")
+library("patchwork")
+```
+
+We load the data sets.
+
+```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the data set and color palette
+expr_data <- read_tsv(file = file.path(processed_data_dir,
+                                         "06.1_dat_global_expr.tsv"),
+                      show_col_types = FALSE)
+color_palette <- read_tsv(file = file.path(processed_data_dir,
+                                         "04_col_pal.tsv"),
+                     show_col_types = FALSE)
+```
+
+Finally, the global gene expression for each sample is plotted, color-coded by species.
+
+A sexual maturity line is added for each of the given ages:
+
+-   Human: 16.2 years from [Human Development: A Life-Span View](https://books.google.dk/books?id=E-n5E7oyCgoC&pg=PA296&redir_esc=y)
+
+-   Chimpanzee: 7 years days from [WWF](https://wwf.panda.org/discover/knowledge_hub/endangered_species/great_apes/chimpanzees/#:~:text=Although%20chimpanzees%20reach%20sexual%20maturity,until%20they%20are%20over%2060.)
+
+-   Macaque: 4.9 years days from [NIH](https://pmc.ncbi.nlm.nih.gov/articles/PMC10092073/#:~:text=Cynomolgus%20macaque%20sexual%20maturation%20is,for%20CMs%20based%20on%20different)
+
+```{r}
+plot_expr_all <- expr_data |>
+  ggplot(map = aes(x = age,
+                   y = percent_global,
+                   color = species)) +
+  geom_point(alpha = 0.3,
+             size = 2) +
+  geom_smooth(method = "lm",
+              formula = y ~ log2(x+1),
+              se = FALSE) +
+  geom_vline(xintercept = 16.2,
+             linetype = "dashed",
+             color = "maroon2", size = 0.5) +  # Human
+  geom_vline(xintercept = 7,
+             linetype = "dashed",
+             color = "blue2", size = 0.5) +    # Chimpanzee
+  geom_vline(xintercept = 4.9,
+             linetype = "dashed",
+             color = "chartreuse4",
+             size = 0.5) +                    # Macaque
+  labs(
+    title = "Global Expression Trajectories (Percentage of Variation)",
+    x = "Age (Years)",
+    y = "Global Expression (%)") +
+  scale_x_continuous(limits = c(0, 20)) +
+  scale_y_continuous(limits = c(0, 100)) +
+  theme_minimal() +
+  scale_color_manual(values = c("Human" = "maroon2",
+                                "Chimpanzee" = "blue2",
+                                "Macaque" = "chartreuse4"))
+
+plot_global_expr_mac
+```
+
+Write final plot to *.png* file.
+
+```{r}
+# final_plot |>
+#   ggsave(file.path(output_dir),
+#          plot = p,
+#          width = 6,
+#          height = 4,
+#          dpi = 300)
+```
