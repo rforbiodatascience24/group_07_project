@@ -1,18 +1,18 @@
 
 calculate_var_explained <- function(data_frame,
                                     principal_component,
-                                    factors)
+                                    attributes)
 
   {
 
   # Input:
   # data_frame: PCA results and metadata
   # principal_component: PC to analyze (e.g., "PC1")
-  # factors: Column names for factors (e.g., c("log_age", "species_num"))
+  # Attributes: Column names for attributes (e.g., c("log_age", "species_num"))
 
   full_formula <- as.formula(paste(principal_component,
                                    "~",
-                                   paste(factors,
+                                   paste(attributes,
                                          collapse = " + ")))
 
   # Fit the model and extract R-squared
@@ -22,13 +22,14 @@ calculate_var_explained <- function(data_frame,
     glance() |>
     pull(r.squared)
 
-  # R-squared contributions for each factor
-  var_explained_df <- factors |>
-    map_df(~ { reduced_formula <- as.formula(paste(principal_component,
-                                                   "~",
-                                                   paste(setdiff(factors,
-                                                                 .x),
-                                                         collapse = " + ")))
+  # R-squared contributions for each attribute
+  var_explained_df <- attributes |>
+    map_df(~ {
+      reduced_formula <- as.formula(paste(principal_component,
+                                          "~",
+                                          paste(setdiff(attributes,
+                                                        .x),
+                                                collapse = " + ")))
 
     # Fit reduced model and extract R-squared
     reduced_r2 <- data_frame |>
@@ -38,10 +39,10 @@ calculate_var_explained <- function(data_frame,
       pull(r.squared)
 
     # Variance explained
-    tibble(Factor = .x,
-           Var_Explained = total_r2 - reduced_r2,
-           Total_R2 = total_r2,
-           Reduced_R2 = reduced_r2)})
+    tibble(attribute = .x,
+           var_expl_pc = total_r2 - reduced_r2,
+           total_r2 = total_r2,
+           reduced_r2 = reduced_r2)})
 
   return(var_explained_df)
 
@@ -58,7 +59,7 @@ apply_variance_explained <- function(data_frame,
   # Input:
   # data_frame: PCA results and metadata
   # spec: species to apply to (e.g., "Human")
-  # fact: Column names for factors (e.g., c("log_age", "sex_num"))
+  # fact: Column names for attributes (e.g., c("log_age", "sex_num"))
 
   data_frame |>
     filter(species == spec) |>
@@ -70,7 +71,7 @@ apply_variance_explained <- function(data_frame,
         .f = ~ calculate_var_explained(
           data_frame = .x,
           principal_component = "value",
-          factors = fact))) |>
+          attributes = fact))) |>
     unnest(cols = c(var_explained)) |>
     dplyr::select(-data)
 
@@ -86,8 +87,8 @@ calculate_pve <- function(data_frame)
   # data_frame: variance explained explained data
 
   data_frame |>
-    group_by(Factor) |>
-    summarize(Mean_PVE = mean(Var_Explained / Total_R2)) |>
+    group_by(attribute) |>
+    summarize(mean_pve = mean(var_expl_pc / total_r2)) |>
     ungroup()
 
 }

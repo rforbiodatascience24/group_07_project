@@ -1,0 +1,171 @@
+---
+title: "Principle Component Analysis"
+output: html
+output-dir: results
+execute:
+  echo: true
+  output: false
+---
+
+For the principal component analysis (PCA) we want to visualize the data projected into the principal components, along the proportion of variance explained (PVE) for each component.
+
+```{r}
+library("tidyverse")
+library("broom")
+library("patchwork")
+```
+
+We load the data sets.
+
+```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the data sets
+proj_data <- read_tsv(file = file.path(processed_data_dir,
+                                         "05.2_dat_pca_proj.tsv"),
+                      show_col_types = FALSE)
+pve_data <- read_tsv(file = file.path(processed_data_dir,
+                                         "05.3_dat_pve_all.tsv"),
+                     show_col_types = FALSE)
+color_palette <- read_tsv(file = file.path(processed_data_dir,
+                                         "04_col_pal.tsv"),
+                     show_col_types = FALSE)
+```
+
+```{r}
+pve_data_prep <- pve_data |>
+  group_by(PC) |>
+  nest() |>
+  mutate(sum_var_expl_pc = map_dbl(.x = data,
+                                   .f = ~ .x |>
+                                     pull(var_expl_pc)|>
+                                     sum())) |>
+  unnest(cols = c(data)) |>
+  ungroup() |>
+  mutate(plt_var_expl = (var_expl_pc / sum_var_expl_pc) * variance_explained) |>
+  mutate(attribute = case_when(attribute == "log_age" ~ "Age",
+                            attribute == "species_num" ~ "Species",
+                            attribute == "sex_num" ~ "Sex")) |>
+  mutate(PC = factor(PC,
+                     levels = unique(PC)))
+
+```
+
+First we plot the variance explained for each principal component, colored by the PVE by attributes.
+
+```{r}
+plot_pc_pve <- pve_data_prep |>
+  ggplot(aes(x = PC,
+             y = plt_var_expl,
+             fill = attribute)) + 
+  geom_bar(stat = "identity",
+           position = "stack") +
+  geom_hline(yintercept = 1,
+             linetype = "dashed") +
+  labs(
+    x = "Principal Component",
+    y = "Variance Explained (%)",
+    fill = "Attribute",
+    title = "Variance Explained by Principal Components and Attributes") +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    axis.text.x = element_blank()) +
+  scale_fill_manual(values = color_palette |>
+                      filter(group == "Attributes") |>
+                      pull(color))
+
+plot_pc_pve
+```
+
+The projection data is visualized by plotting the data onto the first two principal components, along with details about age, species, and sex.
+
+```{r}
+pca_proj_plot <- function(data_frame,
+                          principal_component_1,
+                          principal_component_2) {
+  
+  data_frame |>
+    ggplot(aes(
+      x = !!sym(principal_component_1),
+      y = !!sym(principal_component_2),
+      color = species,
+      size = age,
+      shape = sex)) +
+      geom_point(stroke = 1.5) +
+      labs(title = "") +
+      theme_minimal() +
+      theme(
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "right") +
+      scale_color_manual(values = color_palette |>
+                            filter(group == "Species") |>
+                            pull(color)) +
+      scale_shape_manual(values = c(1, 4)) +
+      scale_size_continuous(range = c(1, 6))
+  }
+```
+
+```{r}
+plot_1_2_proj <- proj_data |>
+  pca_proj_plot(principal_component_1 = "PC1",
+                principal_component_2 = "PC2")
+
+plot_1_3_proj <- proj_data |>
+  pca_proj_plot(principal_component_1 = "PC1",
+                principal_component_2 = "PC3")
+
+plot_2_3_proj <- proj_data |>
+  pca_proj_plot(principal_component_1 = "PC2",
+                principal_component_2 = "PC3")
+
+plot_3_4_proj <- proj_data |>
+  pca_proj_plot(principal_component_1 = "PC3",
+                principal_component_2 = "PC4")
+
+plot_1_2_proj + plot_3_4_proj
+plot_1_3_proj
+plot_2_3_proj
+plot_3_4_proj
+
+multiple <- 
+```
+
+For the variance calculation, we make a plot of the cumulative along side the variance explained over all principal components.
+
+We plot the variance explained for each principal component.
+
+```{r}
+pve_data_prep |>
+  
+  ggplot(aes(x = 2,
+             y = var_expl_pc,
+             fill = attribute)) +
+  geom_bar(stat = "identity",
+           position = "fill",
+           width = 1,
+           colour = "white") +
+  coord_polar(theta = "y") +
+  facet_wrap(~PC,
+             ncol = 10) +
+  labs(
+    x = NULL, y = NULL,
+    title = "Proportion of Variance Explained Across PCs",
+    fill = "attribute"
+  ) +
+  theme_void() +
+  theme(
+    strip.text = element_text(size = 5, face = "bold"),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "bottom") +
+  xlim(1, 2.5) 
+```
