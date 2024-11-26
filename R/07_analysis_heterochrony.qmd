@@ -4,18 +4,15 @@ output: html
 output-dir: results
 execute:
   echo: true
+  output: false
 ---
 
 ```{r}
-#| output: false
-
 library("tidyverse")
 library("broom")
 
 source("99_proj_func.R")
 ```
-
-Age normalized, significant expression changes, modeld gene expression trajectories.
 
 ```{r}
 #| output: false
@@ -25,73 +22,9 @@ processed_data_dir <- file.path("..","data")
 
 # Load cube analyzed dataset
 data_cube <- read_tsv(file = file.path(processed_data_dir,
-                                      "06.2_dat_cube.tsv"))
+                                      "06.2_dat_cube.tsv"),
+                      show_col_types = FALSE)
 ```
-
-```{r}
-class_model <- function(data_frame){
-  classification <- data_frame |>
-    mutate(class = case_when(
-      p_value < 0.5 ~ case_when(
-        age_shift > 0 ~ "Neogenic",
-        age_shift < 0 ~ "Accelerated",
-        TRUE ~ "Unclassified"),
-      TRUE ~ "Unclassified"))
-  
-  neogenic <- classification |>
-    filter(class == "Neogenic") |>
-    pull(gene)
-  
-  accelerated <- classification |>
-    filter(class == "Accelerated") |>
-    pull(gene)
-
-  unclassified <- classification |>
-    filter(class == "Unclassified") |>
-    pull(gene)
-  
-  # Return
-  list(
-    neogenic = neogenic,
-    accelerated = accelerated,
-    unclassified = unclassified)}
-```
-
-```{r}
-test1 <- test |> class_model()
-
-```
-
-```{r}
-human_chimp_shift <- human_chimp_filtered |>
-  group_by(gene) |>
-  nest() |>
-  mutate(
-    shift_modeling = map(.x = data,
-                         .f = ~ shift_model(data_frame = .x))) |>
-  mutate(
-    age_shift = map_dbl(shift_modeling, "age_shift"),
-    expr_shift = map_dbl(shift_modeling, "expr_shift"),
-    p_value = map_dbl(shift_modeling, "p_value"),
-    rss_diff = map_dbl(shift_modeling, "rss_diff")) |>
-  dplyr::select(-shift_modeling)
-```
-
-```{r}
-human_chimp_class <- human_chimp_shift |> 
-  mutate(class = case_when(
-    p_value < 0.5 ~ case_when(
-      age_shift > 0 ~ "Neogenic",
-      age_shift < 0 ~ "Accelerated",
-      TRUE ~ "Unclassified"),
-    TRUE ~ "Unclassified"))
-```
-
-**Model Gene Expression Trajectories**:
-
--   Fit expression trajectories across ages for humans and chimpanzees, assuming similar ontogenetic shapes.
-
--   Use models (e.g., linear regression) to describe age-related expression changes for each gene.
 
 **Estimate Timing Differences**:
 
@@ -99,24 +32,63 @@ human_chimp_class <- human_chimp_shift |>
 
 -   Evaluate whether these shifts significantly improve the model fit (e.g., F-test or likelihood ratio test).
 
+```{r}
+#| warning: false
+
+human_chimp_shift <- data_cube |>
+  apply_shift_model(original_species = "Human",
+                    compared_species = "Chimpanzee")
+
+human_mac_shift <- data_cube |>
+  apply_shift_model(original_species = "Human",
+                    compared_species = "Macaque")
+```
+
 **Classify Heterochronic Genes**:
 
 -   Based on the direction and magnitude of shifts:
 
-    -   **Human Neoteny**: Human expression resembles younger chimpanzees.
+    -   **Human Neoteny**: Human expression resembles younger target species.
 
-    -   **Human Acceleration**: Human expression resembles older chimpanzees.
+    -   **Human Acceleration**: Human expression resembles target species.
 
-    -   **Chimpanzee Neoteny/Acceleration**: Reciprocal classification for chimpanzees.
+    -   **Target Species Neoteny/Acceleration**: Reciprocal classification.
 
 ```{r}
-# Extract delayed and accelerated genes for Human vs. Chimpanzee
-human_chimp_neogenic <- human_chimp_class |> 
-  filter(class == "Neogenic") |> 
-  pull(gene)
+human_chimp_class <- human_chimp_shift |>
+  class_model()
 
-human_chimp_accelerated <- human_chimp_class |> 
-  filter(class == "Accelerated") |> 
-  pull(gene)
+human_mac_class <- human_mac_shift |>
+  class_model()
+```
 
+Add classifications to shift data frame.
+
+```{r}
+human_chimp_table <- human_chimp_class |>
+  enframe(name = "classification",
+          value = "genes") |>
+  unnest(cols = c(genes)) |>
+  left_join(human_chimp_shift,
+            by = c("genes" = "gene"))
+
+human_mac_table <- human_mac_class |>
+  enframe(name = "classification",
+          value = "genes") |>
+  unnest(cols = c(genes)) |>
+  left_join(human_mac_shift,
+            by = c("genes" = "gene"))
+```
+
+Write results to .*tsv* files.
+
+```{r}
+human_chimp_table |>
+  dplyr::select(-data) |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "07.1_hum_chi_hetchron.tsv"))
+human_mac_table |>
+  dplyr::select(-data) |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "07.2_hum_mac_hetchron.tsv"))
 ```

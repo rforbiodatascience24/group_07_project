@@ -169,3 +169,14 @@ pve_data_prep |>
     legend.position = "bottom") +
   xlim(1, 2.5) 
 ```
+
+Write final plot to *.png* file
+
+```{r}
+final_plot |>
+  ggsave(file.path(output_dir),
+         plot = p,
+         width = 6,
+         height = 4,
+         dpi = 300)
+```
