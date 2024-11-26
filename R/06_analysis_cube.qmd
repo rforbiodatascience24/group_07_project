@@ -39,9 +39,9 @@ data_cube <- data |>
   pivot_longer(
     cols = starts_with("G"),
     names_to = "gene",
-    values_to = "expression"
+    values_to = "expr"
   ) |>
-  mutate(log_age = log2(age + 1.1)) |>
+  mutate(log_expr = log2(expr + 1)) |>
   group_by(gene, species) |>
   nest()
 
@@ -49,7 +49,7 @@ data_cube <- data |>
 data_cube_reg <- data_cube |>
   mutate(
     cubic_model = map(data,
-                      ~ lm(expression ~ poly(log_age, 3),
+                      ~ lm(log_expr ~ poly(log_age, 3),
                           data = .)),
     r_squared = map_dbl(cubic_model, ~ summary(.) |>
                           pluck("r.squared")),
@@ -87,8 +87,7 @@ data_cube_coef <- data_cube_reg |>
                 -coefficients,
                 -sample,
                 -sex,
-                -expression) |>
-  distinct() |>
+                -log_expr) |>
   ungroup()
 
 ```
@@ -109,9 +108,10 @@ significant_genes <- data_cube_reg |>
 significant_data <- data_cube |> 
   filter(gene %in% significant_genes) |> 
   unnest(cols = c(data)) |>
+  dplyr::select(-log_expr) |>
   ungroup() |>
   pivot_wider(names_from = gene,
-              values_from = expression)
+              values_from = expr)
 
 ```
 
@@ -121,7 +121,10 @@ To obtain a one-dimensional summary measure of expression variation, we calculat
 #| output: false
 
 dist_matrix <- significant_data |>
-  dplyr::select(-species, -age, -log_age, -sample) |>
+  dplyr::select(-species,
+                -age,
+                -log_age,
+                -sample) |>
   dist() |>
   as.matrix()
 ```
@@ -137,7 +140,7 @@ mds_result <- isoMDS(dist_matrix,
 
 # Add result to data
 significant_data <- significant_data |> 
-  mutate(global_expression = mds_result |>
+  mutate(global_expr = mds_result |>
            pluck("points") |>
            as.numeric())
 ```
@@ -150,14 +153,14 @@ Next, we calculate the percent change in global expression, with 0% and 100% bei
 scaled_data <- significant_data |> 
   group_by(species) |> 
   mutate(
-    min_global = filter(cur_data(),
+    min_global = filter(pick(everything()),
                         age == min(age)) |>
-      pull(global_expression),
-    max_global = filter(cur_data(),
+      pull(global_expr),
+    max_global = filter(pick(everything()),
                         age == max(age)) |>
-      pull(global_expression),
+      pull(global_expr),
     percent_global =
-      (global_expression - min_global) / c(max_global - min_global) * 100) |>
+      (global_expr - min_global) / c(max_global - min_global) * 100) |>
   ungroup()
 ```
 
@@ -172,11 +175,12 @@ A sexual maturity line is added for each of the given ages:
 -   Macaque: 4.9 years days from [NIH](https://pmc.ncbi.nlm.nih.gov/articles/PMC10092073/#:~:text=Cynomolgus%20macaque%20sexual%20maturation%20is,for%20CMs%20based%20on%20different)
 
 ```{r}
-plot_global_expression <- scaled_data |> 
+plot_global_expr <- scaled_data |> 
   ggplot(map = aes(x = age,
                    y = percent_global,
                    color = species)) +
-  geom_point(alpha = 0.6) +
+  geom_point(alpha = 0.3,
+             size = 2) +
   geom_smooth(method = "lm",
               formula = y ~ log2(x+1),
               se = FALSE) +
@@ -202,17 +206,18 @@ plot_global_expression <- scaled_data |>
                                 "Chimpanzee" = "blue2",
                                 "Macaque" = "chartreuse4"))
 
-plot_global_expression
+plot_global_expr
 ```
 
 Plot looking closer at the Macaque age span.
 
 ```{r}
-plot_global_expression_mac <- scaled_data |> 
+plot_global_expr_mac <- scaled_data |> 
   ggplot(map = aes(x = age,
                    y = percent_global,
                    color = species)) +
-  geom_point(alpha = 0.6) +
+  geom_point(alpha = 0.3,
+             size = 2) +
   geom_smooth(method = "lm",
               formula = y ~ log2(x+1),
               se = FALSE) +
@@ -237,7 +242,7 @@ plot_global_expression_mac <- scaled_data |>
                                 "Chimpanzee" = "blue2",
                                 "Macaque" = "chartreuse4"))
 
-plot_global_expression_mac
+plot_global_expr_mac
 ```
 
 We finish by writing our data sets to tsv files.

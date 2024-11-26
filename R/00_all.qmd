@@ -22,8 +22,10 @@ Load data and perform initial cleaning and basic augmentation.
 purl("01_load.qmd", output = "01_load.R")
 purl("02_clean.qmd", output = "02_clean.R")
 purl("03_augment_joined.qmd", output = "03_augment_joined.R")
+purl("04_plot_specs.qmd", output = "04_plot_specs.R")
 
 source("01_load.R")
 source("02_clean.R")
 source("03_augment_joined.R")
+source("04_plot_specs.R")
 ```

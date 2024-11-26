@@ -1,0 +1,67 @@
+---
+title: "Load Data"
+output: html
+execute:
+  echo: true
+  output: false
+---
+
+This document contains the specifications used for the plots of this project. We use the `RColorBrewer` package to define a set of colors.
+
+```{r}
+library("RColorBrewer")
+library("ggplot2")
+```
+
+Our data contains two main groups of variables, 'species' and 'factors', and one alternating variable that requires distinction by color. We thus use a tricolor palette consisting of the secondary colors purple, green, and orange.
+
+```{r}
+tricolor_palette <- c("purple", "green", "orange")
+```
+
+Within each secondary color, we define a spectrum to vary within our groups.
+
+```{r}
+species_base_colors <- colorRampPalette(brewer.pal(9, "Purples"))(3)
+
+species_colors <- rgb(colorRamp(species_base_colors)
+                      (seq(0.2, 0.8,
+                           length.out = length(species_base_colors))),
+                      maxColorValue = 255)
+  
+factors_base_colors <- colorRampPalette(brewer.pal(9, "Greens"))(3)
+
+factors_colors <- rgb(colorRamp(factors_base_colors)
+                      (seq(0.2, 0.8,
+                           length.out = length(factors_base_colors))),
+                      maxColorValue = 255)
+
+alternative_base_colors <- colorRampPalette(brewer.pal(9, "Oranges"))(4)
+
+alternative_colors <- rgb(colorRamp(alternative_base_colors)
+                      (seq(0.2, 0.8,
+                           length.out = length(alternative_base_colors))),
+                      maxColorValue = 255)
+```
+
+Example plot.
+
+```{r}
+combined_colors <- c(species_colors, factors_colors, alternative_colors)
+group_labels <- c(
+  rep("Species", length(species_colors)),
+  rep("Factors", length(factors_colors)),
+  rep("Alternative", length(alternative_colors)))
+
+barplot(
+  rep(1, length(combined_colors)), 
+  col = combined_colors, 
+  border = NA, 
+  space = 0.2,
+  main = "Combined Color Palettes",
+  xlab = "",
+  ylab = "Color Blocks",
+  names.arg = group_labels,
+  las = 2,
+  cex.names = 0.8)
+```

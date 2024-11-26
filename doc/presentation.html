@@ -10,8 +10,8 @@
 <link href="presentation_files/libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.4.555">
 
-  <meta name="author" content="Place holder name">
-  <title>Group – Project</title>
+  <meta name="author" content="s244028, s225099, s204668, s241901, s233415">
+  <title>Group 07 Project</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -326,46 +326,50 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Group – Project</h1>
+  <h1 class="title">Group 07 Project</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Place holder name 
+s244028, s225099, s204668, s241901, s233415 
 </div>
 </div>
 </div>
 
 </section>
-<section id="slide-1" class="slide level2">
-<h2>Slide 1</h2>
+<section id="expressional-variance-in-neoteny" class="slide level2">
+<h2>Expressional Variance in Neoteny</h2>
+<ul>
+<li>Dataset:</li>
+</ul>
+
+<img data-src="https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/clipboard-990918093.png" class="quarto-figure quarto-figure-left r-stretch"></section>
+<section id="data-cleaning-and-augmentation" class="slide level2">
+<h2>Data Cleaning and Augmentation</h2>
 </section>
-<section id="slide-2" class="slide level2">
-<h2>Slide 2</h2>
+<section id="pca-and-mrg" class="slide level2">
+<h2>PCA and MRG</h2>
 </section>
-<section id="slide-3" class="slide level2">
-<h2>Slide 3</h2>
+<section id="pca-results" class="slide level2">
+<h2>PCA Results</h2>
 </section>
-<section id="slide-4" class="slide level2">
-<h2>Slide 4</h2>
+<section id="multiple-regression-and-explained-varience" class="slide level2">
+<h2>Multiple Regression and Explained Varience</h2>
 </section>
-<section id="slide-5" class="slide level2">
-<h2>Slide 5</h2>
+<section id="global-expression-analysis" class="slide level2">
+<h2>Global Expression Analysis</h2>
 </section>
-<section id="slide-6" class="slide level2">
-<h2>Slide 6</h2>
+<section id="shift-function" class="slide level2">
+<h2>Shift Function</h2>
 </section>
-<section id="slide-7" class="slide level2">
-<h2>Slide 7</h2>
+<section id="shift-and-classification" class="slide level2">
+<h2>Shift and Classification</h2>
 </section>
-<section id="slide-8" class="slide level2">
-<h2>Slide 8</h2>
+<section id="gene-distribution-by-phyloontogenetics" class="slide level2">
+<h2>Gene Distribution by Phyloontogenetics</h2>
 </section>
-<section id="slide-9" class="slide level2">
-<h2>Slide 9</h2>
-</section>
-<section id="slide-10" class="slide level2">
-<h2>Slide 10</h2>
+<section id="conclusion" class="slide level2">
+<h2>Conclusion</h2>
 <div class="quarto-auto-generated-content">
 <div class="footer footer-default">
 
@@ -582,6 +586,44 @@ Place holder name
         ]
       });
     </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
     <script id="quarto-html-after-body" type="application/javascript">
     window.document.addEventListener("DOMContentLoaded", function (event) {
       const toggleBodyColorMode = (bsSheetEl) => {

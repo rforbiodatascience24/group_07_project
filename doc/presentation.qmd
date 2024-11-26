@@ -1,27 +1,36 @@
 ---
-title: "Group -- Project"
-author: "Place holder name"
+title: "Group 07 Project"
+author: "s244028, s225099, s204668, s241901, s233415"
 format: 
   revealjs:
     theme: dark
 ---
 
-## Slide 1
+## Expressional Variance in Neoteny
 
-## Slide 2
+-   Dataset:
 
-## Slide 3
+```{r}
+#| label: Research Paper in Focus
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/clipboard-990918093.png")
 
-## Slide 4
+```
 
-## Slide 5
+## Data Cleaning and Augmentation
 
-## Slide 6
+## PCA and MRG
 
-## Slide 7
+## PCA Results
 
-## Slide 8
+## Multiple Regression and Explained Varience
 
-## Slide 9
+## Global Expression Analysis 
 
-## Slide 10
+## Shift Function
+
+## Shift and Classification
+
+## Gene Distribution by Phyloontogenetics
+
+## Conclusion
