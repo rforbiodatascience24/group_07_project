@@ -1,0 +1,177 @@
+---
+title: "MLC Runs"
+format: html
+editor: visual
+---
+
+Load `GEOquery` library, which is used to retrieve datasets from NCBI's Gene Expression Omnibus(<https://www.bioconductor.org/packages//2.10/bioc/html/GEOquery.html>). Also load `Biobase`, explained further down, and `tidyverse`.
+
+```{r}
+#| output: false
+library("GEOquery")
+library("Biobase")
+library("tidyverse")
+```
+
+Fetch data set *GSE11512* and extract first argument acording to the GEO data set structure.
+
+```{r}
+#| output: false
+
+gset <- getGEO("GSE11512", GSEMatrix = TRUE, getGPL = FALSE) |>
+  pluck(1)
+```
+
+Save the data set as an .RDS file in *\_raw.*
+
+```{r}
+#| output: false
+
+# Set path for raw data directory and check if exists
+raw_data_dir <- file.path("..", "data", "_raw")
+if (!dir.exists(raw_data_dir)) {
+  dir.create(raw_data_dir, recursive = TRUE)
+  message("Created directory: ", raw_data_dir)}
+
+saveRDS(gset, file = file.path(raw_data_dir, "GSE11512.RDS"))
+```
+
+The raw data consists of two subsets of data that contain the gene expressions and phenotypes of subjects. These are loaded into each their *dat_load.tsv* file. We use `Biobase` to extract the data of interest, as our data is formated as an 'ExpressionSet' (<https://www.bioconductor.org/packages//2.10/bioc/html/Biobase.html>).
+
+```{r}
+#| output: false
+
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Write tsv file for expression data
+expr_data <- exprs(gset)  # Extract expression data
+write.table(expr_data,
+            file = file.path(processed_data_dir,
+                             "01.1_dat_load_expr.tsv"),
+            sep = "\t",
+            row.names = TRUE,
+            col.names = NA,
+            quote = FALSE)
+
+# Write tsv file for phenotype data
+pheno_data <- pData(phenoData(gset))  # Extract phenotype data
+write.table(pheno_data,
+            file = file.path(processed_data_dir,
+                             "01.2_dat_load_pheno.tsv"),
+            sep = "\t",
+            row.names = TRUE,
+            col.names = NA,
+            quote = TRUE)
+```
+
+Load `tidyverse` library for tidying and cleaning data (<https://tidyverse.tidyverse.org/>).
+
+```{r}
+#| output: false
+
+library("tidyverse")
+```
+
+Create tibble of `pheno_data` and `expr_data`. Tidy `expr_data` into a wide data set with `gene` as columns.
+
+```{r}
+#| output: false
+
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Read the expression data
+expr_data <- read.table(file = file.path(processed_data_dir,
+                                         "01.1_dat_load_expr.tsv"),
+                        sep = "\t",
+                        header = TRUE,
+                        row.names = 1,
+                        check.names = FALSE)
+
+#Tidy expression data
+expr_data_tidy <- expr_data |>
+  as_tibble(rownames = "gene")
+
+# Reshape expression data to long format
+expr_data_tidy_long <- expr_data_tidy |>
+  pivot_longer(cols = -gene,
+               names_to = "sample",
+               values_to = "expression")
+
+# Convert back to wide format
+expr_data_tidy_wide <- expr_data_tidy_long |>
+  pivot_wider(names_from = gene,
+              values_from = expression)
+
+# Read the phenotype data
+pheno_data <- read.table(file = file.path(processed_data_dir,
+                                         "01.2_dat_load_pheno.tsv"),
+                        sep = "\t",
+                        header = TRUE,
+                        row.names = 1,
+                        check.names = FALSE)
+
+# Tidy phenotype data
+pheno_data_tidy <- pheno_data |>
+  as_tibble()
+```
+
+Write into each their *dat_clean.tsv* file.
+
+```{r}
+#| output: false
+
+# Write cleaned expression data to TSV file
+expr_data_tidy_wide |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "02.1_dat_clean_expr.tsv"))
+
+# Write cleaned expression data to TSV file
+pheno_data_tidy |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "02.2_dat_clean_pheno.tsv"))
+```
+
+```{r}
+print(pheno_data_tidy)
+
+```
+
+For every gene, multivariable regression is done to determine whether the any of the two factors, age and species, are significant to change in the expression of that particular gene. Later, the proportion of significant genes will be presented.
+
+Since one of the factors (species) is categorical, the first step is to represent these variables with numeric values, 0 and 1.
+
+```{r}
+t1 <- tibble(x = c("h", "h", "c", "c", "h"))
+t2 <- tibble(x = c("age 2", "age 3", "age 2", "age 2", "age 36"))
+```
+
+```{r}
+t <- t1 |> mutate(s=case_when(x == "h" ~ 1, x =="c" ~ 0))
+t2 |> mutate(age=str_extract(x, "\\d+\\.?\\d*")
+)
+```
+
+```{r}
+t3 <- tibble(x = c(1,2,3,4,5))
+t3 <- t[c("s")]
+
+
+t4 <- t2 |> mutate(species=t[c("s")])
+```
+
+```{r}
+expr_factors <- expr_data_tidy_wide |> 
+  mutate(species = pheno_data_tidy[c("title")]) |> 
+  mutate(age = pheno_data_tidy[c("characteristics_ch1")]) |> 
+  mutate(age = str_extract(age, "\\d+\\.?\\d*"))
+  
+
+```
+
+```{r}
+pheno_data_tidy |> mutate(age = str_extract(characteristics_ch1, "\\d+\\.?\\d*"))
+```
+
+Columns must be extracted in a different way.
