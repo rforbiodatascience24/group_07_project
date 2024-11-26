@@ -143,25 +143,6 @@ For every gene, multivariable regression is done to determine whether the any of
 Since one of the factors (species) is categorical, the first step is to represent these variables with numeric values, 0 and 1.
 
 ```{r}
-t1 <- tibble(x = c("h", "h", "c", "c", "h"))
-t2 <- tibble(x = c("age 2", "age 3", "age 2", "age 2", "age 36"))
-```
-
-```{r}
-t <- t1 |> mutate(s=case_when(x == "h" ~ 1, x =="c" ~ 0))
-t2 |> mutate(age=str_extract(x, "\\d+\\.?\\d*")
-)
-```
-
-```{r}
-t3 <- tibble(x = c(1,2,3,4,5))
-t3 <- t[c("s")]
-
-
-t4 <- t2 |> mutate(species=t[c("s")])
-```
-
-```{r}
 pheno_data_tidy |> mutate(age = str_extract(characteristics_ch1, "\\d+\\.?\\d*"))
 ```
 
@@ -201,5 +182,51 @@ expr_factors <- expr_data_tidy_wide |>
 
 ```{r}
 expr_factors |> 
-  select(tail(3750))
+  select(tail(3749))
+```
+
+```{r}
+library(dplyr)
+library(broom)
+
+expr_factors_stats <- expr_factors |>
+  select(-sample) |>  # Exclude the sample ID column
+  map_dfr(~ {
+    model <- lm(. ~ age + species, data = expr_factors)
+    
+    # Extract the F-statistic p-value
+    f_stat_pvalue <- glance(model)$p.value
+    
+    # Extract the t-statistic p-values for age and species
+    t_stat_pvalues <- tidy(model) |>
+      filter(term %in% c("age", "species")) |>
+      select(term, p.value) |>
+      pivot_wider(names_from = term, values_from = p.value, names_prefix = "t_stat_pvalue_")
+    
+    # Determine if age and species are significant predictors
+    age_significant <- ifelse(t_stat_pvalues$t_stat_pvalue_age < 0.05, "yes", "no")
+    species_significant <- ifelse(t_stat_pvalues$t_stat_pvalue_species < 0.05, "yes", "no")
+    
+    # Combine the results into a single dataframe
+    data.frame(
+      f_stat_pvalue = f_stat_pvalue,
+      t_stat_pvalues,
+      age_significant = age_significant,
+      species_significant = species_significant
+    )
+  })
+
+expr_factors_stats
+```
+
+```{r}
+predictor_proportions <- expr_factors_stats |>
+  summarize(
+    age_prop = mean(age_significant == "yes"),
+    species_prop = mean(species_significant == "yes"),
+    both_prop = mean(age_significant == "yes" & species_significant == "yes")
+  ) |>
+  mutate(across(everything(), ~ round(. * 100, 2)))
+
+predictor_proportions
 ```
