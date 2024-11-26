@@ -132,10 +132,7 @@ plot_3_4_proj <- proj_data |>
   pca_proj_plot(principal_component_1 = "PC3",
                 principal_component_2 = "PC4")
 
-plot_1_2_proj
-plot_1_3_proj
-plot_2_3_proj
-plot_3_4_proj
+combined <- (plot_1_2_proj + plot_1_3_proj) / (plot_2_3_proj + plot_3_4_proj)
 
 ```
 
@@ -154,13 +151,13 @@ pve_data_prep |>
            width = 1,
            colour = "white") +
   coord_polar(theta = "y") +
-  facet_wrap(~PC,
+  facet_wrap(~ PC,
              ncol = 10) +
   labs(
-    x = NULL, y = NULL,
+    x = NULL,
+    y = NULL,
     title = "Proportion of Variance Explained Across PCs",
-    fill = "attribute"
-  ) +
+    fill = "attribute") +
   theme_void() +
   theme(
     strip.text = element_text(size = 5, face = "bold"),
@@ -169,13 +166,17 @@ pve_data_prep |>
   xlim(1, 2.5) 
 ```
 
+```{r}
+
+```
+
 Write final plot to *.png* file.
 
 ```{r}
-# final_plot |>
-#   ggsave(file.path(output_dir),
-#          plot = p,
-#          width = 6,
-#          height = 4,
-#          dpi = 300)
+# ggsave(file = file.path(processed_data_dir,
+#                         "08_test.png"),
+#        plot = combined,
+#        width = 6,
+#        height = 4,
+#        dpi = 300)
 ```
