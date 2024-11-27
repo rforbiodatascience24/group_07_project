@@ -4,3 +4,5 @@
 .Ruserdata
 data/_raw/
 data/
+R/*.R
+!R/99_proj_func.R

@@ -1,0 +1,36 @@
+---
+title: "Group 07 Project"
+author: "s244028, s225099, s204668, s241901, s233415"
+format: 
+  revealjs:
+    theme: dark
+---
+
+## Expressional Variance in Neoteny
+
+-   Dataset:
+
+```{r}
+#| label: Research Paper in Focus
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/clipboard-990918093.png")
+
+```
+
+## Data Cleaning and Augmentation
+
+## PCA and MRG
+
+## PCA Results
+
+## Multiple Regression and Explained Varience
+
+## Global Expression Analysis 
+
+## Shift Function
+
+## Shift and Classification
+
+## Gene Distribution by Phyloontogenetics
+
+## Conclusion

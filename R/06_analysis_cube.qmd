@@ -1,0 +1,162 @@
+---
+title: "Cube Regression Analysis"
+output: html
+output-dir: results
+execute:
+  echo: true
+  output: false
+---
+
+For this analysis, we follow the description found in the appendix of *Somel et al*. Herein it it described how the global gene expression is calculated using the `MASS` package. As this package contains a separate `select()` function, we use `dplyr::select()` for the `select()` function of the `dplyr` package,
+
+```{r}
+library("tidyverse")
+library("broom")
+library("MASS")
+```
+
+We load the data set.
+
+```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the dataset
+data <- read_tsv(file = file.path(processed_data_dir,
+                                         "03_dat_joined.tsv"),
+                 show_col_types = FALSE)
+```
+
+We start by fitting a polynomial (cubic) regression model to each gene and species, calculating the `r_squared` and `p_value` using ANOVA test. As described by the appendix age is usually log transformed for this type of analysis.
+
+```{r}
+# Create long data frame
+data_cube <- data |>
+  pivot_longer(
+    cols = starts_with("G"),
+    names_to = "gene",
+    values_to = "expr") |>
+  mutate(log_expr = log2(expr + 1)) |>
+  group_by(gene,
+           species) |>
+  nest()
+
+# Perform cubic regression and ANOVA analysis
+data_cube_reg <- data_cube |>
+  mutate(
+    cubic_model = map(.x = data,
+                      .f = ~ lm(log_expr ~ poly(log_age, 3),
+                                data = .)),
+    r_squared = map_dbl(.x = cubic_model,
+                        .f = ~ summary(.) |>
+                          pluck("r.squared")),
+    p_value = map_dbl(.x = cubic_model,
+                      .f = ~ anova(.) |>
+                        tidy() |>
+                        filter(term == "poly(log_age, 3)") |> 
+                        pull(p.value)))
+```
+
+We also want to extract the coefficients from the cube regression models for future analyses.
+
+```{r}
+data_cube_coef <- data_cube_reg |>
+  mutate(coefficients = map(.x = cubic_model,
+                            .f = ~ tidy(.x))) |>
+  mutate(intercept = map_dbl(.x =coefficients,
+                             .f = ~ filter(.,
+                                           term == "(Intercept)") |>
+                               pull(estimate)),
+         poly1 = map_dbl(.x = coefficients,
+                         .f = ~ filter(.,
+                                       term == "poly(log_age, 3)1") |>
+                           pull(estimate)),
+         poly2 = map_dbl(.x = coefficients,
+                         .f = ~filter(.,
+                                      term == "poly(log_age, 3)2") |>
+                           pull(estimate)),
+         poly3 = map_dbl(.x = coefficients,
+                         .f = ~filter(.,
+                                      term == "poly(log_age, 3)3") |>
+                           pull(estimate))) |>
+  unnest(cols = c(data)) |>
+  dplyr::select(-cubic_model,
+                -coefficients,
+                -sample,
+                -sex,
+                -log_expr) |>
+  ungroup()
+```
+
+We then identify genes displaying a significant change in expression level and filter them from our original data set.
+
+```{r}
+# Identify significant genes
+significant_genes <- data_cube_reg |> 
+  filter(p_value < 0.05 & r_squared > 0.2) |>
+  pull(gene) |> 
+  unique()
+
+# Extract genes
+significant_data <- data_cube |>
+  filter(gene %in% significant_genes) |> 
+  unnest(cols = c(data)) |>
+  dplyr::select(-log_expr) |>
+  ungroup() |>
+  pivot_wider(names_from = gene,
+              values_from = expr)
+
+```
+
+To obtain a one-dimensional summary measure of expression variation, we calculate the matrix of Euclidean distances among the samples.
+
+```{r}
+dist_matrix <- significant_data |>
+  dplyr::select(-species,
+                -age,
+                -log_age,
+                -sample) |>
+  dist() |>
+  as.matrix()
+```
+
+We then apply monotonic regression to collapse the distance into a single dimension.
+
+```{r}
+# Apply monotonic regression
+mds_result <- isoMDS(dist_matrix,
+                     k = 1)
+
+# Add result to data
+significant_data <- significant_data |> 
+  mutate(global_expr = mds_result |>
+           pluck("points") |>
+           as.numeric())
+```
+
+Next, we calculate the percent change in global expression, with 0% and 100% being equal to the expression levels for the youngest and the oldest sample, respectively.
+
+```{r}
+scaled_data <- significant_data |> 
+  group_by(species) |> 
+  mutate(
+    min_global = filter(pick(everything()),
+                        age == min(age)) |>
+      pull(global_expr),
+    max_global = filter(pick(everything()),
+                        age == max(age)) |>
+      pull(global_expr),
+    percent_global =
+      (global_expr - min_global) / c(max_global - min_global) * 100) |>
+  ungroup()
+```
+
+We finish by writing our data sets to tsv files.
+
+```{r}
+scaled_data |> write_tsv(file = file.path(processed_data_dir,
+                                          "06.1_dat_global_expr.tsv"))
+
+data_cube_coef |> write_tsv(file = file.path(processed_data_dir,
+                                             "06.2_dat_cube.tsv"))
+```

@@ -1,0 +1,67 @@
+---
+title: "Proportion of variance explained, plots"
+output: html
+output-dir: results
+execute:
+  echo: true
+  output: false
+---
+
+For the...
+
+```{r}
+library("tidyverse")
+library("broom")
+library("patchwork")
+```
+
+We load the data sets.
+
+```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the data sets
+pve_data <- read_tsv(file = file.path(processed_data_dir,
+                                         "05.4_dat_pve_species.tsv"),
+                     show_col_types = FALSE)
+color_palette <- read_tsv(file = file.path(processed_data_dir,
+                                         "04_col_pal.tsv"),
+                     show_col_types = FALSE)
+```
+
+```{r}
+plot_pve <- pve_data |>
+  ggplot(aes(x = Species,
+             y = mean_pve,
+             fill = attribute)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Species",
+    y = "Proportion of Variance Explained (%)",
+    title = "Proportion of Variance Explained Across Species"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.y = element_line(color = "gray80")) +
+  ylim(0, 1)
+
+plot_pve
+```
+
+```{r}
+
+```
+
+Write final plot to *.png* file.
+
+```{r}
+# ggsave(file = file.path(processed_data_dir,
+#                         "10_test.png"),
+#        plot = combined,
+#        width = 6,
+#        height = 4,
+#        dpi = 300)
+```
