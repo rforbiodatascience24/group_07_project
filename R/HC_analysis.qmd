@@ -1,0 +1,221 @@
+```{r}
+library(readr)
+library(dplyr)
+library(Biobase)
+library(tidyverse)
+raw_data <- readRDS("data/GSE11512.RDS")
+```
+
+```{r}
+# Check the structure
+exprs_data <- exprs(raw_data)        # Extract the expression matrix
+pdata <- pData(raw_data)       # Extract phenotype data
+feature_data <- featureData(raw_data) # Extract feature annotations
+
+# Inspect the dimensions
+head(exprs_data)  # e.g., genes x samples
+head(exprs_data) # Top rows of the expression matrix
+head(pdata) # Top rows of the phenotype metadata
+```
+
+```{r}
+# Extract assay data (gene expression matrix)
+expression_matrix <- exprs(raw_data)
+
+# Convert to a data frame
+expression_df <- as.data.frame(expression_matrix)
+
+# Add a column for feature (gene) names
+expression_df$Gene_ID <- rownames(expression_matrix)
+
+# View the first few rows of the data
+head(expression_df)
+```
+
+```{r}
+library(tidyverse)
+
+# Reshape to tidy format
+tidy_expression <- expression_df |>
+  pivot_longer(
+    cols = -Gene_ID,             # Keep Gene_ID fixed
+    names_to = "Sample",         # Column for sample IDs
+    values_to = "Expression"     # Column for expression values
+  )
+
+# View the tidy data
+head(tidy_expression)
+```
+
+```{r}
+# Rename the geo_accession column to Sample
+pdata <- pdata |>
+  rename(Sample = geo_accession)
+```
+
+```{r}
+# Clean up sample names in both datasets
+tidy_expression <- tidy_expression |>
+  mutate(Sample = trimws(Sample))  # Remove spaces
+
+pdata <- pdata |>
+  mutate(Sample = trimws(Sample))  # Remove spaces
+```
+
+```{r}
+# Merge tidy expression data with phenotypic metadata
+combined_data <- tidy_expression |>
+  left_join(pdata, by = "Sample")
+
+# View the combined dataset
+head(combined_data)
+```
+
+```{r}
+# Extract numeric age values
+analysis_data3 <- combined_data |>
+  mutate(Age = str_extract(`age:ch1`, "\\d+")) |>  # Extract only numeric part
+  mutate(Age = as.numeric(Age))  # Convert to numeric
+
+# View updated data
+head(analysis_data3)
+```
+
+```{r}
+# Convert Age to years (optional)
+analysis_data4 <- analysis_data3 |>
+  mutate(age_yrs = Age / 365)
+
+# View updated data
+head(analysis_data4)
+```
+
+```{r}
+# Select relevant columns
+tidy_HC_input <- analysis_data4 |>
+  select(Gene_ID, Sample, Expression, taxid_ch1, Age, age_yrs, 'sex:ch1', 'tissue:ch1')
+
+# Rename columns for clarity (optional)
+colnames(tidy_HC_input) <- c("Gene_ID", "Sample", "Expression", "Species", "Age", "Age_Yrs", "Sex", "Tissue")
+
+# View the dataset ready for analysis
+head(tidy_HC_input)
+
+```
+
+```{r}
+library(tidyverse)
+
+# Map taxonomy IDs to species names
+HCinput_data <- tidy_HC_input |>
+  mutate(
+    Species = case_when(
+      Species == 9606 ~ "Human",
+      Species == 9598 ~ "Chimpanzee",
+      Species == 9544 ~ "Macaque",
+      TRUE ~ as.character(Species)  # Retain other values if present
+    ),
+    Expression = as.numeric(Expression),  # Convert Expression to numeric
+    Age_Yrs = round(Age_Yrs, 2)         # Round Age(Yrs) to 2 decimals
+  )
+
+# View the cleaned data
+head(HCinput_data)
+```
+
+```{r}
+# Filter for humans only
+human_data <- HCinput_data |> filter(Species == "Human")
+chimp_data <- HCinput_data |> filter(Species == "Chimpanzee")
+macac_data <- HCinput_data |> filter(Species == "Macaque")
+# View human-specific data
+head(human_data)
+head(chimp_data)
+head(macac_data)
+```
+
+```{r}
+# Fit linear models for each species and gene
+model_results <- HCinput_data |>
+  group_by(Gene_ID, Species) |>
+  summarize(
+    Model = list(lm(Expression ~ Age_Yrs, data = cur_data()))
+  )
+
+# Extract model summaries
+model_summaries <- model_results |>
+  mutate(Summary = map(Model, summary))
+```
+
+```{r}
+library(broom)
+
+# Extract coefficients and statistics from the linear models
+hc_coefficients <- model_results |>
+  mutate(Tidy = map(Model, tidy)) |>  # Apply tidy() to each model
+  unnest(Tidy)                        # Unnest the resulting list-column
+
+# View the coefficients
+head(hc_coefficients)
+```
+
+```{r}
+# Filter significant results for the Age_Yrs term
+significant_genes <- hc_coefficients |>
+  filter(term == "Age_Yrs", p.value < 0.05) |>
+  arrange(p.value)  # Sort by significance
+
+# View the significant genes
+head(significant_genes)
+```
+
+```{r}
+# Filter for the slope term Age_Yrs
+slope_data <- significant_genes |>
+  filter(term == "Age_Yrs")
+```
+
+```{r}
+# Add a column to indicate significance
+slope_data <- slope_data |>
+  mutate(Significant = p.value < 0.05)  # TRUE if p-value < 0.05, FALSE otherwise
+```
+
+```{r}
+# Identify significant genes based on p-value
+significant_slope_genes <- slope_data |>
+  filter(p.value < 0.05) |>        # Filter for significant p-values
+  arrange(p.value)                 # Sort by significance
+```
+
+```{r}
+# Select the top 10 most significant genes for each species
+top_genes <- significant_slope_genes |>
+  group_by(Species) |>
+  slice_min(p.value, n = 10) |>  # Select 10 genes with the lowest p-value
+  ungroup()
+
+# View the top genes
+top_genes
+```
+
+```{r}
+library(ggplot2)
+
+# Filter the original data for significant genes
+timeshift_genes <- HCinput_data |>
+  filter(Gene_ID %in% top_genes$Gene_ID)
+
+# Plot expression trends across species
+ggplot(timeshift_genes, aes(x = Age_Yrs, y = Expression, color = Species)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE) +
+  facet_wrap(~ Gene_ID, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    title = "Cross-Species Timing Shifts in Gene Expression",
+    x = "Age (Years)",
+    y = "Expression",
+    color = "Species"
+  )
+```
