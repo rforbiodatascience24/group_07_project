@@ -1,5 +1,5 @@
 ---
-title: "Principle Component Analysis"
+title: "Principle Component Analysis, plots"
 output: html
 output-dir: results
 execute:
