@@ -1,5 +1,5 @@
 ---
-title: "Principle Component Analysis"
+title: "Global expression, plots"
 output: html
 output-dir: results
 execute:
@@ -30,7 +30,7 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
                      show_col_types = FALSE)
 ```
 
-Finally, the global gene expression for each sample is plotted, color-coded by species.
+The global gene expression for each sample is plotted, color-coded by species.
 
 A sexual maturity line is added for each of the given ages:
 
@@ -45,21 +45,22 @@ plot_expr_all <- expr_data |>
   ggplot(map = aes(x = age,
                    y = percent_global,
                    color = species)) +
-  geom_point(alpha = 0.3,
-             size = 2) +
+  geom_point(size = 2) +
   geom_smooth(method = "lm",
-              formula = y ~ log2(x+1),
-              se = FALSE) +
+              formula = y ~ poly(log2(x + 1), 3),
+              se = TRUE) +
+  # Human
   geom_vline(xintercept = 16.2,
              linetype = "dashed",
-             color = "maroon2", size = 0.5) +  # Human
+             color = "lightgreen", size = 0.5) +  
+  # Chimpanzee
   geom_vline(xintercept = 7,
              linetype = "dashed",
-             color = "blue2", size = 0.5) +    # Chimpanzee
+             color = "green", size = 0.5) +    
+  # Macaque
   geom_vline(xintercept = 4.9,
              linetype = "dashed",
-             color = "chartreuse4",
-             size = 0.5) +                    # Macaque
+             color = "darkgreen") +
   labs(
     title = "Global Expression Trajectories (Percentage of Variation)",
     x = "Age (Years)",
@@ -67,11 +68,11 @@ plot_expr_all <- expr_data |>
   scale_x_continuous(limits = c(0, 20)) +
   scale_y_continuous(limits = c(0, 100)) +
   theme_minimal() +
-  scale_color_manual(values = c("Human" = "maroon2",
-                                "Chimpanzee" = "blue2",
-                                "Macaque" = "chartreuse4"))
+  scale_color_manual(values = color_palette |>
+                      filter(group == "Species") |>
+                      pull(color))
 
-plot_global_expr_mac
+plot_expr_all
 ```
 
 Write final plot to *.png* file.
