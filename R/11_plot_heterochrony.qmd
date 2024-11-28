@@ -1,13 +1,30 @@
 ---
-title: "Draft Fig3 Plots"
+title: "Heterochrony, plots"
 format: html
-editor: visual
+output-dir: results
+execute:
+  echo: true
+  output: false
 ---
 
-# Libraries
+We begin with loading the necessary libraries for plot formation:
 
 ```{r}
 library(tidyverse)
+```
+
+Thereafter, we load the data set from the heterochrony analysis and for our chosen graphic colours:
+
+```{r}
+# Set path for processed data directory
+# blank
+
+# Load the data sets
+# blank
+
+color_palette <- read_tsv(file = file.path(processed_data_dir,
+                                         "04_col_pal.tsv"),
+                     show_col_types = FALSE)
 ```
 
 ```{r}
@@ -23,12 +40,10 @@ test_set <- data.frame(
 print(test_set)
 ```
 
-# Figure 3A
-
-The distribution of neotenic and accelerated genes between brain tissue from the prefrontal cortex for humans, chimps and macaque, additionally for brain tissue caudate nucleus (human only).
+We wish to visualize the percentages of neotenic and accelerated genes from the prefrontal cortex for humans, chimps, and macaques, as well as for the brain tissue caudate nucleus for humans only. Therefore we start by argumentation of the heterochrony data from our earlier analysis, to find the percentages:
 
 ```{r}
-# Condence to a new dataset with % caragory
+# Condence to a new dataset with % catagory
 percent_phyloontogenic <- test_set |>
   group_by(Species, Association, Tissue) |>
   summarise(Count = n()) |>
@@ -37,11 +52,13 @@ percent_phyloontogenic <- test_set |>
 print(percent_phyloontogenic)
 ```
 
+We now can visualize the percentages of neotenic and accelerated genes:
+
 ```{r}
 
 #| label: Phyloontogentic_plot1
 
-# Plotting
+
 ggplot(data = percent_phyloontogenic,
        mapping = aes(y= Species,
                      x= Percentage,
@@ -65,7 +82,19 @@ ggplot(data = percent_phyloontogenic,
        x = "Genes Assigned to Categories (%)")
 ```
 
-# Figure 3B
+Finally, we now write our final plot to a .png file:
+
+```{r}
+# ggsave(file = FILL IN,
+#        plot = combined,
+#        width = 6,
+#        height = 4,
+#        dpi = 300)
+```
+
+TO BE REMOVED
+
+.................................................
 
 The proportion of gray-matter-specific genes among human-neotenic genes and 'other', by tissue type (caudate nucleus, prefrontal cortex)
 
