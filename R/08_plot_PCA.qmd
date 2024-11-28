@@ -142,7 +142,6 @@ combined_plot <- plot_pc_pve +
     caption = "...whereas <span style='color:sex_color;'>sex</span> is mainly represented in the lower ranking principal components.",
     theme = theme(
       plot.title = element_text(size = 16,
-                                face = "bold",
                                 hjust = -1),
       plot.subtitle = element_text(size = 10,
                                    hjust = -1),
