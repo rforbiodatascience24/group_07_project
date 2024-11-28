@@ -41,7 +41,7 @@ print(percent_phyloontogenic)
 
 #| label: Phyloontogentic_plot1
 
-
+# Plotting
 ggplot(data = percent_phyloontogenic,
        mapping = aes(y= Species,
                      x= Percentage,
