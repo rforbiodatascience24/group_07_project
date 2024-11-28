@@ -149,7 +149,8 @@ shift_model <- function(data_frame,
     f_test <- anova(baseline_model, shifted_model)
     p_value <- f_test[["Pr(>F)"]][2]
 
-    # I can't get this to work using f_test |>
+    # I can't get this to work using
+    # f_test |>
     # filter(term == "shifted_model") |>
     # pull(p.value)
 

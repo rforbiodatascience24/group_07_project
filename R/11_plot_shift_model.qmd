@@ -1,5 +1,5 @@
 ---
-title: "Proportion of variance explained, plots"
+title: "Shift model, plots"
 output: html
 output-dir: results
 execute:
@@ -23,7 +23,7 @@ processed_data_dir <- file.path("..","data")
 
 # Load the data sets
 shift_data <- read_tsv(file = file.path(processed_data_dir,
-                                         "06.2_dat_cube.tsv"),
+                                         "07.3_hum_chi_shift.tsv"),
                      show_col_types = FALSE)
 color_palette <- read_tsv(file = file.path(processed_data_dir,
                                          "04_col_pal.tsv"),
