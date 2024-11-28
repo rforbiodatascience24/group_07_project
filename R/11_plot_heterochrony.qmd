@@ -56,7 +56,7 @@ First, we recreate the plots from the report, however, since we only have data f
 ```{r}
 # Filtering and adjusting of dataset
 
-# Removing Macque
+# Removing Macaque
 data_recreatedplot <- percent_phyloontogenic |> 
   filter(Species == "Chimp" | Species == "Human")
 
