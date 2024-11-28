@@ -175,12 +175,13 @@ combined_plot <- plot_expr_all + plot_expr_mac +
     , due to reduced availability of data, displays the same trend.",
     theme = theme(
       plot.title = element_text(size = 16,
-                                face = "bold",
                                 hjust = -1),
       plot.subtitle = element_text(size = 10,
                                    hjust = -1),
       plot.caption = element_text(size = 10,
                                   hjust = 1)))
+
+combined_plot
 ```
 
 Write final plot to *.png* file.
