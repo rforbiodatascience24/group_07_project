@@ -52,12 +52,32 @@ percent_phyloontogenic <- test_set |>
 print(percent_phyloontogenic)
 ```
 
+First, we recreate the plots from the report, however, since we only have data for a single tissue, we just replicate the \_\_\_\_. Had we all tissue types, we could use facet_wrap(\~Tissue) to create a identical plot.
+
+```{r}
+ggplot(data = percent_phyloontogenic,
+       mapping = aes(x = Species,
+                     y = Percentage,
+                     fill = Association)) +
+  geom_bar(stat = "identity",
+           position = position_dodge(),
+           color = "black") +
+  theme_classic() +
+  theme(legend.position = "top",
+        plot.title.position = "plot",
+        plot.subtitle = element_textbox_simple(),
+        text = element_text(size=12),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank()) +
+  labs(y = "Genes Assigned to Categories (%)",
+       x = "Tissue Type")+
+  scale_fill_manual(values = c("Accelerated" , "Neotenic"),
+                    color = c("Blue", "Green"))
+```
+
 We now can visualize the percentages of neotenic and accelerated genes:
 
 ```{r}
-
-#| label: Phyloontogentic_plot1
-
 
 ggplot(data = percent_phyloontogenic,
        mapping = aes(y = Species,
