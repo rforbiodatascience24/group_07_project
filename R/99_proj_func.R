@@ -224,3 +224,33 @@ class_model <- function(data_frame){
     neogenic = neogenic,
     accelerated = accelerated,
     unclassified = unclassified)}
+
+
+pca_proj_plot <- function(data_frame,
+                          principal_component_1,
+                          principal_component_2) {
+
+  data_frame |>
+    ggplot(aes(
+      x = !!sym(principal_component_1),
+      y = !!sym(principal_component_2),
+      color = species,
+      size = age,
+      shape = sex)) +
+    geom_point(stroke = 1.5) +
+    labs(title = "") +
+    theme_minimal() +
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank(),
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor.y = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      legend.position = "none") +
+    scale_color_manual(values = color_palette |>
+                         filter(group == "Species") |>
+                         pull(color)) +
+    scale_shape_manual(values = c(1, 4)) +
+    scale_size_continuous(range = c(1, 6))
+}

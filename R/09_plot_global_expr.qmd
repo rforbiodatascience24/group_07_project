@@ -30,6 +30,21 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
                      show_col_types = FALSE)
 ```
 
+```{r}
+chimp_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(1) |>
+  pull(color)
+hum_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(2) |>
+  pull(color)
+mac_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(3) |>
+  pull(color)
+```
+
 The global gene expression for each sample is plotted, color-coded by species.
 
 A sexual maturity line is added for each of the given ages:
@@ -46,42 +61,135 @@ plot_expr_all <- expr_data |>
                    y = percent_global,
                    color = species)) +
   geom_point(size = 2) +
-  geom_smooth(method = "lm",
-              formula = y ~ poly(log2(x + 1), 3),
-              se = TRUE) +
-  # Human
-  geom_vline(xintercept = 16.2,
-             linetype = "dashed",
-             color = "lightgreen", size = 0.5) +  
+  geom_smooth(
+    data = expr_data |>
+      filter(species %in% c("Chimpanzee", "Human")),
+    method = "lm",
+    formula = y ~ poly(log2(x + 1), 3),
+    se = FALSE) +
   # Chimpanzee
   geom_vline(xintercept = 7,
+             linewidth = 0.75,
              linetype = "dashed",
-             color = "green", size = 0.5) +    
+             color = chimp_color) +
+  # Human
+  geom_vline(xintercept = 16.2,
+             linewidth = 0.75,
+             linetype = "dashed",
+             color = hum_color) +
   # Macaque
   geom_vline(xintercept = 4.9,
+             linewidth = 0.75,
              linetype = "dashed",
-             color = "darkgreen") +
+             color = mac_color) +
+  geom_hline(yintercept = 50,
+             linewidth = 0.5,
+             linetype = "dashed",
+             color = "gray") +
   labs(
-    title = "Global Expression Trajectories (Percentage of Variation)",
+    title = NULL,
+    x = "Age (Years)",
+    y = "Global Expression (%)") +
+  scale_x_continuous(limits = c(0, 50)) +
+  scale_y_continuous(limits = c(0, 100)) +
+  theme_minimal() +
+  theme(legend.position = "none",
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(linewidth = 0.5,
+                               color = "gray"),
+      axis.ticks = element_line(color = "gray")) +
+  scale_color_manual(values = color_palette |>
+                      filter(group == "Species") |>
+                      pull(color))
+
+
+plot_expr_all
+```
+
+```{r}
+plot_expr_mac <- expr_data |>
+  ggplot(map = aes(x = age,
+                   y = percent_global,
+                   color = species)) +
+  geom_point(size = 2) +
+  geom_smooth(
+    data = expr_data |>
+      filter(species %in% c("Macaque")),
+    method = "lm",
+    formula = y ~ log2(x + 1),
+    se = FALSE) +
+  # Chimpanzee
+  geom_vline(xintercept = 7,
+             linewidth = 0.75,
+             linetype = "dashed",
+             color = chimp_color) +
+  # Human
+  geom_vline(xintercept = 16.2,
+             linewidth = 0.75,
+             linetype = "dashed",
+             color = hum_color) +
+  # Macaque
+  geom_vline(xintercept = 4.9,
+             linewidth = 0.75,
+             linetype = "dashed",
+             color = mac_color) +
+  geom_hline(yintercept = 50,
+             linewidth = 0.5,
+             linetype = "dashed",
+             color = "gray") +
+  labs(
+    title = NULL,
     x = "Age (Years)",
     y = "Global Expression (%)") +
   scale_x_continuous(limits = c(0, 20)) +
   scale_y_continuous(limits = c(0, 100)) +
   theme_minimal() +
+  theme(legend.position = "none",
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(linewidth = 0.5,
+                               color = "gray"),
+      axis.ticks = element_line(color = "gray")) +
   scale_color_manual(values = color_palette |>
                       filter(group == "Species") |>
                       pull(color))
 
-plot_expr_all
+plot_expr_mac
+```
+
+```{r}
+combined_plot <- plot_expr_all + plot_expr_mac +
+  plot_layout(ncol = c(2, 1),
+              guides = "collect") &
+  theme(axis.title.y = element_text(angle = 90,
+                                    hjust = 0.5)) +
+  plot_annotation(
+    title = "Global gene expression over age follows a similar pattern across species",
+    subtitle = "The expression reaches 60% around sexual maturity for
+    <span style='color:chimp_color;'>chimpanzee</span>
+    and
+    <span style='color:hum_color;'>human</span>.",
+    caption = "Applying a log2 fit to
+    <span style='color:mac_color;'>macaque</span>
+    , due to reduced availability of data, displays the same trend.",
+    theme = theme(
+      plot.title = element_text(size = 16,
+                                face = "bold",
+                                hjust = -1),
+      plot.subtitle = element_text(size = 10,
+                                   hjust = -1),
+      plot.caption = element_text(size = 10,
+                                  hjust = 1)))
 ```
 
 Write final plot to *.png* file.
 
 ```{r}
-# final_plot |>
-#   ggsave(file.path(output_dir),
-#          plot = p,
-#          width = 6,
-#          height = 4,
-#          dpi = 300)
+ggsave(file = file.path(processed_data_dir,
+                        "09_test.png"),
+       plot = combined_plot,
+       width = 6,
+       height = 4,
+       dpi = 300)
 ```

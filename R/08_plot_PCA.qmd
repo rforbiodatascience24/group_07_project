@@ -13,6 +13,8 @@ For the principal component analysis (PCA) we want to visualize the data project
 library("tidyverse")
 library("broom")
 library("patchwork")
+
+source("99_proj_func.R")
 ```
 
 We load the data sets.
@@ -31,6 +33,21 @@ pve_data <- read_tsv(file = file.path(processed_data_dir,
 color_palette <- read_tsv(file = file.path(processed_data_dir,
                                          "04_col_pal.tsv"),
                      show_col_types = FALSE)
+```
+
+```{r}
+age_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(1) |>
+  pull(color)
+sex_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(2) |>
+  pull(color)
+spec_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(3) |>
+  pull(color)
 ```
 
 ```{r}
@@ -85,55 +102,24 @@ plot_pc_pve
 The projection data is visualized by plotting the data onto the first two principal components, along with details about age, species, and sex.
 
 ```{r}
-pca_proj_plot <- function(data_frame,
-                          principal_component_1,
-                          principal_component_2) {
-  
-  data_frame |>
-    ggplot(aes(
-      x = !!sym(principal_component_1),
-      y = !!sym(principal_component_2),
-      color = species,
-      size = age,
-      shape = sex)) +
-      geom_point(stroke = 1.5) +
-      labs(title = "") +
-      theme_minimal() +
-      theme(
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.major.y = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        legend.position = "none") +
-      scale_color_manual(values = color_palette |>
-                            filter(group == "Species") |>
-                            pull(color)) +
-      scale_shape_manual(values = c(1, 4)) +
-      scale_size_continuous(range = c(1, 6))
-  }
-```
-
-```{r}
-plot_1_2_proj <- proj_data |>
-  pca_proj_plot(principal_component_1 = "PC1",
-                principal_component_2 = "PC2")
-
 plot_1_3_proj <- proj_data |>
   pca_proj_plot(principal_component_1 = "PC1",
                 principal_component_2 = "PC3")
 
 plot_2_3_proj <- proj_data |>
   pca_proj_plot(principal_component_1 = "PC2",
-                principal_component_2 = "PC3")
+               principal_component_2 = "PC3")
 
-plot_3_4_proj <- proj_data |>
-  pca_proj_plot(principal_component_1 = "PC3",
-                principal_component_2 = "PC4")
+plot_6_9_proj <- proj_data |>
+  pca_proj_plot(principal_component_1 = "PC6",
+                principal_component_2 = "PC9")
 
-combined <- (plot_1_2_proj + plot_1_3_proj) / (plot_2_3_proj + plot_3_4_proj)
 
+plot_1_3_proj
+
+plot_2_3_proj
+
+plot_6_9_proj
 ```
 
 For the variance calculation, we make a plot of the cumulative along side the variance explained over all principal components.
@@ -141,42 +127,39 @@ For the variance calculation, we make a plot of the cumulative along side the va
 We plot the variance explained for each principal component.
 
 ```{r}
-pve_data_prep |>
-  
-  ggplot(aes(x = 2,
-             y = var_expl_pc,
-             fill = attribute)) +
-  geom_bar(stat = "identity",
-           position = "fill",
-           width = 1,
-           colour = "white") +
-  coord_polar(theta = "y") +
-  facet_wrap(~ PC,
-             ncol = 10) +
-  labs(
-    x = NULL,
-    y = NULL,
-    title = "Proportion of Variance Explained Across PCs",
-    fill = "attribute") +
-  theme_void() +
-  theme(
-    strip.text = element_text(size = 5, face = "bold"),
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "bottom") +
-  xlim(1, 2.5) 
-```
+proj_plots <- plot_1_3_proj +
+  plot_2_3_proj +
+  plot_6_9_proj
 
-```{r}
+combined_plot <- plot_pc_pve +
+  inset_element(proj_plots, 0.1, 0.7, 1, 1) +
+  plot_annotation(
+    title = "PCA reveals clear trends of dependencies of expression on attributes",
+    subtitle = "The main PVE is by the attributes 
+    <span style='color:age_color;'>age</span>
+    and
+    <span style='color:spec_color;'>species</span>...",
+    caption = "...whereas <span style='color:sex_color;'>sex</span> is mainly represented in the lower ranking principal components.",
+    theme = theme(
+      plot.title = element_text(size = 16,
+                                face = "bold",
+                                hjust = -1),
+      plot.subtitle = element_text(size = 10,
+                                   hjust = -1),
+      plot.caption = element_text(size = 10,
+                                  hjust = 1)))
 
+
+combined_plot
 ```
 
 Write final plot to *.png* file.
 
 ```{r}
-# ggsave(file = file.path(processed_data_dir,
-#                         "08_test.png"),
-#        plot = combined,
-#        width = 6,
-#        height = 4,
-#        dpi = 300)
+ggsave(file = file.path(processed_data_dir,
+                        "08_test.png"),
+       plot = combined_plot,
+       width = 6,
+       height = 4,
+       dpi = 300)
 ```
