@@ -66,8 +66,6 @@ ggplot(data = percent_phyloontogenic,
   geom_bar(stat = "identity",
            position=position_dodge(),
            color = "black") +
-  scale_fill_manual(values = c("red","blue"),
-                    labels = c("Accelerated","Neotenic"))+
     facet_wrap(~Tissue) +
   theme_minimal() +
   theme(legend.position="none",
@@ -77,9 +75,13 @@ ggplot(data = percent_phyloontogenic,
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank()) +
   labs(title = "Gene Distribution", 
-       subtitle = "by Phyloontogentic Catagories: <span style='color:#ff0000'>Accelerated</span> vs. <span style='color:#0000FF'>Neotenic</span>",
+       subtitle = "by Phyloontogentic Catagories: <span style='color:#DE580C'>Accelerated</span> vs. <span style='color:#9E3706'>Neotenic</span>",
        y = NULL,
-       x = "Genes Assigned to Categories (%)")
+       x = "Genes Assigned to Categories (%)")+
+  scale_fill_manual(values = color_palette |>
+                      filter(group == "Alternative") |>
+                      slice_tail(n=2) |>
+                      pull(color))
 ```
 
 Finally, we now write our final plot to a .png file:
