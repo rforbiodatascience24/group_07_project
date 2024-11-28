@@ -60,18 +60,18 @@ We now can visualize the percentages of neotenic and accelerated genes:
 
 
 ggplot(data = percent_phyloontogenic,
-       mapping = aes(y= Species,
-                     x= Percentage,
+       mapping = aes(y = Species,
+                     x = Percentage,
                      fill = Association)) +
   geom_bar(stat = "identity",
-           position=position_dodge(),
+           position = position_dodge(),
            color = "black") +
     facet_wrap(~Tissue) +
   theme_minimal() +
-  theme(legend.position="none",
+  theme(legend.position = "none",
         plot.title.position = "plot",
         plot.subtitle = element_textbox_simple(),
-        text=element_text(size=12,  family="momo"),
+        text = element_text(size=12),
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank()) +
   labs(title = "Gene Distribution", 
@@ -80,7 +80,7 @@ ggplot(data = percent_phyloontogenic,
        x = "Genes Assigned to Categories (%)")+
   scale_fill_manual(values = color_palette |>
                       filter(group == "Alternative") |>
-                      slice_tail(n=2) |>
+                      slice_tail(n = 2) |>
                       pull(color))
 ```
 
