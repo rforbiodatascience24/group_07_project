@@ -103,6 +103,7 @@ plot_pc_pve
 The projection data is visualized by plotting the data onto the first two principal components, along with details about age, species, and sex.
 
 ```{r}
+# Create projection plot of PCs especially influenced by a certain attribute
 plot_1_3_proj <- proj_data |>
   pca_proj_plot(principal_component_1 = "PC1",
                 principal_component_2 = "PC3")
@@ -115,20 +116,7 @@ plot_6_9_proj <- proj_data |>
   pca_proj_plot(principal_component_1 = "PC6",
                 principal_component_2 = "PC9")
 
-
-plot_1_3_proj
-
-plot_2_3_proj
-
-plot_6_9_proj
-```
-
-For the variance calculation, we make a plot of the cumulative along side the variance explained over all principal components.
-
-We plot the variance explained for each principal component.
-
-```{r}
-# Combine projectopn plots
+# Combine projection plots
 proj_plots <- plot_grid(
   plot_1_3_proj,
   plot_2_3_proj,
@@ -140,7 +128,11 @@ proj_plots <- plot_grid(
   theme(plot.background = element_rect(fill = "#F6F6F6",
                                        color = NA),
         plot.margin = margin(0,0,0,0))
+```
 
+Combine.
+
+```{r}
 # Add projection plots as inset element
 combined_plot <- plot_pc_pve +
   inset_element(
@@ -149,27 +141,36 @@ combined_plot <- plot_pc_pve +
     right = 1,
     top = 0.9,
     bottom = 0.4) +
+  
   plot_annotation(
     title = "PCA reveals clear trends of expression's dependencies on attributes",
     theme = theme(
       plot.title = element_text(size = 16,
                                 hjust = 0),
       plot.margin = margin(10, 10, 10, 10))) +
+  
   geom_richtext(
     aes(x = -0.01,
         y = 1.05),
     label = paste(
-      "The main PVE is by the attributes <span style='color:", age_color, ";'>age</span> and ",
-      "<span style='color:", species_color, ";'>species</span>..."),
+      "The main PVE is by the attributes <span style='color:",
+      age_color,
+      ";'>age</span> and ",
+      "<span style='color:",
+      species_color,
+      ";'>species</span>..."),
     hjust = 0,
     size = 4,
     label.color = NA,
     fill = NA) +
+  
   geom_richtext(
     aes(x = 1.01,
         y = -0.05),
     label = paste(
-      "...whereas <span style='color:", sex_color, ";'>sex</span> is mainly represented in the lower ranking principal components."),
+      "...whereas <span style='color:",
+      sex_color,
+      ";'>sex</span> is mainly represented in the PCs with lower influence."),
     hjust = 1,
     size = 4,
     label.color = NA,
