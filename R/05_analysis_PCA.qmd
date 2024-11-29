@@ -146,15 +146,15 @@ var_explained_pc <- pca_thres_df |>
 ```{r}
 var_explained_human <- pca_thres_df |>
   apply_variance_explained(spec = "Human",
-                           fact = c("log_age", "sex_num"))
+                           attr = c("log_age", "sex_num"))
 
 var_explained_chimp <- pca_thres_df |>
   apply_variance_explained(spec = "Chimpanzee",
-                           fact = c("log_age", "sex_num"))
+                           attr = c("log_age", "sex_num"))
 
 var_explained_macaque <- pca_thres_df |>
   apply_variance_explained(spec = "Macaque",
-                           fact = c("log_age", "sex_num"))
+                           attr = c("log_age", "sex_num"))
 ```
 
 ```{r}
