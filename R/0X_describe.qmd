@@ -1,0 +1,67 @@
+---
+title: "Data Description"
+output: html
+execute:
+  echo: true
+  output: false
+---
+
+Load packages
+
+```{r}
+library(tidyverse)
+```
+
+Loading cleaned and augmented data and set colour pallets:
+
+```{r}
+# Data
+pheno_expr_data_joined <- read_tsv(file = file.path(processed_data_dir,
+                             "03_dat_joined.tsv"),
+                      show_col_types = FALSE)
+
+# Color palette
+color_palette <- read_tsv(file = file.path(processed_data_dir,
+                                         "04_col_pal.tsv"),
+                     show_col_types = FALSE)
+
+print(pheno_expr_data_joined)
+```
+
+Number of observations and variables in the cleaned and augmented data set
+
+```{r}
+# Number of samples
+str_glue("Number of samples {pheno_expr_data_joined |>
+         nrow()}")
+
+
+# Number of variables
+str_glue("Number of samples {pheno_expr_data_joined |>
+         ncol()}")
+
+# Number of genes
+
+#pheno_expr_data_joined |> 
+#  select(starts_with("G")) |> 
+#  ncol()
+
+```
+
+Number of individuals by sex and species
+
+```{r}
+ggplot(data = pheno_expr_data_joined,
+       mapping = aes(x = fct_infreq(species), fill = species)) +
+  geom_bar() +
+  theme_minimal() +
+  theme(plot.title.position = "plot",
+        legend.position = "none",
+       panel.grid.minor = element_blank(),
+       panel.grid.major = element_blank()) +
+  labs(title = "Distribution of Species",
+       subtitle = "By <span style='color:#DE580C'>male</span> and <span style='color:#DE580C'>female</span>") +
+    scale_fill_manual(values = color_palette |>
+                      filter(group == "Species") |>
+                      pull(color))
+```
