@@ -96,63 +96,6 @@ pca_var_df <- pca_results |>
          cumulative_variance)
 ```
 
-The projection data is visualized by plotting the data onto the first two principal components, along with details about age, species, and sex.
-
-```{r}
-# Generate pairwise PC combinations
-plot_pca_proj <- pca_proj_df |> 
-  ggplot(aes(x = PC1,
-             y = PC2,
-             color = species,
-             size = age,
-             shape = sex)) +
-  geom_point(alpha = 0.5) +
-  labs(title = "Principle component analysis") +
-  theme_minimal()
-
-plot_pca_proj
-```
-
-For the variance calculation, we make a plot of the cumulative along side the variance explained over all principal components.
-
-```{r}
-# Change observations of column 'PC' to type factor 
-plot_pca_var <- pca_var_df |>
-  mutate(PC = factor(PC,
-                       levels = paste0("PC",
-                                       seq_len(nrow(pca_var_df))))) |>
-  
-  ggplot(aes(x = PC,
-             y = variance_explained)) +
-  geom_bar(stat = "identity") +
-  geom_line(aes(y = cumulative_variance, group = 1)) +
-  geom_point(aes(y = cumulative_variance)) +
-  geom_hline(yintercept = 95,
-             linetype = "dashed",
-             color = "darkgreen",
-             linewidth = .5) +
-  geom_hline(yintercept = 90,
-             linetype = "dashed",
-             color = "lightgreen",
-             linewidth = .5) +
-  geom_hline(yintercept = 1,
-             linetype = "dashed",
-             color = "darkred",
-             linewidth = .5) +
-  labs(
-    x = "Principal Component",
-    y = "Variance Explained (%)",
-    title = "Variance Explained by Principal Components") +
-  theme_minimal() +
-  theme(
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    panel.grid.major.y = element_line(color = "gray80"),
-    axis.text.x = element_blank())
-
-plot_pca_var
-```
-
 For the proportion of variance explained (PVE), combine our to data frames by the principal component.
 
 ```{r}
@@ -170,17 +113,10 @@ pca_results_df <- pca_var_df |>
             by = "PC")
 ```
 
-We start by examining the PVE for each principle component with a variance explained over the threshold of 1%.
-
-We now calculate the variance explained by factor for each principal component.
+We then calculate the variance explained by attribute for each principal component.
 
 ```{r}
-#| output: false
-
 var_explained_pc_all <- pca_results_df |>
-  mutate(PC = factor(PC,
-                       levels = paste0("PC",
-                                       seq_len(nrow(pca_var_df))))) |>
   group_by(PC) |>
   nest() |>
   mutate(
@@ -189,66 +125,14 @@ var_explained_pc_all <- pca_results_df |>
       .f = ~ calculate_var_explained(
         data_frame = .x,
         principal_component = "value",
-        attitude= c("log_age", "species_num", "sex_num")))) |>
+        attributes = c("log_age", "species_num", "sex_num")))) |>
+  left_join(pca_var_df, 
+            by = "PC") |>
   unnest(cols = c(var_explained)) |>
   dplyr::select(-data)
 ```
 
-We plot the variance explained for each principal component.
-
-```{r}
-var_explained_pc_all |>
-  group_by(PC) |>
-  mutate(Var_Explained = Var_Explained / sum(Var_Explained)) |>
-  ungroup() |>
-  
-  ggplot(aes(x = 2,
-             y = Var_Explained,
-             fill = Factor)) +
-  geom_bar(stat = "identity",
-           width = 1,
-           colour = "white") +
-  coord_polar(theta = "y") +
-  facet_wrap(~PC,
-             ncol = 20) +
-  labs(
-    x = NULL, y = NULL,
-    title = "Proportion of Variance Explained Across PCs",
-    fill = "Factor"
-  ) +
-  theme_void() +
-  theme(
-    strip.text = element_text(size = 5, face = "bold"),
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "bottom") +
-  xlim(1, 2.5) 
-```
-
 We then we calculate and plot the PVE.
-
-```{r}
-#| output: false
-
-plot_pve_pc_all <- var_explained_pc_all |>
-  calculate_pve() |>
-  
-  ggplot(aes(x = 1,
-             y = Mean_PVE,
-             fill = Factor)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(x = "",
-       y = "Proportion of Variance Explained (%)",
-       title = "Proportion of Variance Explained in all principal components") +
-  theme_minimal() +
-  theme(
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    panel.grid.major.y = element_line(color = "gray80"),
-    axis.text.x = element_blank()) +
-  ylim(0, 1) 
-
-plot_pve_pc_all
-```
 
 Since sex is mainly represented in the principal components with the least variance explained, and we don't want these to skew our further analysis, we filter our data for principal components with a variance explained over 1%.
 
@@ -292,213 +176,6 @@ var_explained_chimp <- pca_thres_df |>
 var_explained_macaque <- pca_thres_df |>
   apply_variance_explained(spec = "Macaque",
                            fact = c("log_age", "sex_num"))
-```
-
-```{r}
-#| output: false
-
-pve_pc <- var_explained_pc |>
-  calculate_pve()
-
-pve_human <- var_explained_human |>
-  calculate_pve() |>
-  mutate(Species = "Human")
-
-pve_chimp <- var_explained_chimp |>
-  calculate_pve() |>
-  mutate(Species = "Chimpanzee")
-
-pve_macaque <- var_explained_macaque |>
-  calculate_pve() |>
-  mutate(Species = "Macaque")
-
-pve_summary <- bind_rows(pve_human,
-                         pve_chimp,
-                         pve_macaque)
-```
-
-plot_pve_summary
-
-```{r}
-
-plot_pve_summary <- pve_summary |>
-  ggplot(aes(x = Species,
-             y = Mean_PVE,
-             fill = Factor)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(
-    x = "Species",
-    y = "Proportion of Variance Explained (%)",
-    title = "Proportion of Variance Explained Across Species"
-  ) +
-  theme_minimal() +
-  theme(
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    panel.grid.major.y = element_line(color = "gray80")) +
-  ylim(0, 1)
-
-plot_pve_summary
-```
-
-## Donut Plot, Patchwork Combined with Variances
-
-```{r}
-#where donut_data is a df that lists the percentage of all genes that exist in each category of significance
-
-# \\ sample data \\
-donut_data_1 <- data.frame(
-  category = c("Age+/Sp-", "Age+/Sp+", "Age-/Sp+", "Age-/Sp-"),
-  percentage = c(20, 30, 60, 10),
-  n = c(100, 400, 700, 50)
-)
-donut_data_2 <- data.frame(
-  category = c("Age+/Sp-", "Age+/Sp+", "Age-/Sp+", "Age-/Sp-"),
-  percentage = c(10, 5, 35, 50),
-  n = c(50, 25, 400, 700)
-)
-# \\ sample data \\
-
-donut_patchwork_plot <- donut_data_1 |>
-  ggplot(aes(x = 2, 
-             y = n, 
-             fill = category)) +
-  geom_bar(stat = "identity", 
-           width = 1, 
-           color = "white") +
-  coord_polar(theta = "y") +
-  theme_void() +
-  xlim(0.5, 2.5) +
-  labs(fill = "Attribute Significance", 
-       subtitle = "Significance level = 0.05") +
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    plot.subtitle = element_text(size = 8),
-    legend.position = "none"
-  ) +
-  geom_text(aes(label = paste0(percentage, "%")), 
-            position = position_stack(vjust = 0.5),
-            size = 3, color = "white")
-
-donut_patchwork_plot
-```
-
-```{r}
-donut_patchwork_plot2 <- donut_data_2 |>
-  ggplot(aes(x = 2, 
-             y = n, 
-             fill = category)) +
-  geom_bar(stat = "identity", 
-           width = 1, 
-           color = "white") +
-  coord_polar(theta = "y") +
-  theme_void() +
-  xlim(0.5, 2.5) +
-  labs(fill = "Attribute Significance") +
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "bottom",
-    legend.title.position = "top"
-  ) +
-  guides(fill = guide_legend(ncol = 2))
-
-donut_patchwork_plot2
-```
-
-# Patchwork Plots
-
-Colors
-
-```{r}
-# variance explained plot
-factor_colors <- c(
-  "log_age" = attribute_colors[1],
-  "sex_num" = attribute_colors[length(attribute_colors)]
-)
-
-```
-
-```{r}
-pve_patchwork_plot <- pve_summary |>
-  ggplot(aes(x = Species,
-             y = Mean_PVE,
-             fill = Factor)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(
-    x = "Species",
-    y = "Proportion of Variance Explained (%)"
-    ) +
-  theme_minimal() +
-  theme(
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    panel.grid.major.y = element_line(color = "gray80"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = c(0.5, 0.98),  # Positioning the legend below the subtitle
-    legend.justification = c(0.5, 1),  # Centers the legend horizontally
-    legend.direction = "horizontal",  # Makes the legend horizontal
-    legend.title = element_blank(),    # Optional: Removes legend title
-    legend.box = "horizontal"          # Optional: Places the legend in a horizontal box
-  ) +
-  ylim(0, 1) +
-  scale_fill_manual(values = factor_colors)
-
-# First donut plot
-donut_patchwork_plot <- donut_data_1 |>
-  ggplot(aes(x = 2, 
-             y = n, 
-             fill = category)) +
-  geom_bar(stat = "identity", 
-           width = 1, 
-           color = "white") +
-  coord_polar(theta = "y") +
-  theme_void() +
-  xlim(0.5, 2.5) +
-  labs(fill = "Attribute Significance", 
-       subtitle = "Significance level = 0.05") +
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    plot.subtitle = element_text(size = 8),
-    legend.position = "none"
-  ) +
-  geom_text(aes(label = paste0(percentage, "%")), 
-            position = position_stack(vjust = 0.5),
-            size = 3, color = "white") +
-  scale_fill_manual(values = alternative_colors)
-
-# Second donut plot
-donut_patchwork_plot2 <- donut_data_2 |>
-  ggplot(aes(x = 2, 
-             y = n, 
-             fill = category)) +
-  geom_bar(stat = "identity", 
-           width = 1, 
-           color = "white") +
-  coord_polar(theta = "y") +
-  theme_void() +
-  xlim(0.5, 2.5) +
-  labs(fill = "Attribute Significance") +
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "bottom",
-    legend.title.position = "top" 
-  ) +
-  guides(fill = guide_legend(ncol = 2)) + 
-  scale_fill_manual(values = alternative_colors)
-
-combined_plot <- pve_patchwork_plot + 
-  (donut_patchwork_plot / donut_patchwork_plot2) +  
-  plot_layout(
-    ncol = 2,  
-    widths = c(1, 1)
-  ) + 
-  plot_annotation(
-    title = "Proportion of Variance Explained and Significant Change in Gene Expressions",
-    theme = theme(plot.title = element_text(hjust = 0.5, size = 12))
-  )
-
-# Display the combined plot
-combined_plot
 ```
 
 ```{r}
