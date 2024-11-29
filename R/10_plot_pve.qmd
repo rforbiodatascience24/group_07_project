@@ -13,6 +13,8 @@ For the...
 library("tidyverse")
 library("broom")
 library("patchwork")
+library("gridtext")
+library("ggtext")
 ```
 
 Load the data sets.
@@ -39,6 +41,14 @@ Defined the colors used for the plots
 attr_color <- color_palette |>
   filter(group == "Attributes") |>
   pull(color)
+age_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(1) |>
+  pull(color)
+sex_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(2) |>
+  pull(color)
 altern_color <- color_palette |>
   filter(group == "Alternative") |>
   pull(color)
@@ -51,12 +61,12 @@ Donut plots for significant genes within categories.
 #where donut_data is a df that lists the percentage of all genes that exist in each category of significance
 
 # \\ sample data \\
-donut_data_1 <- data.frame(
+hum_chimp_data <- data.frame(
   category = c("Age+/Sp-", "Age+/Sp+", "Age-/Sp+", "Age-/Sp-"),
   percentage = c(20, 30, 60, 10),
   n = c(100, 400, 700, 50)
 )
-donut_data_2 <- data.frame(
+hum_mac_data <- data.frame(
   category = c("Age+/Sp-", "Age+/Sp+", "Age-/Sp+", "Age-/Sp-"),
   percentage = c(10, 5, 35, 50),
   n = c(50, 25, 400, 700)
@@ -66,7 +76,7 @@ donut_data_2 <- data.frame(
 
 ```{r}
 #Human vs chimpanzee
-donut_patchwork_plot <- donut_data_1 |>
+hum_chimp_donut <- hum_chimp_data |>
   ggplot(aes(x = 2, 
              y = n, 
              fill = category)) +
@@ -76,20 +86,14 @@ donut_patchwork_plot <- donut_data_1 |>
   coord_polar(theta = "y") +
   theme_void() +
   xlim(0.5, 2.5) +
-  labs(fill = "Attribute Significance", 
-       subtitle = "Significance level = 0.05") +
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    plot.subtitle = element_text(size = 8),
-    legend.position = "none"
-  ) +
   geom_text(aes(label = paste0(percentage, "%")), 
             position = position_stack(vjust = 0.5),
             size = 3, color = "white") +
-  scale_fill_manual(values = altern_color)
+  scale_fill_manual(values = altern_color,
+                    name = NULL)
 
 # Human vs macaque
-donut_patchwork_plot2 <- donut_data_2 |>
+hum_mac_donut <- hum_mac_data |>
   ggplot(aes(x = 2, 
              y = n, 
              fill = category)) +
@@ -99,71 +103,99 @@ donut_patchwork_plot2 <- donut_data_2 |>
   coord_polar(theta = "y") +
   theme_void() +
   xlim(0.5, 2.5) +
-  labs(fill = "Attribute Significance") +
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "bottom",
-    legend.title.position = "top" 
-  ) +
-  guides(fill = guide_legend(ncol = 2)) + 
-  scale_fill_manual(values = altern_color)
+  geom_text(aes(label = paste0(percentage, "%")), 
+            position = position_stack(vjust = 0.5),
+            size = 3, color = "white") +
+  scale_fill_manual(values = altern_color,
+                    name = NULL)
 
-combined_plot <- pve_patchwork_plot + 
-  (donut_patchwork_plot / donut_patchwork_plot2) +  
-  plot_layout(
-    ncol = 2,  
-    widths = c(1, 1)
-  ) + 
-  plot_annotation(
-    title = "Proportion of Variance Explained and Significant Change in Gene Expressions",
-    theme = theme(plot.title = element_text(hjust = 0.5, size = 12))
-  )
+# Combine donuts
+donut_combined <- hum_chimp_donut / hum_mac_donut +
+  plot_layout(guides = "collect") + 
+  plot_annotation(theme = theme(
+    legend.position = "left",
+    legend.title = element_blank(),
+    legend.direction = "vertical")) +
+  theme(plot.margin = margin(0, 10, 0, 0))
 
-donut_patchwork_plot
-donut_patchwork_plot2
+
+hum_chimp_donut
+hum_mac_donut
+donut_combined
 ```
 
 Bar plot for pve.
 
 ```{r}
-pve_patchwork_plot <- pve_data |>
+pve_plot <- pve_data |>
   ggplot(aes(x = Species,
-             y = mean_pve,
+             y = mean_pve * 100,
              fill = attribute)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(
-    x = "Species",
-    y = "Proportion of Variance Explained (%)"
-    ) +
+  geom_bar(stat = "identity",
+           position = "dodge",
+           show.legend = FALSE) +
+  labs(title = NULL,
+       x = NULL,
+       y = NULL) +
   theme_minimal() +
   theme(
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    panel.grid.major.y = element_line(color = "gray80"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = c(0.5, 0.98),  # Positioning the legend below the subtitle
-    legend.justification = c(0.5, 1),  # Centers the legend horizontally
-    legend.direction = "horizontal",  # Makes the legend horizontal
-    legend.title = element_blank(),    # Optional: Removes legend title
-    legend.box = "horizontal"          # Optional: Places the legend in a horizontal box
-  ) +
-  ylim(0, 1) +
-  scale_fill_manual(values = attr_color)
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+  ylim(0, 90) +
+  scale_y_continuous(breaks = 50,
+                     limits = c(0, 90),
+                     labels = function(x) paste0(x, "%")) +
+  scale_fill_manual(values = attr_color) +
+  geom_hline(yintercept = 50,
+             linetype = "dashed",
+             color = "gray",
+             size = 0.5) +
+  coord_flip() +
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_text(vjust = -1.5),
+    plot.margin = margin(0, 0, 0, 0))
+
+pve_plot
 ```
 
 Combined plot.
 
 ```{r}
-combined_plot <- pve_patchwork_plot + 
-  (donut_patchwork_plot / donut_patchwork_plot2) +  
-  plot_layout(
-    ncol = 2,  
-    widths = c(1, 1)
-  ) + 
+combined_plot <- wrap_elements(
+  full = 
+    gridtext::richtext_grob(
+      text = paste0(
+        "A description of the attributes <span style='color:",
+        age_color,
+        ";'>age</span> and ",
+        "<span style='color:",
+        sex_color,
+        ";'>sex</span>."),
+      x = 0,
+      hjust = 0,
+      gp = grid::gpar(fontsize = 12))) /
+  
+  (pve_plot + 
+     
+     (wrap_elements(
+       full = gridtext::richtext_grob(
+         text = paste0(
+           "Another description of <span style='color:",
+           attr_color,
+           ";'>attributes</span>."),
+         x = 0,
+         hjust = 0,
+         gp = grid::gpar(fontsize = 12))) /
+  
+      donut_combined + plot_layout(heights = c(2, 8)))) +
+  
+  plot_layout(heights = c(1, 9)) +
   plot_annotation(
-    title = "Proportion of Variance Explained and Significant Change in Gene Expressions",
-    theme = theme(plot.title = element_text(hjust = 0.5, size = 12))
-  )
+     title = "Title",
+     theme = theme(
+       plot.title = element_text(size = 16)))
+   
 
 combined_plot
 ```

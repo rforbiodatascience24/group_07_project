@@ -195,7 +195,8 @@ combined_plot <- wrap_elements(
   plot_annotation(
      title = "Global expression over age follows a similar pattern across species",
      theme = theme(
-       plot.title = element_text(size = 16)))
+       plot.title = element_text(size = 16,
+                                 hjust =0)))
   
 
 
