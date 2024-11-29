@@ -24,8 +24,6 @@ pheno_expr_data_joined <- read_tsv(file = file.path(processed_data_dir,
 color_palette <- read_tsv(file = file.path(processed_data_dir,
                                          "04_col_pal.tsv"),
                      show_col_types = FALSE)
-
-print(pheno_expr_data_joined)
 ```
 
 Number of observations and variables in the cleaned and augmented data set
@@ -37,8 +35,12 @@ str_glue("Number of samples {pheno_expr_data_joined |>
 
 
 # Number of variables
-str_glue("Number of samples {pheno_expr_data_joined |>
+str_glue("Number of variables {pheno_expr_data_joined |>
          ncol()}")
+
+# Number of genes
+str_glue("Number of genes {pheno_expr_data_joined |>
+         ncol() - 4}")
 ```
 
 Number of individuals by sex and species
