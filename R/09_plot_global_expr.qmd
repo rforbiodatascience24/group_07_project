@@ -13,6 +13,8 @@ For the ...
 library("tidyverse")
 library("broom")
 library("patchwork")
+library("gridtext")
+library("ggtext")
 ```
 
 We load the data sets.
@@ -28,6 +30,21 @@ expr_data <- read_tsv(file = file.path(processed_data_dir,
 color_palette <- read_tsv(file = file.path(processed_data_dir,
                                          "04_col_pal.tsv"),
                      show_col_types = FALSE)
+```
+
+```{r}
+chimp_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(1) |>
+  pull(color)
+hum_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(2) |>
+  pull(color)
+mac_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(3) |>
+  pull(color)
 ```
 
 The global gene expression for each sample is plotted, color-coded by species.
@@ -46,42 +63,151 @@ plot_expr_all <- expr_data |>
                    y = percent_global,
                    color = species)) +
   geom_point(size = 2) +
-  geom_smooth(method = "lm",
-              formula = y ~ poly(log2(x + 1), 3),
-              se = TRUE) +
-  # Human
-  geom_vline(xintercept = 16.2,
-             linetype = "dashed",
-             color = "lightgreen", size = 0.5) +  
+  geom_smooth(
+    data = expr_data |>
+      filter(species %in% c("Chimpanzee", "Human")),
+    method = "lm",
+    formula = y ~ poly(log2(x + 1), 3),
+    se = FALSE) +
   # Chimpanzee
   geom_vline(xintercept = 7,
+             linewidth = 0.75,
              linetype = "dashed",
-             color = "green", size = 0.5) +    
+             color = chimp_color) +
+  # Human
+  geom_vline(xintercept = 16.2,
+             linewidth = 0.75,
+             linetype = "dashed",
+             color = hum_color) +
   # Macaque
   geom_vline(xintercept = 4.9,
+             linewidth = 0.75,
              linetype = "dashed",
-             color = "darkgreen") +
+             color = mac_color) +
+  geom_hline(yintercept = 60,
+             linewidth = 0.5,
+             linetype = "dashed",
+             color = "gray") +
   labs(
-    title = "Global Expression Trajectories (Percentage of Variation)",
-    x = "Age (Years)",
+    title = NULL,
+    x = "Age (years)",
     y = "Global Expression (%)") +
-  scale_x_continuous(limits = c(0, 20)) +
+  scale_x_continuous(limits = c(0, 50)) +
   scale_y_continuous(limits = c(0, 100)) +
   theme_minimal() +
+  theme(legend.position = "none",
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(linewidth = 0.5,
+                               color = "gray"),
+      axis.ticks = element_line(color = "gray")) +
   scale_color_manual(values = color_palette |>
                       filter(group == "Species") |>
                       pull(color))
 
+
 plot_expr_all
+```
+
+```{r}
+plot_expr_mac <- expr_data |>
+  ggplot(map = aes(x = age,
+                   y = percent_global,
+                   color = species)) +
+  geom_point(size = 2) +
+  geom_smooth(
+    data = expr_data |>
+      filter(species %in% c("Macaque")),
+    method = "lm",
+    formula = y ~ log2(x + 1),
+    se = FALSE,
+    fullrange = TRUE) +
+  # Chimpanzee
+  geom_vline(xintercept = 7,
+             linewidth = 0.75,
+             linetype = "dashed",
+             color = chimp_color) +
+  # Human
+  geom_vline(xintercept = 16.2,
+             linewidth = 0.75,
+             linetype = "dashed",
+             color = hum_color) +
+  # Macaque
+  geom_vline(xintercept = 4.9,
+             linewidth = 0.75,
+             linetype = "dashed",
+             color = mac_color) +
+  geom_hline(yintercept = 60,
+             linewidth = 0.5,
+             linetype = "dashed",
+             color = "gray") +
+  labs(
+    title = NULL,
+    x = "Age (years)",
+    y = NULL) +
+  scale_x_continuous(limits = c(0, 20)) +
+  scale_y_continuous(limits = c(0, 100)) +
+  theme_minimal() +
+  theme(legend.position = "none",
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.text.y = element_blank(),
+      axis.line.y = element_blank(),
+      axis.line.x = element_line(linewidth = 0.5,
+                               color = "gray"),
+      axis.ticks.x = element_line(color = "gray")) +
+  scale_color_manual(values = color_palette |>
+                      filter(group == "Species") |>
+                      pull(color))
+
+plot_expr_mac
+```
+
+```{r}
+combined_plot <- wrap_elements(
+  full =
+  gridtext::richtext_grob(
+    text = paste0(
+      "The expression reaches 60% around sexual maturity for <span style='color:",
+      chimp_color,
+      ";'>chimpanzee</span> and <span style='color:",
+      hum_color,
+      ";'>human</span>."),
+    x = 0,
+    hjust = -0.05,
+    gp = grid::gpar(fontsize = 12))) /
+  
+  gridtext::richtext_grob(
+    text = paste0(
+      "Applying a log2 fit to <span style='color:",
+      mac_color,
+      ";'>macaque</span>, ",
+      "due to reduced data points, displays the same trend."),
+    x = 1,
+    hjust = 1.05,
+    gp = grid::gpar(fontsize = 12)) /
+  
+  (plot_expr_all + plot_expr_mac +  plot_layout(axis_titles = "collect",
+                                                widths = c(4, 3))) +
+  
+  plot_layout(heights = c(1, 1, 8)) +
+  
+  plot_annotation(
+     title = "Global expression over age follows a similar pattern across species",
+     theme = theme(
+       plot.title = element_text(size = 16)))
+  
+
+
+combined_plot
 ```
 
 Write final plot to *.png* file.
 
 ```{r}
-# final_plot |>
-#   ggsave(file.path(output_dir),
-#          plot = p,
-#          width = 6,
-#          height = 4,
-#          dpi = 300)
+ggsave(file = file.path(processed_data_dir,
+                        "09_test.png"),
+       plot = combined_plot,
+       width = 12,
+       height = 8)
 ```

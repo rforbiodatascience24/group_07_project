@@ -13,6 +13,10 @@ For the principal component analysis (PCA) we want to visualize the data project
 library("tidyverse")
 library("broom")
 library("patchwork")
+library("cowplot")
+library("ggtext")
+
+source("99_proj_func.R")
 ```
 
 We load the data sets.
@@ -31,6 +35,21 @@ pve_data <- read_tsv(file = file.path(processed_data_dir,
 color_palette <- read_tsv(file = file.path(processed_data_dir,
                                          "04_col_pal.tsv"),
                      show_col_types = FALSE)
+```
+
+```{r}
+age_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(1) |>
+  pull(color)
+sex_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(2) |>
+  pull(color)
+species_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(3) |>
+  pull(color)
 ```
 
 ```{r}
@@ -65,11 +84,10 @@ plot_pc_pve <- pve_data_prep |>
              linetype = "dashed") +
   labs(
     x = "Principal Component",
-    y = "Variance Explained (%)",
-    fill = "Attribute",
-    title = "Variance Explained by Principal Components and Attributes") +
+    y = "Variance Explained (%)") +
   theme_minimal() +
   theme(
+    legend.position = "none",
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
     panel.grid.major.y = element_blank(),
@@ -85,98 +103,90 @@ plot_pc_pve
 The projection data is visualized by plotting the data onto the first two principal components, along with details about age, species, and sex.
 
 ```{r}
-pca_proj_plot <- function(data_frame,
-                          principal_component_1,
-                          principal_component_2) {
-  
-  data_frame |>
-    ggplot(aes(
-      x = !!sym(principal_component_1),
-      y = !!sym(principal_component_2),
-      color = species,
-      size = age,
-      shape = sex)) +
-      geom_point(stroke = 1.5) +
-      labs(title = "") +
-      theme_minimal() +
-      theme(
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.major.y = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        axis.text.x = element_blank(),
-        axis.text.y = element_blank(),
-        legend.position = "none") +
-      scale_color_manual(values = color_palette |>
-                            filter(group == "Species") |>
-                            pull(color)) +
-      scale_shape_manual(values = c(1, 4)) +
-      scale_size_continuous(range = c(1, 6))
-  }
-```
-
-```{r}
-plot_1_2_proj <- proj_data |>
-  pca_proj_plot(principal_component_1 = "PC1",
-                principal_component_2 = "PC2")
-
+# Create projection plot of PCs especially influenced by a certain attribute
 plot_1_3_proj <- proj_data |>
   pca_proj_plot(principal_component_1 = "PC1",
                 principal_component_2 = "PC3")
 
 plot_2_3_proj <- proj_data |>
   pca_proj_plot(principal_component_1 = "PC2",
-                principal_component_2 = "PC3")
+               principal_component_2 = "PC3")
 
-plot_3_4_proj <- proj_data |>
-  pca_proj_plot(principal_component_1 = "PC3",
-                principal_component_2 = "PC4")
+plot_6_9_proj <- proj_data |>
+  pca_proj_plot(principal_component_1 = "PC6",
+                principal_component_2 = "PC9")
 
-combined <- (plot_1_2_proj + plot_1_3_proj) / (plot_2_3_proj + plot_3_4_proj)
-
+# Combine projection plots
+proj_plots <- plot_grid(
+  plot_1_3_proj,
+  plot_2_3_proj,
+  plot_6_9_proj,
+  nrow = 1,
+  rel_widths = c(1, 1, 1),
+  align = "hv") |>
+  ggdraw() +
+  theme(plot.background = element_rect(fill = "#F6F6F6",
+                                       color = NA),
+        plot.margin = margin(0,0,0,0))
 ```
 
-For the variance calculation, we make a plot of the cumulative along side the variance explained over all principal components.
-
-We plot the variance explained for each principal component.
+Combine.
 
 ```{r}
-pve_data_prep |>
+# Add projection plots as inset element
+combined_plot <- plot_pc_pve +
+  inset_element(
+    proj_plots,
+    left = 0.1,
+    right = 1,
+    top = 0.9,
+    bottom = 0.4) +
   
-  ggplot(aes(x = 2,
-             y = var_expl_pc,
-             fill = attribute)) +
-  geom_bar(stat = "identity",
-           position = "fill",
-           width = 1,
-           colour = "white") +
-  coord_polar(theta = "y") +
-  facet_wrap(~ PC,
-             ncol = 10) +
-  labs(
-    x = NULL,
-    y = NULL,
-    title = "Proportion of Variance Explained Across PCs",
-    fill = "attribute") +
-  theme_void() +
-  theme(
-    strip.text = element_text(size = 5, face = "bold"),
-    plot.title = element_text(hjust = 0.5),
-    legend.position = "bottom") +
-  xlim(1, 2.5) 
-```
+  plot_annotation(
+    title = "PCA reveals clear trends of expression's dependencies on attributes",
+    theme = theme(
+      plot.title = element_text(size = 16,
+                                hjust = 0),
+      plot.margin = margin(10, 10, 10, 10))) +
+  
+  geom_richtext(
+    aes(x = -0.01,
+        y = 1.05),
+    label = paste(
+      "The main PVE is by the attributes <span style='color:",
+      age_color,
+      ";'>age</span> and ",
+      "<span style='color:",
+      species_color,
+      ";'>species</span>..."),
+    hjust = 0,
+    size = 4,
+    label.color = NA,
+    fill = NA) +
+  
+  geom_richtext(
+    aes(x = 1.01,
+        y = -0.05),
+    label = paste(
+      "...whereas <span style='color:",
+      sex_color,
+      ";'>sex</span> is mainly represented in the PCs with lower influence."),
+    hjust = 1,
+    size = 4,
+    label.color = NA,
+    fill = NA)
 
-```{r}
 
+
+combined_plot
 ```
 
 Write final plot to *.png* file.
 
 ```{r}
-# ggsave(file = file.path(processed_data_dir,
-#                         "08_test.png"),
-#        plot = combined,
-#        width = 6,
-#        height = 4,
-#        dpi = 300)
+ggsave(file = file.path(processed_data_dir,
+                        "08_test.png"),
+       plot = combined_plot,
+       width = 12,
+       height = 8)
 ```
