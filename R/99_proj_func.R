@@ -1,14 +1,26 @@
+#' Script: Function used for R4BDS project
+#'
+#' This script contains custom functions for analyzing data as part of the project.
+#' The functions are designed for the analyses PCA/PVE, ,
+#' and visualizing data using tidyverse principles.
+#'
+#' How to Use:
+#' - Source this script using `source("99_proj_func.R")`.
+#' - Call the functions as needed (e.g. calculate_var_explaine(df, pc, attr).
+
+
+#' Calculate the variance explained
+#'
+#' Explanation
+#'
+#' @param data_frame A data frame containing PCA analysis and attribute data.
+#' @param principal_component A character string of PC to analyze.
+#' @param attribute A character vector of column names for attributes.
+#' @return A tibble with variance explained results for each attribute.
 
 calculate_var_explained <- function(data_frame,
                                     principal_component,
-                                    attributes)
-
-  {
-
-  # Input:
-  # data_frame: PCA results and metadata
-  # principal_component: PC to analyze (e.g., "PC1")
-  # Attributes: Column names for attributes (e.g., c("log_age", "species_num"))
+                                    attributes) {
 
   full_formula <- as.formula(paste(principal_component,
                                    "~",
@@ -49,18 +61,20 @@ calculate_var_explained <- function(data_frame,
   }
 
 
+#' Apply the above function to a species for multiple attributes
+#'
+#' Explanation.
+#'
+#' @param data_frame A data frame containing PCA analysis and attribute data.
+#' @param spec A character string of species to analyze.
+#' @param attr A character vector of column names for attributes.
+#' @return A tibble with variance explained results for species and principal components.
+
 apply_variance_explained <- function(data_frame,
                                      spec,
-                                     fact)
+                                     attr) {
 
-  {
-
-
-  # Input:
-  # data_frame: PCA results and metadata
-  # spec: species to apply to (e.g., "Human")
-  # fact: Column names for attributes (e.g., c("log_age", "sex_num"))
-
+  # Filter input data frame and group for preparation
   data_frame |>
     filter(species == spec) |>
     group_by(PC) |>
@@ -71,20 +85,21 @@ apply_variance_explained <- function(data_frame,
         .f = ~ calculate_var_explained(
           data_frame = .x,
           principal_component = "value",
-          attributes = fact))) |>
+          attributes = attr))) |>
     unnest(cols = c(var_explained)) |>
     dplyr::select(-data)
 
   }
 
 
+#' Calculate the proportion of variance explained
+#'
+#' Explanation.
+#'
+#' @param data_frame A data frame containing the variance explained.
+#' @return A tibble of mean PVE for each attribute.
 
-calculate_pve <- function(data_frame)
-
-  {
-
-  # Input:
-  # data_frame: variance explained explained data
+calculate_pve <- function(data_frame){
 
   data_frame |>
     group_by(attribute) |>
@@ -94,10 +109,15 @@ calculate_pve <- function(data_frame)
 }
 
 
-
+#' Applies shifts to regression and evaluates best combination of shifta
+#'
+#' Explanation.
+#'
+#' @param data_frame A data frame containing regression parameters, age values and min two species.
+#' @param target_species A character string of species to apply shift to.
+#' @return A list with the results of the shift model analysis.
 
 shift_model <- function(data_frame,
-                        set_shift = 0,
                         target_species = "Chimpanzee") {
 
   # Transform expression data
@@ -113,7 +133,7 @@ shift_model <- function(data_frame,
   baseline_model <- lm(log_expr ~ poly(log_age, 3) * species, data = base_data)
 
   #  Use NLS to estimate the best shifts
-  tryCatch({
+  tryCatch( {
     nls_fit <- nls(
       log_expr ~ intercept +
         poly1 * (log_age + age_shift) +
@@ -149,7 +169,8 @@ shift_model <- function(data_frame,
     f_test <- anova(baseline_model, shifted_model)
     p_value <- f_test[["Pr(>F)"]][2]
 
-    # I can't get this to work using f_test |>
+    # I can't get this to work using
+    # f_test |>
     # filter(term == "shifted_model") |>
     # pull(p.value)
 
@@ -163,17 +184,30 @@ shift_model <- function(data_frame,
       age_shift = age_shift_opt,
       expr_shift = expr_shift_opt,
       p_value = p_value,
-      rss_diff = rss_diff)},
+      rss_diff = rss_diff)
+
+    },
+
     error = function(e) {
       list(
         age_shift = NA,
         expr_shift = NA,
         p_value = NA,
-        rss_diff = NA)})}
+        rss_diff = NA)
+
+      })
+
+  }
 
 
-
-
+#' Apply the above function to sekected species
+#'
+#' Explanation
+#'
+#' @param data_frame A data frame containing regression parameters, age values and min two species.
+#' @param original_species A character string of species to match with shift.
+#' @param compared_species A character string of species to apply shift to.
+#' @return A tibble with the results of the shift model analysis.
 
 apply_shift_model <- function(data_frame,
                               original_species,
@@ -195,9 +229,16 @@ apply_shift_model <- function(data_frame,
     dplyr::select(-shift_modeling)}
 
 
+#' Classify genes based on significance of age shift
+#'
+#' Explanation
+#'
+#' @param data_frame A data frame containing p_values and optimal age_shift for each gene
+#' @return A list containing genes for each classification.
 
+class_model <- function(data_frame) {
 
-class_model <- function(data_frame){
+  # Evaluate significance and classify based og age_sift
   classification <- data_frame |>
     mutate(class = case_when(
       p_value < 0.5 ~ case_when(
@@ -206,6 +247,7 @@ class_model <- function(data_frame){
         TRUE ~ "Unclassified"),
       TRUE ~ "Unclassified"))
 
+  # Create vector of each classification
   neogenic <- classification |>
     filter(class == "Neogenic") |>
     pull(gene)
@@ -222,4 +264,57 @@ class_model <- function(data_frame){
   list(
     neogenic = neogenic,
     accelerated = accelerated,
-    unclassified = unclassified)}
+    unclassified = unclassified)
+
+  }
+
+
+#' Plot projection of data points unto two principal components
+#'
+#' Explantion
+#'
+#' @param data_frame A data frame containing the projection data for principal components.
+#' @param principal_component_1 A character string of first PC to use projection data from.
+#' @param principal_component_2 A character string of second PC to use projection data from.
+#' @return A ggplot object of projection onto two PCs.
+
+pca_proj_plot <- function(data_frame,
+                          principal_component_1,
+                          principal_component_2) {
+
+  data_frame |>
+    ggplot(aes(
+      x = !!sym(principal_component_1),
+      y = !!sym(principal_component_2),
+      color = species,
+      size = age,
+      shape = sex)) +
+    geom_point(stroke = 1.5) +
+    labs(title = paste(principal_component_2, "vs", principal_component_1),
+         x = NULL,
+         y = NULL) +
+    theme_minimal() +
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.x = element_blank(),
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor.y = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.position = "none",
+      aspect.ratio = 2/3,
+      plot.title = element_text(size = 10,
+                                hjust = 0,
+                                vjust = -110),
+      plot.margin = margin(10, 10, 10, 10) ) +
+    scale_color_manual(values = color_palette |>
+                         filter(group == "Species") |>
+                         pull(color)) +
+    scale_shape_manual(values = c(1, 4)) +
+    scale_size_continuous(range = c(1, 6)) +
+    theme(plot.background = element_rect(color = "gray",
+                                         linewidth = 0.25))
+
+}

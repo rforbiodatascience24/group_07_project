@@ -91,4 +91,17 @@ human_mac_table |>
   dplyr::select(-data) |>
   write_tsv(file = file.path(processed_data_dir,
                              "07.2_hum_mac_hetchron.tsv"))
+
+human_chimp_shift |>
+  dplyr::select(-p_value,
+                -rss_diff) |>
+  unnest(cols = c(data)) |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "07.3_hum_chi_shift.tsv"))
+human_mac_shift |>
+  dplyr::select(-p_value,
+                -rss_diff) |>  
+  unnest(cols = c(data)) |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "07.4_hum_mac_shift.tsv"))
 ```
