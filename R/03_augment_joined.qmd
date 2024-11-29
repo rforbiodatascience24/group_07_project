@@ -1,6 +1,6 @@
 ---
 title: "Augmented Data, organized"
-output: html
+output: html 
 execute:
   echo: true
   output: false
