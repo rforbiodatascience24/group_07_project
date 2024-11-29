@@ -1,0 +1,211 @@
+---
+title: "Heterochrony, plots"
+format: html
+output-dir: results
+execute:
+  echo: true
+  output: false
+---
+
+We begin with loading the necessary libraries for plot formation:
+
+```{r}
+library(tidyverse)
+```
+
+Thereafter, we load the data set from the heterochrony analysis and for our chosen graphic colours:
+
+```{r}
+# Set path for processed data directory
+# blank
+
+# Load the data sets
+# blank
+
+color_palette <- read_tsv(file = file.path(processed_data_dir,
+                                         "04_col_pal.tsv"),
+                     show_col_types = FALSE)
+```
+
+```{r}
+# Test dataset
+test_set <- data.frame(
+  Gene = c("GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH","GeneQ", "Gene1", "Gene2", "Gene3", "Gene4", "Gene5", "Gene6","Gene7"),
+  Species = c("Human", "Human", "Monkey", "Monkey", "Monkey", "Monkey","Human","Human","Monkey","Monkey","Human","Monkey","Chimp","Chimp","Chimp","Chimp"),
+  Association = c("Neotenic", "Neotenic", "Neotenic", "Accelerated", "Neotenic", "Accelerated", "Accelerated", "Accelerated", "Accelerated","Neotenic","Neotenic", "Accelerated", "Neotenic", "Accelerated", "Neotenic","Accelerated")
+)
+
+# Display the dataset
+print(test_set)
+```
+
+We wish to visualize the percentages of neotenic and accelerated genes from the prefrontal cortex for humans, chimps, and macaques, as well as for the brain tissue caudate nucleus for humans only. Therefore we start by argumentation of the heterochrony data from our earlier analysis, to find the percentages:
+
+```{r}
+# Condence to a new dataset with % catagory
+percent_phyloontogenic <- test_set |>
+  group_by(Species, Association) |>
+  summarise(Count = n()) |>
+  mutate(Percentage = (Count / sum(Count))*100)
+
+print(percent_phyloontogenic)
+```
+
+First, we recreate the plots from the report, however, since we only have data for a single tissue, we just replicate the \_\_\_\_. Had we all tissue types, we could use facet_wrap(\~Tissue) to create an identical plot.
+
+```{r}
+# Filtering and adjusting of dataset
+
+# Removing Macaque
+data_recreatedplot <- percent_phyloontogenic |> 
+  filter(Species == "Chimp" | Species == "Human")
+
+# Creating new column ID, which includes the species and association 
+data_recreatedplot <- dataset_macqueremove |>
+  ungroup() |>
+  mutate(
+    ID = str_c(Species, Association, sep = "-")
+  )
+
+#dataset_macqueremove <- dataset_macqueremove |> 
+#  ungroup() |>
+#  mutate(
+#    ID = row_number()
+#    )
+
+```
+
+```{r}
+
+# Replicating plot using ggplot
+
+ggplot(data = data_recreatedplot,
+       mapping = aes(x = ID,
+                     y = Percentage,
+                     fill = ID)) +
+  geom_bar(stat = "identity",
+           position = position_dodge(),
+           color = "black") +
+  scale_y_continuous(limit = c(0,80)) +
+  theme_classic() +
+  theme(legend.position = c(0.40,1),
+        legend.title = element_blank(),
+        legend.direction = "vertical",
+        text = element_text(size=12),
+        axis.line.x = element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.text.x=element_blank()) +
+  labs(y = "Genes Assigned to Categories (%)",
+       x = "Tissue Type")+
+  scale_fill_manual(values = c("#add7e7","#66e7e7","#cc8080","#fe0100"))
+  
+
+
+```
+
+We now will try to to improve the above visualization. We will also include Macaque**.**
+
+```{r}
+# without tissue
+
+ggplot(data = percent_phyloontogenic,
+       mapping = aes(y = Species,
+                     x = Percentage,
+                     fill = Association)) +
+  geom_bar(stat = "identity",
+           position = position_dodge(),
+           color = "black") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title.position = "plot",
+        plot.subtitle = element_textbox_simple(),
+        text = element_text(size=12),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank()) +
+  labs(title = "Gene Distribution", 
+       subtitle = "by Phyloontogentic Catagories: <span style='color:#DE580C'>Accelerated</span> vs. <span style='color:#9E3706'>Neotenic</span>",
+       y = NULL,
+       x = "Genes Assigned to Categories (%)")+
+  scale_fill_manual(values = color_palette |>
+                      filter(group == "Alternative") |>
+                      slice_tail(n = 2) |>
+                      pull(color))
+```
+
+```{r}
+# with tissue 
+
+ggplot(data = percent_phyloontogenic,
+       mapping = aes(y = Species,
+                     x = Percentage,
+                     fill = Association)) +
+  geom_bar(stat = "identity",
+           position = position_dodge(),
+           color = "black") +
+    facet_wrap(~Tissue) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title.position = "plot",
+        plot.subtitle = element_textbox_simple(),
+        text = element_text(size=12),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank()) +
+  labs(title = "Gene Distribution", 
+       subtitle = "by Phyloontogentic Catagories: <span style='color:#DE580C'>Accelerated</span> vs. <span style='color:#9E3706'>Neotenic</span>",
+       y = NULL,
+       x = "Genes Assigned to Categories (%)")+
+  scale_fill_manual(values = color_palette |>
+                      filter(group == "Alternative") |>
+                      slice_tail(n = 2) |>
+                      pull(color))
+```
+
+Finally, we now write our final plot to a .png file:
+
+```{r}
+# ggsave(file = FILL IN,
+#        plot = combined,
+#        width = 6,
+#        height = 4,
+#        dpi = 300)
+```
+
+TO BE REMOVED
+
+.................................................
+
+The proportion of gray-matter-specific genes among human-neotenic genes and 'other', by tissue type (caudate nucleus, prefrontal cortex)
+
+```{r}
+# Condence to a new dataset with % grey matter genes caragory
+percent_grey <- test_set |>
+  filter(Species == "Human") |>
+  group_by(Association, Tissue) |>
+  summarise(Count = n()) |>
+  mutate(Percentage = (Count / sum(Count))*100)
+
+print(percent_grey)
+```
+
+```{r}
+ggplot(data = percent_grey,
+       mapping = aes(y= Tissue,
+                     x= Percentage,
+                     fill = Association)) +
+  geom_bar(stat = "identity",
+           position=position_dodge(),
+           color = "black") +
+  scale_fill_manual(values = c("red","blue"),
+                    labels = c("Accelerated","Neotenic"))+
+  theme_minimal() +
+  theme(legend.position="none",
+        plot.title.position = "plot",
+        plot.subtitle = element_textbox_simple(),
+        text=element_text(size=12,  family="momo"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank()) +
+  labs(title = "Proportion of Gray-Matter-Specific Genes", 
+       subtitle = "by Phyloontogentic Catagories: <span style='color:#ff0000'>Accelerated</span> vs. <span style='color:#0000FF'>Neotenic</span>",
+       y = NULL,
+       x = "%")
+```

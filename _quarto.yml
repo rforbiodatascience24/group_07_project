@@ -1,0 +1,6 @@
+project:
+  output-dir: "Results"
+
+output-defaults:
+  html:
+    standalone: true

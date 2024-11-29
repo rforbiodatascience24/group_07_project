@@ -1,36 +1,42 @@
 ---
 title: "Principle Component Analysis"
 output: html
+output-dir: results
 execute:
   echo: true
-  output: false
 ---
 
 For the principal component analysis (PCA) itself, we use `prcomp`, and for the proportion of variation explained, we use the functions described in *99_proj_func*. To ensure proper calling of `select()`, we use `dplyr::select()`.
 
 ```{r}
+#| output: false
+
 library("tidyverse")
+library("dplyr")
 library("broom")
 library("patchwork")
 
 source("99_proj_func.R")
 ```
 
-Load the data set.
+We load the data set.
 
 ```{r}
+#| output: false
+
 # Set path for processed data directory
 processed_data_dir <- file.path("..","data")
 
 # Load the dataset
 data <- read_tsv(file = file.path(processed_data_dir,
-                                         "03_dat_joined.tsv"),
-                     show_col_types = FALSE)
+                                         "03_dat_joined.tsv"))
 ```
 
-We do numeric encoding of non-numeric variables of interest and scale our data as preparation.
+For the PCA, do numeric encoding of our non-numeric variables of interest and scale our data as preparation.
 
 ```{r}
+#| output: false
+
 # Numeric encoding and extraction
 pca_data <- data |>
   mutate(sex_num = case_when(sex == "M" ~ 1,
@@ -40,14 +46,16 @@ pca_data <- data |>
                                  TRUE ~ 2)) |>
   dplyr::select(where(is.numeric))
 
-# Scale gene expression
+# Scale gene expression (variance = 1
 pca_data_scaled <- pca_data |>
   scale()
 ```
 
-Then we apply the `prcomp()` function and save projected data in tidy format.
+We then apply the `prcomp()` function and save projected data in proper tidy format.
 
 ```{r}
+#| output: false
+
 # Perform PCA
 pca_results <- pca_data_scaled |>
   prcomp(scale. = FALSE)
@@ -73,6 +81,8 @@ pca_proj_df <- pca_results |>
 We also save the standard deviation and calculate the variance explained and cumulative variance.
 
 ```{r}
+#| output: false
+
 pca_var_df <- pca_results |> 
   pluck("sdev") |> 
   tibble(sdev = _ ) |>
@@ -86,7 +96,7 @@ pca_var_df <- pca_results |>
          cumulative_variance)
 ```
 
-For the proportion of variance explained (PVE), we combine our data frames by the principal component.
+For the proportion of variance explained (PVE), combine our to data frames by the principal component.
 
 ```{r}
 pca_proj_long_df <- pca_proj_df |>
@@ -94,6 +104,9 @@ pca_proj_long_df <- pca_proj_df |>
     cols = starts_with("PC"),
     names_to = "PC",
     values_to = "value")
+
+
+  
 
 pca_results_df <- pca_var_df |> 
   left_join(pca_proj_long_df,
@@ -119,9 +132,13 @@ var_explained_pc_all <- pca_results_df |>
   dplyr::select(-data)
 ```
 
-Since sex is mainly represented in the principal components with the least variance explained, and we don't want these to skew our further analysis, we filter our data for principal components that explained over 1% of the variation of the data.
+We then we calculate and plot the PVE.
+
+Since sex is mainly represented in the principal components with the least variance explained, and we don't want these to skew our further analysis, we filter our data for principal components with a variance explained over 1%.
 
 ```{r}
+#| output: false
+
 pca_thres_df <- pca_results_df |>
   filter(variance_explained >= 1)
 ```
@@ -129,6 +146,8 @@ pca_thres_df <- pca_results_df |>
 We repeat the above analysis for the filtered data and for each species.
 
 ```{r}
+#| output: false
+
 var_explained_pc <- pca_thres_df |>
   group_by(PC) |>
   nest() |>
@@ -138,57 +157,35 @@ var_explained_pc <- pca_thres_df |>
       .f = ~ calculate_var_explained(
         data_frame = .x,
         principal_component = "value",
-        attributes= c("log_age", "species_num", "sex_num")))) |>
+        factors= c("log_age", "species_num", "sex_num")))) |>
   unnest(cols = c(var_explained)) |>
   dplyr::select(-data)
 ```
 
 ```{r}
+#| output: false
+
 var_explained_human <- pca_thres_df |>
   apply_variance_explained(spec = "Human",
-                           fact = c("log_age", "sex_num"))
+                           attr = c("log_age", "sex_num"))
 
 var_explained_chimp <- pca_thres_df |>
   apply_variance_explained(spec = "Chimpanzee",
-                           fact = c("log_age", "sex_num"))
+                           attr = c("log_age", "sex_num"))
 
 var_explained_macaque <- pca_thres_df |>
   apply_variance_explained(spec = "Macaque",
-                           fact = c("log_age", "sex_num"))
+                           attr = c("log_age", "sex_num"))
 ```
 
 ```{r}
-pve_pc <- var_explained_pc |>
-  calculate_pve()
+#| output: false
 
-pve_human <- var_explained_human |>
-  calculate_pve() |>
-  mutate(Species = "Human")
-
-pve_chimp <- var_explained_chimp |>
-  calculate_pve() |>
-  mutate(Species = "Chimpanzee")
-
-pve_macaque <- var_explained_macaque |>
-  calculate_pve() |>
-  mutate(Species = "Macaque")
-
-pve_summary <- bind_rows(pve_human,
-                         pve_chimp,
-                         pve_macaque)
-```
-
-```{r}
 pca_results_df |>
   write_tsv(file = file.path(processed_data_dir,
                              "05.1_dat_pca.tsv"))
-pca_proj_df |>
-  write_tsv(file = file.path(processed_data_dir,
-                             "05.2_dat_pca_proj.tsv"))
-var_explained_pc_all |>
-  write_tsv(file = file.path(processed_data_dir,
-                             "05.3_dat_pve_all.tsv"))
+
 pve_summary |>
   write_tsv(file = file.path(processed_data_dir,
-                             "05.4_dat_pve_species.tsv"))
+                             "05.2_dat_pve.tsv"))
 ```
