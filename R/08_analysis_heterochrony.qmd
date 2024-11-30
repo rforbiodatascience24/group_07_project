@@ -11,7 +11,7 @@ execute:
 library("tidyverse")
 library("broom")
 
-source("99_proj_func.R")
+source("15_proj_func.R")
 ```
 
 ```{r}
@@ -22,7 +22,7 @@ processed_data_dir <- file.path("..","data")
 
 # Load cube analyzed dataset
 data_cube <- read_tsv(file = file.path(processed_data_dir,
-                                      "06.2_dat_cube.tsv"),
+                                      "07.2_dat_cube.tsv"),
                       show_col_types = FALSE)
 ```
 
@@ -86,22 +86,22 @@ Write results to .*tsv* files.
 human_chimp_table |>
   dplyr::select(-data) |>
   write_tsv(file = file.path(processed_data_dir,
-                             "07.1_hum_chi_hetchron.tsv"))
+                             "08.1_hum_chi_hetchron.tsv"))
 human_mac_table |>
   dplyr::select(-data) |>
   write_tsv(file = file.path(processed_data_dir,
-                             "07.2_hum_mac_hetchron.tsv"))
+                             "08.2_hum_mac_hetchron.tsv"))
 
 human_chimp_shift |>
   dplyr::select(-p_value,
                 -rss_diff) |>
   unnest(cols = c(data)) |>
   write_tsv(file = file.path(processed_data_dir,
-                             "07.3_hum_chi_shift.tsv"))
+                             "08.3_hum_chi_shift.tsv"))
 human_mac_shift |>
   dplyr::select(-p_value,
                 -rss_diff) |>  
   unnest(cols = c(data)) |>
   write_tsv(file = file.path(processed_data_dir,
-                             "07.4_hum_mac_shift.tsv"))
+                             "08.4_hum_mac_shift.tsv"))
 ```

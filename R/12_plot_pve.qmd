@@ -31,7 +31,7 @@ pve_data <- read_tsv(file = file.path(processed_data_dir,
                                          "05.4_dat_pve_species.tsv"),
                      show_col_types = FALSE)
 color_palette <- read_tsv(file = file.path(processed_data_dir,
-                                         "04_col_pal.tsv"),
+                                         "09_col_pal.tsv"),
                      show_col_types = FALSE)
 ```
 
@@ -204,7 +204,7 @@ Write final plot to *.png* file.
 
 ```{r}
 ggsave(file = file.path(processed_data_dir,
-                        "10_test.png"),
+                        "12_expr_attr.png"),
        plot = combined_plot,
        width = 6,
        height = 4,

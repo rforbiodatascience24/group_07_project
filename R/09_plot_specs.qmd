@@ -90,6 +90,6 @@ processed_data_dir <- file.path("..","data")
 
 color_palette |>
   write_tsv(file = file.path(processed_data_dir,
-                             "04_col_pal.tsv"))
+                             "09_col_pal.tsv"))
 
 ```
