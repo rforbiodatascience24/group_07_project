@@ -16,7 +16,7 @@ library("patchwork")
 library("cowplot")
 library("ggtext")
 
-source("99_proj_func.R")
+source("15_proj_func.R")
 ```
 
 We load the data sets.
