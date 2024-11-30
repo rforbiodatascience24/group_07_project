@@ -22,14 +22,14 @@ processed_data_dir <- file.path("..","data")
 
 # Load the data set and color palette
 hum_chimp <- read_tsv(file = file.path(processed_data_dir,
-                                         "07.1_hum_chi_hetchron.tsv"),
+                                         "08.1_hum_chi_hetchron.tsv"),
                       show_col_types = FALSE)
 hum_mac <- read_tsv(file = file.path(processed_data_dir,
-                                         "07.2_hum_mac_hetchron.tsv"),
+                                         "08.2_hum_mac_hetchron.tsv"),
                       show_col_types = FALSE)
 
 color_palette <- read_tsv(file = file.path(processed_data_dir,
-                                         "04_col_pal.tsv"),
+                                         "09_col_pal.tsv"),
                      show_col_types = FALSE)
 ```
 
@@ -115,7 +115,7 @@ Write final plot to *.png* file.
 
 ```{r}
 ggsave(file = file.path(processed_data_dir,
-                        "12_test.png"),
+                        "14_test.png"),
        plot = class_plot,
        width = 12,
        height = 8)
