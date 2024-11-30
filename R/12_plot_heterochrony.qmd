@@ -1,0 +1,122 @@
+---
+title: "Heterochrony, plots"
+format: html
+execute:
+  echo: true
+  output: false
+---
+
+We begin with loading the necessary libraries for plot formation:
+
+```{r}
+library("tidyverse")
+library("broom")
+library("patchwork")
+```
+
+Load the data sets.
+
+```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the data set and color palette
+hum_chimp <- read_tsv(file = file.path(processed_data_dir,
+                                         "07.1_hum_chi_hetchron.tsv"),
+                      show_col_types = FALSE)
+hum_mac <- read_tsv(file = file.path(processed_data_dir,
+                                         "07.2_hum_mac_hetchron.tsv"),
+                      show_col_types = FALSE)
+
+color_palette <- read_tsv(file = file.path(processed_data_dir,
+                                         "04_col_pal.tsv"),
+                     show_col_types = FALSE)
+```
+
+```{r}
+hum_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(1) |>
+  pull(color)
+chimp_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(2) |>
+  pull(color)
+mac_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(3) |>
+  pull(color)
+spec_color <- c(Human = hum_color,
+                Chimpanzee = chimp_color,
+                Macaque = mac_color)
+altern_color <- color_palette |>
+  filter(group == "Alternative") |>
+  pull(color)
+```
+
+We wish to visualize the percentages of neotenic and accelerated genes from the prefrontal cortex for humans, chimps, and macaques, as well as for the brain tissue caudate nucleus for humans only. Therefore we start by argumentation of the heterochrony data from our earlier analysis, to find the percentages:
+
+```{r}
+hum_chimp_prep <- hum_chimp |>
+  group_by(classification) |>
+  count() |>
+  ungroup() |>
+  mutate(percent = (n / sum(n)) * 100,
+         subject = "Human",
+         shifted = "Chimpanzee")
+
+hum_mac_prep <- hum_mac |>
+  group_by(classification) |>
+  count() |>
+  ungroup() |>
+  mutate(percent = (n / sum(n)) * 100,
+         subject = "Human",
+         shifted = "Macaque")
+
+data_prep <- bind_rows(hum_chimp_prep,
+                       hum_mac_prep)
+```
+
+First, we recreate the plots from the report, however, since we only have data for a single tissue, we just replicate the \_\_\_\_. Had we all tissue types, we could use facet_wrap(\~Tissue) to create an identical plot.
+
+```{r}
+class_plot <- data_prep |>
+  ggplot(map = aes(x = interaction(subject,
+                                   shifted),
+                   y = percent,
+                   fill = classification)) +
+  geom_bar(stat = "identity",
+           position = position_dodge()) +
+  scale_y_continuous(limit = c(0,100)) +
+  scale_x_discrete(labels = function(x) x) +
+  labs(y = "Genes Assigned to Categories (%)",
+       x = NULL) +
+  theme_minimal() +
+  theme(legend.title = element_blank(),
+        legend.position = "right",
+        legend.direction = "vertical",
+        text = element_text(size=12),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line.x = element_blank(),
+        axis.ticks.x =element_blank()) +
+        # axis.text.x = element_text(color = c(hum_color,
+        #                                      chimp_color,
+        #                                      hum_color,
+        #                                      mac_color),
+        #                            size = 10)) +
+  scale_fill_manual(values = altern_color)
+  
+
+
+```
+
+Write final plot to *.png* file.
+
+```{r}
+ggsave(file = file.path(processed_data_dir,
+                        "12_test.png"),
+       plot = class_plot,
+       width = 12,
+       height = 8)
+```

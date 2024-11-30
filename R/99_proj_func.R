@@ -289,32 +289,38 @@ pca_proj_plot <- function(data_frame,
       color = species,
       size = age,
       shape = sex)) +
-    geom_point(stroke = 1.5) +
-    labs(title = paste(principal_component_2, "vs", principal_component_1),
-         x = NULL,
+    geom_point(stroke = 1) +
+    labs(x = NULL,
          y = NULL) +
+    coord_fixed() +
     theme_minimal() +
     theme(
-      panel.grid.major.x = element_blank(),
-      panel.grid.minor.x = element_blank(),
-      panel.grid.major.y = element_blank(),
-      panel.grid.minor.y = element_blank(),
+      legend.position = "none",
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
       axis.text.x = element_blank(),
       axis.text.y = element_blank(),
       axis.ticks.x = element_blank(),
       axis.ticks.y = element_blank(),
-      legend.position = "none",
-      aspect.ratio = 2/3,
-      plot.title = element_text(size = 10,
-                                hjust = 0,
-                                vjust = -110),
-      plot.margin = margin(10, 10, 10, 10) ) +
+      axis.line = element_blank(),
+      plot.margin = margin(0, 0, 0, 0),
+      panel.spacing = unit(0, "null"),
+      panel.border = element_blank()) +
     scale_color_manual(values = color_palette |>
                          filter(group == "Species") |>
                          pull(color)) +
     scale_shape_manual(values = c(1, 4)) +
-    scale_size_continuous(range = c(1, 6)) +
-    theme(plot.background = element_rect(color = "gray",
-                                         linewidth = 0.25))
+    scale_size_continuous(range = c(0.1, 2.5)) +
+    annotate(
+      "text",
+      x = -Inf,
+      y = -Inf,
+      label = paste(principal_component_2, "vs", principal_component_1),
+      hjust = 0,
+      vjust = -1,
+      size = 3,
+      fontface = "bold") +
+    theme(plot.background = element_rect(fill = NA,
+                                         color = NA))
 
 }

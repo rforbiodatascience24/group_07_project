@@ -13,6 +13,8 @@ For the principal component analysis (PCA) we want to visualize the data project
 library("tidyverse")
 library("broom")
 library("patchwork")
+library("cowplot")
+library("ggtext")
 
 source("99_proj_func.R")
 ```
@@ -44,7 +46,7 @@ sex_color <- color_palette |>
   filter(group == "Attributes") |>
   slice(2) |>
   pull(color)
-spec_color <- color_palette |>
+species_color <- color_palette |>
   filter(group == "Attributes") |>
   slice(3) |>
   pull(color)
@@ -82,11 +84,10 @@ plot_pc_pve <- pve_data_prep |>
              linetype = "dashed") +
   labs(
     x = "Principal Component",
-    y = "Variance Explained (%)",
-    fill = "Attribute",
-    title = "Variance Explained by Principal Components and Attributes") +
+    y = "Variance Explained (%)") +
   theme_minimal() +
   theme(
+    legend.position = "none",
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
     panel.grid.major.y = element_blank(),
@@ -102,6 +103,7 @@ plot_pc_pve
 The projection data is visualized by plotting the data onto the first two principal components, along with details about age, species, and sex.
 
 ```{r}
+# Create projection plot of PCs especially influenced by a certain attribute
 plot_1_3_proj <- proj_data |>
   pca_proj_plot(principal_component_1 = "PC1",
                 principal_component_2 = "PC3")
@@ -114,39 +116,66 @@ plot_6_9_proj <- proj_data |>
   pca_proj_plot(principal_component_1 = "PC6",
                 principal_component_2 = "PC9")
 
-
-plot_1_3_proj
-
-plot_2_3_proj
-
-plot_6_9_proj
+# Combine projection plots
+proj_plots <- plot_grid(
+  plot_1_3_proj,
+  plot_2_3_proj,
+  plot_6_9_proj,
+  nrow = 1,
+  rel_widths = c(1, 1, 1),
+  align = "hv") |>
+  ggdraw() +
+  theme(plot.background = element_rect(fill = "#F6F6F6",
+                                       color = NA),
+        plot.margin = margin(0,0,0,0))
 ```
 
-For the variance calculation, we make a plot of the cumulative along side the variance explained over all principal components.
-
-We plot the variance explained for each principal component.
+Combine.
 
 ```{r}
-proj_plots <- plot_1_3_proj +
-  plot_2_3_proj +
-  plot_6_9_proj
-
+# Add projection plots as inset element
 combined_plot <- plot_pc_pve +
-  inset_element(proj_plots, 0.1, 0.7, 1, 1) +
+  inset_element(
+    proj_plots,
+    left = 0.1,
+    right = 1,
+    top = 0.9,
+    bottom = 0.4) +
+  
   plot_annotation(
-    title = "PCA reveals clear trends of dependencies of expression on attributes",
-    subtitle = "The main PVE is by the attributes 
-    <span style='color:age_color;'>age</span>
-    and
-    <span style='color:spec_color;'>species</span>...",
-    caption = "...whereas <span style='color:sex_color;'>sex</span> is mainly represented in the lower ranking principal components.",
+    title = "PCA reveals clear trends of expression's dependencies on attributes",
     theme = theme(
       plot.title = element_text(size = 16,
-                                hjust = -1),
-      plot.subtitle = element_text(size = 10,
-                                   hjust = -1),
-      plot.caption = element_text(size = 10,
-                                  hjust = 1)))
+                                hjust = 0),
+      plot.margin = margin(10, 10, 10, 10))) +
+  
+  geom_richtext(
+    aes(x = -0.01,
+        y = 1.05),
+    label = paste(
+      "The main PVE is by the attributes <span style='color:",
+      age_color,
+      ";'>age</span> and ",
+      "<span style='color:",
+      species_color,
+      ";'>species</span>..."),
+    hjust = 0,
+    size = 4,
+    label.color = NA,
+    fill = NA) +
+  
+  geom_richtext(
+    aes(x = 1.01,
+        y = -0.05),
+    label = paste(
+      "...whereas <span style='color:",
+      sex_color,
+      ";'>sex</span> is mainly represented in the PCs with lower influence."),
+    hjust = 1,
+    size = 4,
+    label.color = NA,
+    fill = NA)
+
 
 
 combined_plot
@@ -158,7 +187,6 @@ Write final plot to *.png* file.
 ggsave(file = file.path(processed_data_dir,
                         "08_test.png"),
        plot = combined_plot,
-       width = 6,
-       height = 4,
-       dpi = 300)
+       width = 12,
+       height = 8)
 ```
