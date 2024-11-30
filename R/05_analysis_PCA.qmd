@@ -16,7 +16,7 @@ library("dplyr")
 library("broom")
 library("patchwork")
 
-source("99_proj_func.R")
+source("15_proj_func.R")
 ```
 
 We load the data set.

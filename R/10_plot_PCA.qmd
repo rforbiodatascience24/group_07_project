@@ -16,7 +16,7 @@ library("patchwork")
 library("cowplot")
 library("ggtext")
 
-source("99_proj_func.R")
+source("15_proj_func.R")
 ```
 
 We load the data sets.
@@ -33,7 +33,7 @@ pve_data <- read_tsv(file = file.path(processed_data_dir,
                                          "05.3_dat_pve_all.tsv"),
                      show_col_types = FALSE)
 color_palette <- read_tsv(file = file.path(processed_data_dir,
-                                         "04_col_pal.tsv"),
+                                         "09_col_pal.tsv"),
                      show_col_types = FALSE)
 ```
 
@@ -185,7 +185,7 @@ Write final plot to *.png* file.
 
 ```{r}
 ggsave(file = file.path(processed_data_dir,
-                        "08_test.png"),
+                        "10_PCA.png"),
        plot = combined_plot,
        width = 12,
        height = 8)

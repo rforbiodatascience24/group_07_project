@@ -1,0 +1,191 @@
+---
+title: "MLC Runs"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(broom)
+```
+
+For every gene, multivariable regression is done to determine whether any of the two factors, age, and species, are significant to change in the expression of that particular gene. Later, the proportion of significant genes will be presented.
+
+Since one of the factors (species) is categorical, the first step is to represent these variables with numeric values, 0 and 1. The code below also extracts the age of all samples.
+
+```{r}
+extended_pheno <- pheno_data |> 
+  mutate(human_chimp_species = case_when(
+    grepl("Human dorsolateral", title) ~ 0,
+    grepl("Chimpanzee", title) ~ 1,
+    TRUE ~ NA_real_
+  ))
+extended_pheno <- extended_pheno |> 
+  mutate(human_maca_species = case_when(
+    grepl("Human dorsolateral", title) ~ 0,
+    grepl("macaque", title) ~ 1,
+    TRUE ~ NA_real_
+  ))
+extended_pheno <- extended_pheno |> 
+    mutate(age = as.numeric(str_extract(characteristics_ch1, "\\d+\\.?\\d*")))
+#extended_pheno
+```
+
+Creating a new dataframe that now contains all variables of interest
+
+```{r}
+mlc_data <- expr_data_tidy_wide |>
+  mutate(human_chimp_species = extended_pheno |> pull(human_chimp_species)) |> 
+  mutate(human_maca_species = extended_pheno |> pull(human_maca_species)) |>
+  mutate(age = extended_pheno |> pull(age)) 
+
+#mlc_data
+```
+
+Finally, process the data by performing the necesary statistical tests. The code returns a dataframe with information on which genes are predicted with great significance by age or species.
+
+```{r}
+mlc_stats <- mlc_data |>
+  dplyr::select(-sample) |>
+  map_dfr(~ {
+    model_chimp <- lm(. ~ age + human_chimp_species, data = mlc_data)
+    model_maca <- lm(. ~ age + human_maca_species, data = mlc_data)
+    
+    # Extract the F-statistic p-values
+    f_stat_pvalue_chimp <- model_chimp |> glance() |> pull(p.value)
+    f_stat_pvalue_maca <- model_maca |> glance() |> pull(p.value)
+    
+    # Extract the t-statistic p-values
+    t_stat_pvalues_chimp <- model_chimp |>
+      tidy() |>
+      filter(term %in% c("age", "human_chimp_species")) |>
+      dplyr::select(term, p.value) |>
+      pivot_wider(names_from = term, values_from = p.value, names_prefix = "t_stat_pvalue_chimp_")
+    
+    t_stat_pvalues_maca <- model_maca |>
+      tidy() |>
+      filter(term %in% c("age", "human_maca_species")) |>
+      dplyr::select(term, p.value) |>
+      pivot_wider(names_from = term, values_from = p.value, names_prefix = "t_stat_pvalue_maca_")
+    
+    # Determine if age and species are significant predictors
+    age_significant_chimp <- if_else(t_stat_pvalues_chimp$t_stat_pvalue_chimp_age < 0.05, "yes", "no")
+    species_significant_chimp <- if_else(t_stat_pvalues_chimp$t_stat_pvalue_chimp_human_chimp_species < 0.05, "yes", "no")
+    
+    age_significant_maca <- if_else(t_stat_pvalues_maca$t_stat_pvalue_maca_age < 0.05, "yes", "no")
+    species_significant_maca <- if_else(t_stat_pvalues_maca$t_stat_pvalue_maca_human_maca_species < 0.05, "yes", "no")
+    
+    # Combine the results into a single dataframe
+    tibble(
+      f_stat_pvalue_chimp = f_stat_pvalue_chimp,
+      f_stat_pvalue_maca = f_stat_pvalue_maca,
+      t_stat_pvalues_chimp,
+      t_stat_pvalues_maca,
+      age_significant_chimp = age_significant_chimp,
+      species_significant_chimp = species_significant_chimp,
+      age_significant_maca = age_significant_maca,
+      species_significant_maca = species_significant_maca
+    )
+  })
+
+#mlc_stats
+```
+
+```{r}
+prop_significant <- mlc_stats |>
+  summarise(across(ends_with("_significant_chimp"), ~ sum(. == "yes", na.rm = TRUE) / n() * 100, .names = "prop_{.col}"),
+            across(ends_with("_significant_maca"), ~ sum(. == "yes", na.rm = TRUE) / n() * 100, .names = "prop_{.col}"),
+            prop_both_significant_chimp = sum(age_significant_chimp == "yes" & species_significant_chimp == "yes", na.rm = TRUE) / n() * 100,
+            prop_both_significant_maca = sum(age_significant_maca == "yes" & species_significant_maca == "yes", na.rm = TRUE) / n() * 100)
+
+prop_significant
+```
+
+Find the fraction of all genes that are significantly predicted by age, species or both.
+
+Redo all with the augmented data as input.
+
+```{r}
+aug_extended_pheno <- pheno_data |> 
+  mutate(human_chimp_species = case_when(
+    grepl("Human dorsolateral", title) ~ 0,
+    grepl("Chimpanzee", title) ~ 1,
+    TRUE ~ NA_real_
+  ))
+aug_extended_pheno <- aug_extended_pheno |> 
+  mutate(human_maca_species = case_when(
+    grepl("Human dorsolateral", title) ~ 0,
+    grepl("macaque", title) ~ 1,
+    TRUE ~ NA_real_
+  ))
+aug_extended_pheno <- aug_extended_pheno |> 
+    mutate(age = as.numeric(str_extract(characteristics_ch1, "\\d+\\.?\\d*")))
+#extended_pheno
+```
+
+```{r}
+aug_mlc_data <- expr_data_tidy_wide |>
+  mutate(human_chimp_species = aug_extended_pheno |> pull(human_chimp_species)) |>
+  mutate(human_maca_species = aug_extended_pheno |> pull(human_maca_species)) |>
+  mutate(age = aug_extended_pheno |> pull(age)) 
+
+#aug_mlc_data
+```
+
+```{r}
+aug_mlc_stats <- aug_mlc_data |>
+  dplyr::select(-sample) |>
+  map_dfr(~ {
+    model_chimp <- lm(. ~ age + human_chimp_species, data = aug_mlc_data)
+    model_maca <- lm(. ~ age + human_maca_species, data = aug_mlc_data)
+    
+    # Extract the F-statistic p-values
+    f_stat_pvalue_chimp <- model_chimp |> glance() |> pull(p.value)
+    f_stat_pvalue_maca <- model_maca |> glance() |> pull(p.value)
+    
+    # Extract the t-statistic p-values
+    t_stat_pvalues_chimp <- model_chimp |>
+      tidy() |>
+      filter(term %in% c("age", "human_chimp_species")) |>
+      dplyr::select(term, p.value) |>
+      pivot_wider(names_from = term, values_from = p.value, names_prefix = "t_stat_pvalue_chimp_")
+    
+    t_stat_pvalues_maca <- model_maca |>
+      tidy() |>
+      filter(term %in% c("age", "human_maca_species")) |>
+      dplyr::select(term, p.value) |>
+      pivot_wider(names_from = term, values_from = p.value, names_prefix = "t_stat_pvalue_maca_")
+    
+    # Determine if age and species are significant predictors
+    age_significant_chimp <- if_else(t_stat_pvalues_chimp$t_stat_pvalue_chimp_age < 0.05, "yes", "no")
+    species_significant_chimp <- if_else(t_stat_pvalues_chimp$t_stat_pvalue_chimp_human_chimp_species < 0.05, "yes", "no")
+    
+    age_significant_maca <- if_else(t_stat_pvalues_maca$t_stat_pvalue_maca_age < 0.05, "yes", "no")
+    species_significant_maca <- if_else(t_stat_pvalues_maca$t_stat_pvalue_maca_human_maca_species < 0.05, "yes", "no")
+    
+    # Combine the results into a single dataframe
+    tibble(
+      f_stat_pvalue_chimp = f_stat_pvalue_chimp,
+      f_stat_pvalue_maca = f_stat_pvalue_maca,
+      t_stat_pvalues_chimp,
+      t_stat_pvalues_maca,
+      age_significant_chimp = age_significant_chimp,
+      species_significant_chimp = species_significant_chimp,
+      age_significant_maca = age_significant_maca,
+      species_significant_maca = species_significant_maca
+    )
+  })
+
+#aug_mlc_stats
+```
+
+```{r}
+aug_prop_significant <- mlc_stats |>
+  summarise(across(ends_with("_significant_chimp"), ~ sum(. == "yes", na.rm = TRUE) / n() * 100, .names = "prop_{.col}"),
+            across(ends_with("_significant_maca"), ~ sum(. == "yes", na.rm = TRUE) / n() * 100, .names = "prop_{.col}"),
+            prop_both_significant_chimp = sum(age_significant_chimp == "yes" & species_significant_chimp == "yes", na.rm = TRUE) / n() * 100,
+            prop_both_significant_maca = sum(age_significant_maca == "yes" & species_significant_maca == "yes", na.rm = TRUE) / n() * 100)
+
+aug_prop_significant
+```
