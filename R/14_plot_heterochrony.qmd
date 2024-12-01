@@ -56,6 +56,7 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
 altern_color <- color_palette |>
   filter(group == "Alternative") |>
   pull(color)
+
 ```
 
 We wish to visualize the percentages of neotenic and accelerated genes from the humans shifted to chimps, and macaques. Therefore we start by argumentation of the heterochrony data from our earlier analysis, to find the percentages:
@@ -92,7 +93,8 @@ class_plot <- data_prep |>
                    x = percent,
                    fill = classification)) +
   geom_bar(stat = "identity",
-           position = position_dodge()) +
+           position = position_dodge(),
+           color = "black") +
   scale_x_continuous(limit = c(0,100)) +
   scale_y_discrete(labels = function(x) x) +
   theme_minimal() +
@@ -111,8 +113,7 @@ class_plot <- data_prep |>
        <span style='color:#F38B44'>Neotenic</span> and <span style='color:#DE580C'>Unclassified</span>",
        y = NULL,
        x = "Genes Assigned to Categories (%)") + 
-  scale_fill_manual(values = altern_color,
-                    labels(c("Human-Chimpanzee Shift", "Human-Macaque Shift")))
+  scale_fill_manual(values = altern_color)
   
 print(class_plot)
 
