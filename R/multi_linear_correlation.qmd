@@ -14,14 +14,6 @@ For every gene, multivariable regression is done to determine whether any of the
 
 Since one of the factors (species) is categorical, the first step is to represent these variables with numeric values, 0 and 1. The code below also extracts the age of all samples.
 
-Creating a new dataframe that now contains all variables of interest
-
-Finally, process the data by performing the necesary statistical tests. The code returns a dataframe with information on which genes are predicted with great significance by age or species.
-
-Find the fraction of all genes that are significantly predicted by age, species or both.
-
-Redo all with the augmented data as input.
-
 ```{r}
 processed_data_dir <- file.path("..","data")
 pheno_expr_data_joined <- read_tsv(file = file.path(processed_data_dir,
@@ -41,8 +33,10 @@ mlc_data <- mlc_data |>
     grepl("Macaque", species) ~ 1,
     TRUE ~ NA_real_
   ))
-mlc_data
+#mlc_data
 ```
+
+Process the data by performing the necesary statistical tests. The code returns a dataframe with information on which genes are predicted with great significance by age or species.
 
 ```{r}
 aug_mlc_stats <- mlc_data |>
@@ -102,6 +96,8 @@ aug_mlc_stats <- mlc_data |>
 #aug_mlc_stats
 ```
 
+Find the fraction of all genes that are significantly predicted by age, species or both.
+
 ```{r}
 aug_prop_significant <- aug_mlc_stats |>
   summarise(across(ends_with("_significant_chimp"),
@@ -115,13 +111,41 @@ aug_prop_significant <- aug_mlc_stats |>
             prop_only_age_significant_chimp = sum(age_significant_chimp == "yes" & species_significant_chimp == "no", na.rm = TRUE) / n() * 100,
             prop_only_species_significant_chimp = sum(age_significant_chimp == "no" & species_significant_chimp == "yes", na.rm = TRUE) / n() * 100,
             prop_only_age_significant_maca = sum(age_significant_maca == "yes" & species_significant_maca == "no", na.rm = TRUE) / n() * 100,
-            prop_only_species_significant_maca = sum(age_significant_maca == "no" & species_significant_maca == "yes", na.rm = TRUE) / n() * 100)
+            prop_only_species_significant_maca = sum(age_significant_maca == "no" & species_significant_maca == "yes", na.rm = TRUE) / n() * 100,
+            prop_none_significant_chimp = sum(age_significant_chimp == "no" & species_significant_chimp == "no", na.rm = TRUE) / n() * 100,
+            prop_none_significant_maca = sum(age_significant_maca == "no" & species_significant_maca == "no", na.rm = TRUE) / n() * 100)
 
 aug_prop_significant
+
+#aug_prop_significant
 ```
+
+Create a new data frame that contains all proportions of interest, that can be used by the script downstream.
+
+```{r}
+mlc_results <- tibble(category = c("Age+/Sp+", "Age+/Sp-", "Age-/Sp+", "Age-/Sp-"),
+                      human_chimp = c(pull(aug_prop_significant, var = "prop_both_significant_chimp"),
+                                      pull(aug_prop_significant, var="prop_only_age_significant_chimp"),
+                                      pull(aug_prop_significant, var = "prop_only_species_significant_chimp"),
+                                       pull(aug_prop_significant, var = 
+"prop_none_significant_chimp")),
+                      human_macaque = c(pull(aug_prop_significant, var = "prop_both_significant_maca"),
+                                      pull(aug_prop_significant, var="prop_only_age_significant_maca"),
+                                      pull(aug_prop_significant, var = "prop_only_species_significant_maca"),
+                                       pull(aug_prop_significant, var = 
+"prop_none_significant_maca")))
+
+
+mlc_results
+```
+
+Results are documented, and will be used later for visualizing.
 
 ```{r}
 aug_prop_significant |>
   write_tsv(file = file.path(processed_data_dir,
-                             "06_dat_mlc_results.tsv"))
+                             "06.1_dat_mlc_results.tsv"))
+mlc_results |> 
+  write_tsv(file= file.path(processed_data_dir,
+                            "06.2_dat_mlc_proportions.tsv"))
 ```
