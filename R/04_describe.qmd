@@ -46,8 +46,8 @@ str_glue("Number of genes {pheno_expr_data_joined |>
 Number of individuals by sex and species
 
 ```{r}
-ggplot(data = pheno_expr_data_joined,
-       mapping = aes(x = fct_infreq(species),
+species_plot <- pheno_expr_data_joined |>
+  ggplot(mapping = aes(x = fct_infreq(species),
                      fill = sex)) +
   geom_bar(color = "black") +
   theme_minimal() +
@@ -63,20 +63,16 @@ ggplot(data = pheno_expr_data_joined,
                       filter(group == "Alternative") |>
                       slice_tail(n = 2) |>
                       pull(color))
+
+species_plot
 ```
 
-Distribution of population of dataset by age
+Distribution of population of dataset by age:
 
 ```{r}
-
-# Sorting ages into groups
-
-
-# plotting
-
-ggplot(data = pheno_expr_data_joined,
-       mapping = aes(x = age,
-                     fill = species)) +
+sex_plot <- pheno_expr_data_joined |>
+  ggplot(mapping = aes(x = age,
+                       fill = species)) +
   geom_boxplot() +
   theme_minimal() +
   theme(plot.title.position = "plot",
@@ -86,9 +82,25 @@ ggplot(data = pheno_expr_data_joined,
         plot.subtitle = element_markdown(size = 12),
         legend.position = "none") +
   labs(title = "Distribution of Age",
-       subtitle = "of <span style='color:#8ECF8F'>chimpanzees</span>, <span style='color:#459051'>humans</span> and <span style='color:#00441B'>macaque</span> in dataset") +
+       subtitle = "of <span style='color:#8ECF8F'>chimpanzees</span>,
+       <span style='color:#459051'>humans</span> and <span style='color:#00441B'>macaque</span> in dataset") +
   scale_fill_manual(values = color_palette |>
                       filter(group == "Species") |>
                       pull(color))
 
+sex_plot
+```
+
+```{r}
+ggsave(file = file.path(processed_data_dir,
+                        "04_species_plot.png"),
+       plot = species_plot,
+       width = 12,
+       height = 8)
+
+ggsave(file = file.path(processed_data_dir,
+                        "04_sex_plot.png"),
+       plot = sex_plot,
+       width = 12,
+       height = 8)
 ```

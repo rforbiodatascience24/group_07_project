@@ -40,48 +40,30 @@ hum_color <- color_palette |>
   filter(group == "Species") |>
   slice(1) |>
   pull(color)
+
 chimp_color <- color_palette |>
   filter(group == "Species") |>
   slice(2) |>
   pull(color)
+
 mac_color <- color_palette |>
   filter(group == "Species") |>
   slice(3) |>
   pull(color)
-spec_color <- c(Human = hum_color,
-                Chimpanzee = chimp_color,
-                Macaque = mac_color)
+
+# spec_color <- c(Human = hum_color,
+#                Chimpanzee = chimp_color,
+#                Macaque = mac_color)
+
 altern_color <- color_palette |>
   filter(group == "Alternative") |>
   pull(color)
-```
 
-We wish to visualize the percentages of neotenic and accelerated genes from the prefrontal cortex for humans, chimps, and macaques, as well as for the brain tissue caudate nucleus for humans only. Therefore we start by argumentation of the heterochrony data from our earlier analysis, to find the percentages:
-
-```{r}
-# hum_chimp_prep <- hum_chimp |>
-#   group_by(classification) |>
-#   count() |>
-#   ungroup() |>
-#   mutate(percent = (n / sum(n)) * 100,
-#          subject = "Human",
-#          shifted = "Chimpanzee")
-# 
-# hum_mac_prep <- hum_mac |>
-#   group_by(classification) |>
-#   count() |>
-#   ungroup() |>
-#   mutate(percent = (n / sum(n)) * 100,
-#          subject = "Human",
-#          shifted = "Macaque")
-# 
-# data_prep <- bind_rows(hum_chimp_prep,
-#                        hum_mac_prep)
 ```
 
 ### Subplots
 
-First, we recreate the plots from the report, however, since we only have data for a single tissue, we just replicate the \_\_\_\_. Had we all tissue types, we could use facet_wrap(\~Tissue) to create an identical plot.
+First, we recreate the plots from the report to visualize the percentages, however, since we only have data for a single tissue, we just replicate the \_\_\_\_. We also add the human vs macaque classification data.
 
 ```{r}
 chimp_class_plot <- hum_chimp |>
@@ -95,7 +77,8 @@ chimp_class_plot <- hum_chimp |>
              y = proportion,
              fill = classification)) +
   geom_bar(stat = "identity",
-           position = "dodge") +
+           position = "dodge",
+           color = "black") +
   scale_y_continuous(limit = c(0,100)) +
   labs(
     title = NULL,
@@ -129,7 +112,8 @@ mac_class_plot <- hum_mac |>
              y = proportion,
              fill = classification)) +
   geom_bar(stat = "identity",
-           position = "dodge") +
+           position = "dodge",
+           color = "black") +
   scale_y_continuous(limit = c(0,100)) +
   labs(
     title = NULL,
@@ -167,7 +151,7 @@ combined_plot <- wrap_elements(
   full =
   gridtext::richtext_grob(
     text = paste0(
-      "Top text describing classifications <span style='color:",
+      "by Phyloontogentic Catagories: <span style='color:",
       altern_color |>
         pluck(1),
       ";'>accelerated </span>, <span style='color:",
@@ -186,9 +170,9 @@ combined_plot <- wrap_elements(
   plot_layout(heights = c(1, 9)) +
   
   plot_annotation(
-     title = "Text explaining findings of plot",
+     title = "Gene Distribution ",
      theme = theme(
-       plot.title = element_text(size = 16,
+       plot.title = element_text(size = 12,
                                  hjust =0)))
   
 
@@ -196,11 +180,11 @@ combined_plot <- wrap_elements(
 combined_plot
 ```
 
-Write final plot to *.png* file.
+Lastly, we write final plot to *.png* file.
 
 ```{r}
 ggsave(file = file.path(processed_data_dir,
-                        "14_het_class.png"),
+                        "14_heterochrony_plot.png"),
        plot = combined_plot,
        width = 12,
        height = 8)
