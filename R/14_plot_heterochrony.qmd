@@ -81,7 +81,6 @@ hum_mac_prep <- hum_mac |>
 data_prep <- bind_rows(hum_chimp_prep,
                        hum_mac_prep)
 
-view(data_prep)
 ```
 
 We then create our plot to visualize the percentages:
@@ -114,8 +113,6 @@ class_plot <- data_prep |>
        y = NULL,
        x = "Genes Assigned to Categories (%)") + 
   scale_fill_manual(values = altern_color)
-  
-print(class_plot)
 
 ```
 
@@ -123,7 +120,7 @@ Lastly, we write final plot to *.png* file.
 
 ```{r}
 ggsave(file = file.path(processed_data_dir,
-                        "14_test.png"),
+                        "14_heterochrony_plot.png"),
        plot = class_plot,
        width = 12,
        height = 8)
