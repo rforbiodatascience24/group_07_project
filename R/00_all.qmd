@@ -48,7 +48,7 @@ quarto::quarto_render("03_augment_joined.qmd")
 ...
 
 ```{r}
-quarto::quarto_render("04_description.qmd")
+#quarto::quarto_render("04_describe.qmd")
 ```
 
 ## The functions
@@ -140,5 +140,5 @@ quarto::quarto_render("13_plot_shift_model.qmd")
 ...
 
 ```{r}
-quarto::quarto_render("14_plot_heterochrony")
+quarto::quarto_render("14_plot_heterochrony.qmd")
 ```

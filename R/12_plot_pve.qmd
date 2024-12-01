@@ -1,11 +1,12 @@
 ---
 title: "Proportion of variance explained, plots"
 output: html
-output-dir: results
 execute:
   echo: true
   output: false
 ---
+
+### Load & Prepare
 
 For the...
 
@@ -26,7 +27,7 @@ processed_data_dir <- file.path("..","data")
 # Load the data sets
 
 pve_data <- read_tsv(file = file.path(processed_data_dir,
-                                         "05.4_dat_pve_species.tsv"),
+                                      "05.3_dat_pve.tsv"),
                      show_col_types = FALSE)
 chimp_mult_data <- read_tsv(file = file.path(processed_data_dir,
                                            "06.1_dat_mult_chimp.tsv"),
@@ -57,6 +58,8 @@ altern_color <- color_palette |>
   filter(group == "Alternative") |>
   pull(color)
 ```
+
+### Subplots
 
 Donut plots for significant genes within categories.
 
@@ -139,7 +142,7 @@ pve_plot <- pve_data |>
   geom_hline(yintercept = 50,
              linetype = "dashed",
              color = "gray",
-             size = 0.5) +
+             linewidth = 0.5) +
   coord_flip() +
   theme(
     axis.title.y = element_blank(),
@@ -148,6 +151,8 @@ pve_plot <- pve_data |>
 
 pve_plot
 ```
+
+### Final Plot
 
 Combined plot.
 
@@ -196,7 +201,6 @@ Write final plot to *.png* file.
 ggsave(file = file.path(processed_data_dir,
                         "12_expr_attr.png"),
        plot = combined_plot,
-       width = 6,
-       height = 4,
-       dpi = 300)
+       width = 12,
+       height = 8)
 ```

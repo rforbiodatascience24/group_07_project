@@ -1,13 +1,14 @@
 ---
 title: "Principle Component Analysis, plots"
 output: html
-output-dir: results
 execute:
   echo: true
   output: false
 ---
 
-For the principal component analysis (PCA) we want to visualize the data projected into the principal components, along the proportion of variance explained (PVE) for each component.
+### Load & Prepare
+
+For the principal component analysis (PCA), the expression data is visualized projected onto the PCs, along the proportion of variance explained (PVE) for each component.
 
 ```{r}
 library("tidyverse")
@@ -19,7 +20,7 @@ library("ggtext")
 source("15_proj_func.R")
 ```
 
-We load the data sets.
+Load the data sets.
 
 ```{r}
 # Set path for processed data directory
@@ -27,15 +28,17 @@ processed_data_dir <- file.path("..","data")
 
 # Load the data sets
 proj_data <- read_tsv(file = file.path(processed_data_dir,
-                                         "05.2_dat_pca_proj.tsv"),
+                                         "05.1_dat_pca.tsv"),
                       show_col_types = FALSE)
 pve_data <- read_tsv(file = file.path(processed_data_dir,
-                                         "05.3_dat_pve_all.tsv"),
+                                         "05.2_dat_pve_pc.tsv"),
                      show_col_types = FALSE)
 color_palette <- read_tsv(file = file.path(processed_data_dir,
                                          "09_col_pal.tsv"),
                      show_col_types = FALSE)
 ```
+
+Define the colors used for plotting.
 
 ```{r}
 age_color <- color_palette |>
@@ -51,6 +54,8 @@ species_color <- color_palette |>
   slice(3) |>
   pull(color)
 ```
+
+The PVE data is formatted for easier plotting,
 
 ```{r}
 pve_data_prep <- pve_data |>
@@ -71,7 +76,9 @@ pve_data_prep <- pve_data |>
 
 ```
 
-First we plot the variance explained for each principal component, colored by the PVE by attributes.
+### Subplots
+
+Plot the VE for each PC, colored by the PVE by attributes.
 
 ```{r}
 plot_pc_pve <- pve_data_prep |>
@@ -100,7 +107,7 @@ plot_pc_pve <- pve_data_prep |>
 plot_pc_pve
 ```
 
-The projection data is visualized by plotting the data onto the first two principal components, along with details about age, species, and sex.
+Plot the projection data onto two principal components, along with details about age, species, and sex.
 
 ```{r}
 # Create projection plot of PCs especially influenced by a certain attribute
@@ -130,7 +137,9 @@ proj_plots <- plot_grid(
         plot.margin = margin(0,0,0,0))
 ```
 
-Combine.
+### Final Plot
+
+Combine plots to reveal trend of attribute influence on PC VE.
 
 ```{r}
 # Add projection plots as inset element
