@@ -23,6 +23,12 @@ Find the fraction of all genes that are significantly predicted by age, species 
 Redo all with the augmented data as input.
 
 ```{r}
+processed_data_dir <- file.path("..","data")
+pheno_expr_data_joined <- read_tsv(file = file.path(processed_data_dir,
+                                         "03_dat_joined.tsv"))
+```
+
+```{r}
 mlc_data <- pheno_expr_data_joined |> 
   mutate(human_chimp_species = case_when(
     grepl("Human", species) ~ 0,
@@ -112,4 +118,10 @@ aug_prop_significant <- aug_mlc_stats |>
             prop_only_species_significant_maca = sum(age_significant_maca == "no" & species_significant_maca == "yes", na.rm = TRUE) / n() * 100)
 
 aug_prop_significant
+```
+
+```{r}
+aug_prop_significant |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "06_dat_mlc_results.tsv"))
 ```
