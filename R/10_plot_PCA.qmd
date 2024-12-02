@@ -8,7 +8,7 @@ execute:
 
 #### Load
 
-Load necessary libraries for plot formation.
+Load necessary libraries for plot formation including function for plotting projection data.
 
 ```{r}
 library("tidyverse")
@@ -17,7 +17,7 @@ library("patchwork")
 library("cowplot")
 library("ggtext")
 
-source("15_proj_func.R")
+source("99_proj_func.R")
 ```
 
 Load the data sets.
@@ -204,4 +204,3 @@ ggsave(file = file.path(processed_data_dir,
        width = 12,
        height = 8)
 ```
-

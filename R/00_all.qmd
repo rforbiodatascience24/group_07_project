@@ -68,10 +68,10 @@ quarto::quarto_render("04_describe.qmd")
 
 ## The functions
 
-Throughout the analysis and plots, we will make use of an array of customized functions, to ensure clean and efficient code during iterating step. Details of function parameters and outputs can be found in *15_proj_func.R*.
+Throughout the analysis and plots, we will make use of an array of customized functions, to ensure clean and efficient code during iterating step. Details of function parameters and outputs can be found in *99_proj_func.R*.
 
 ```{r}
-source("15_proj_func.R")
+source("99_proj_func.R")
 ```
 
 ## The Analyses

@@ -83,9 +83,9 @@ species_plot <- pheno_expr_data_joined |>
     legend.position = "none",
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
-    axis.title.x = element_blank(),
-    axis.title.y = element_text(size = 12,
-                              face = "italic"),
+    axis.text.y = element_text(size = 12,
+                                face = "italic"),
+    axis.title = element_blank(),
     plot.subtitle = element_markdown(size = 16
                                      ,)) +
   labs(y = element_blank()) +

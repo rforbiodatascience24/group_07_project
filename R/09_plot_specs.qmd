@@ -15,7 +15,6 @@ We begin with loading the necessary libraries.
 ```{r}
 library("tidyverse")
 library("RColorBrewer")
-library("ggplot2")
 ```
 
 #### Base colors

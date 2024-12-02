@@ -172,4 +172,3 @@ scaled_data |> write_tsv(file = file.path(processed_data_dir,
 data_cube_coef |> write_tsv(file = file.path(processed_data_dir,
                                              "07.2_dat_cube.tsv"))
 ```
-
