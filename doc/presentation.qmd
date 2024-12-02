@@ -1,15 +1,19 @@
 ---
-title: "Group 07 Project"
-author: "s244028, s225099, s204668, s241901, s233415"
+title: "Transcriptional Neoteny in the Human Brain"
+author: "Group 7"
 
 format:
   revealjs:
     theme: dark
 ---
 
-## Expressional Variance in Neoteny
-
--   Dataset:
+-   **Group Number**: Group 7
+-   **Group Members**:
+    -   Anne Sofie Jokumsen (s244028)
+    -   Sophia Cash (s225099)
+    -   Norbert Bálint (s204668)
+    -   Madeline Shah (s241901)
+    -   Bedri Duraksoy (s233415)
 
 ```{r}
 #| label: Research Paper in Focus
@@ -18,20 +22,69 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 
 ```
 
-## Data Cleaning and Augmentation
+# Slide 1:
 
-## PCA and MRG
+**Examining Gene Expression in Postnatal Development of Humans, Apes, and Monkeys**
 
-## PCA Results
+-   Neoteny as a potential driver for cognitive traits.
+-   Analyzing gene expression during postnatal brain development.
 
-## Multiple Regression and Explained Varience
+# Slide 2:
 
-## Global Expression Analysis
+**Using expression of X genes from Y samples of prefrontal cortex, we examine:**
 
-## Shift Function
+-   Influence of attributes
+-   Global expression levels
+-   Differential expression trajectories
 
-## Shift and Classification
+# Slide 3:
 
-## Gene Distribution by Phyloontogenetics
+**Examining the influence of age, sex, and species on gene expression:**
 
-## Conclusion
+-   Principal Component Analysis (PCA)
+-   Proportion of Variance Explained (PVE)
+-   Multiple regression
+
+# Slide 4:
+
+**Comparing global gene expression to sexual maturity:**
+
+-   Using cubic regression models.
+
+# Slide 5:
+
+**Determining heterochrony between species:**
+
+-   Using heterochrony tests, shift models, and classification approaches.
+
+# Slide 6:
+
+-   PVE Overview
+
+#  Slide 7:
+
+-   Global gene expression profiles.
+
+# Slide 8:
+
+-   Heterochrony results.
+-   Gene Expression Trajectories Highlighting Heterochrony
+
+# Slide 9:
+
+**Discussion Points:**
+
+-   Neotenic delays in the prefrontal cortex.
+-   Evolutionary implications for prolonged neural plasticity.
+-   Comparison with other primates.
+
+# Slide 10:
+
+**Conclusions:**
+
+-   **Key Findings**:
+    -   Delayed prefrontal cortex gene expression in humans.
+    -   Insights into evolutionary mechanisms of cognitive traits.
+-   **Future Directions**:
+    -   Functional validation of implicated genes and pathways.
+    -   Exploration of broader phylogenetic trends.
