@@ -13,11 +13,16 @@ Load packages.
 ```{r}
 library("tidyverse")
 library("patchwork")
+library("ggtext")
 ```
 
 Load data and color palettes.
 
 ```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..",
+                                "data")
+
 # Data
 pheno_expr_data_joined <- read_tsv(file = file.path(processed_data_dir,
                              "03_dat_joined.tsv"),
@@ -74,7 +79,7 @@ species_plot
 
 ```
 
-Plott distribution of population of data set by age:
+Plot distribution of population of data set by age:
 
 ```{r}
 sex_plot <- pheno_expr_data_joined |>
@@ -116,5 +121,4 @@ ggsave(file = file.path(processed_data_dir,
        plot = description_plots,
        width = 12,
        height = 8)
-
 ```

@@ -195,4 +195,3 @@ ggsave(file = file.path(processed_data_dir,
        width = 12,
        height = 8)
 ```
-
