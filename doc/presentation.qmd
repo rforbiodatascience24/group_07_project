@@ -75,7 +75,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 **Discussion Points:**
 
 -   Neotenic delays in the prefrontal cortex.
--   Evolutionary implications for prolonged neural plasticity.
+-   Liability f animal models for studying neurodevelopmental disorders 
 -   Comparison with other primates.
 
 # Slide 10:
