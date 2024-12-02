@@ -36,6 +36,12 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 -   Global expression levels
 -   Differential expression trajectories
 
+```{r}
+#| label: Descriptive plots
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/04_description_plots.png")
+```
+
 # Slide 3:
 
 **Examining the influence of age, sex, and species on gene expression:**
@@ -44,11 +50,35 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 -   Proportion of Variance Explained (PVE)
 -   Multiple regression
 
+```{r}
+#| label: PCA plots
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/10_PCA.png")
+```
+
 # Slide 4:
 
 **Comparing global gene expression to sexual maturity:**
 
 -   Using cubic regression models.
+
+```{r}
+#| label: Cubic code
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code")
+```
+
+```{r}
+#| label: Cubic code2
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code2")
+```
+
+```{r}
+#| label: Cubic code3
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code3")
+```
 
 # Slide 5:
 
