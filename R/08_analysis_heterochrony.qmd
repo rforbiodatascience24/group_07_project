@@ -6,19 +6,20 @@ execute:
   output: false
 ---
 
-#### Load & Prepare
+#### Load
+
+For the heterochrony test, we use the functions described in *99_proj_func.R*.
 
 Load libraries.
 
 ```{r}
 library("tidyverse")
 library("broom")
-library("splines")
 
-source("15_proj_func.R")
+source("99_proj_func.R")
 ```
 
-Load data sets.
+Load the data sets.
 
 ```{r}
 #| output: false
@@ -32,7 +33,7 @@ data_cube <- read_tsv(file = file.path(processed_data_dir,
                       show_col_types = FALSE)
 ```
 
-#### **Estimate Timing Differences**:
+#### **Estimate Timing Differences**
 
 -   Introduce an "age-shift" or "expression-shift" between species to align the expression curves.
 
@@ -64,11 +65,13 @@ mac_human_shift <- data_cube |>
 
 Based on the direction and magnitude of shifts:
 
--   **Neotenic**: Original species' expression resembles younger target species.
+-   **Neotenic**: Original species' expression resembles younger target species. Defined as a positive shift in age or expression.
 
--   **Accelerated**: Original species' expression resembles older target species.
+-   **Accelerated**: Original species' expression resembles older target species. Defined as a negative shift in age or expression.
 
--   **Undefined**: No significant improvement found or unable to determine from model.
+-   **Undefined**: Unable to determine from model. Handles `NAs`.
+
+Genes that do not display a significant improvement in fit by the shift model, are classified as **Non-significant**.
 
 ```{r}
 # Human vs chimp and reciprocal
@@ -120,6 +123,8 @@ mac_human_table <- mac_human_class |>
             by = c("genes" = "gene"))
 ```
 
+Calculate proportion of genes for each classification and combine data into two data frames containing species interaction and their reciprocal.
+
 ```{r}
 human_chimp_recip <- human_chimp_table  |>
   count(classification) |>
@@ -141,6 +146,8 @@ human_mac_recip <- human_mac_table  |>
               rename(mac_n = n),
             by = join_by(classification))
 ```
+
+#### Save
 
 Write results to .*tsv* files.
 

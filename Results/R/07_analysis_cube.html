@@ -3101,23 +3101,29 @@ vertical-align: -.125em;
 </header>
 
 
-<p>For this analysis, we follow the description found in the appendix of <em>Somel et al</em>. Herein it it described how the global gene expression is calculated using the <code>MASS</code> package. As this package contains a separate <code>select()</code> function, we use <code>dplyr::select()</code> for the <code>select()</code> function of the <code>dplyr</code> package,</p>
+<section id="load" class="level4">
+<h4 class="anchored" data-anchor-id="load">Load</h4>
+<p>For this analysis, we follow the description found in the appendix of <em>Somel et al</em>. It describes that global gene expression is calculated using the <code>MASS</code> package.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;tidyverse&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;broom&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;MASS&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We load the data set.</p>
+<p>Load the data set.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set path for processed data directory</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>processed_data_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>,<span class="st">&quot;data&quot;</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the dataset</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                                         <span class="st">&quot;03_dat_joined.tsv&quot;</span>),</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>processed_data_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;data&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the dataset</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                                         <span class="st">&quot;03_dat_joined.tsv&quot;</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We start by fitting a polynomial (cubic) regression model to each gene and species, calculating the <code>r_squared</code> and <code>p_value</code> using ANOVA test. As described by the appendix age is usually log transformed for this type of analysis.</p>
+</section>
+<section id="cube-regression" class="level4">
+<h4 class="anchored" data-anchor-id="cube-regression">Cube regression</h4>
+<p>Fit polynomial (cubic) regression model to each gene and species, calculate <code>r_squared</code> and <code>p_value</code> using ANOVA test. As described by appendix, age is usually log transformed for this type of analysis.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create long data frame</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data_cube <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
@@ -3145,7 +3151,7 @@ vertical-align: -.125em;
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">&quot;poly(log_age, 3)&quot;</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">pull</span>(p.value)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We also want to extract the coefficients from the cube regression models for future analyses.</p>
+<p>Extract coefficients from the cube regression models.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data_cube_coef <span class="ot">&lt;-</span> data_cube_reg <span class="sc">|&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">coefficients =</span> <span class="fu">map</span>(<span class="at">.x =</span> cubic_model,</span>
@@ -3174,7 +3180,10 @@ vertical-align: -.125em;
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                <span class="sc">-</span>log_expr) <span class="sc">|&gt;</span></span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We then identify genes displaying a significant change in expression level and filter them from our original data set.</p>
+</section>
+<section id="significant-genes" class="level4">
+<h4 class="anchored" data-anchor-id="significant-genes">Significant Genes</h4>
+<p>Identify and filter genes displaying a significant change in expression level.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Identify significant genes</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>significant_genes <span class="ot">&lt;-</span> data_cube_reg <span class="sc">|&gt;</span> </span>
@@ -3191,7 +3200,7 @@ vertical-align: -.125em;
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> gene,</span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> expr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>To obtain a one-dimensional summary measure of expression variation, we calculate the matrix of Euclidean distances among the samples.</p>
+<p>To obtain a one-dimensional summary measure of expression variation, the matrix of Euclidean distances among the samples is calculated.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dist_matrix <span class="ot">&lt;-</span> significant_data <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>species,</span>
@@ -3201,7 +3210,7 @@ vertical-align: -.125em;
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dist</span>() <span class="sc">|&gt;</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We then apply monotonic regression to collapse the distance into a single dimension.</p>
+<p>Apply monotonic regression to collapse the distance into a single dimension.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply monotonic regression</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>mds_result <span class="ot">&lt;-</span> <span class="fu">isoMDS</span>(dist_matrix,</span>
@@ -3213,7 +3222,10 @@ vertical-align: -.125em;
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>           <span class="fu">pluck</span>(<span class="st">&quot;points&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>           <span class="fu">as.numeric</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Next, we calculate the percent change in global expression, with 0% and 100% being equal to the expression levels for the youngest and the oldest sample, respectively.</p>
+</section>
+<section id="global-expression" class="level4">
+<h4 class="anchored" data-anchor-id="global-expression">Global Expression</h4>
+<p>Calculate the percent change in global expression, with 0% and 100% being equal to the expression levels for the youngest and the oldest sample, respectively.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>scaled_data <span class="ot">&lt;-</span> significant_data <span class="sc">|&gt;</span> </span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(species) <span class="sc">|&gt;</span> </span>
@@ -3228,7 +3240,10 @@ vertical-align: -.125em;
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>      (global_expr <span class="sc">-</span> min_global) <span class="sc">/</span> <span class="fu">c</span>(max_global <span class="sc">-</span> min_global) <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We finish by writing our data sets to tsv files.</p>
+</section>
+<section id="save" class="level4">
+<h4 class="anchored" data-anchor-id="save">Save</h4>
+<p>Write results to .<em>tsv</em> files.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>scaled_data <span class="sc">|&gt;</span> <span class="fu">write_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                                          <span class="st">&quot;07.1_dat_global_expr.tsv&quot;</span>))</span>
@@ -3236,6 +3251,7 @@ vertical-align: -.125em;
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>data_cube_coef <span class="sc">|&gt;</span> <span class="fu">write_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                                             <span class="st">&quot;07.2_dat_cube.tsv&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
 
 </main>
 <!-- /main column -->

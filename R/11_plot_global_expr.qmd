@@ -6,9 +6,9 @@ execute:
   output: false
 ---
 
-### Load & Prepare
+#### Load
 
-For the ...
+Load necessary libraries for plot formation.
 
 ```{r}
 library("tidyverse")
@@ -18,7 +18,7 @@ library("gridtext")
 library("ggtext")
 ```
 
-We load the data sets.
+Load the data sets.
 
 ```{r}
 # Set path for processed data directory
@@ -32,6 +32,10 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
                                          "09_col_pal.tsv"),
                      show_col_types = FALSE)
 ```
+
+#### Prepare
+
+Define the colors used for the plots.
 
 ```{r}
 chimp_color <- color_palette |>
@@ -48,7 +52,7 @@ mac_color <- color_palette |>
   pull(color)
 ```
 
-### Subplots
+#### Plots
 
 The global gene expression for each sample is plotted, color-coded by species.
 
@@ -101,6 +105,8 @@ plot_expr_all <- expr_data |>
   theme(legend.position = "none",
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
+      axis.title = element_text(size = 12,
+                                face = "italic"),
       axis.line = element_line(linewidth = 0.5,
                                color = "gray"),
       axis.ticks = element_line(color = "gray")) +
@@ -154,6 +160,8 @@ plot_expr_mac <- expr_data |>
   theme(legend.position = "none",
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
+      axis.title.x = element_text(size = 12,
+                                 face = "italic"),
       axis.text.y = element_blank(),
       axis.line.y = element_blank(),
       axis.line.x = element_line(linewidth = 0.5,
@@ -166,31 +174,31 @@ plot_expr_mac <- expr_data |>
 plot_expr_mac
 ```
 
-### Final Plot
+Combine plots.
 
 ```{r}
 combined_plot <- wrap_elements(
   full =
   gridtext::richtext_grob(
     text = paste0(
-      "The expression reaches 60% around sexual maturity for <span style='color:",
+      "Expression reaches 60% at sexual maturity for <span style='color:",
       chimp_color,
       ";'>chimpanzee</span> and <span style='color:",
       hum_color,
       ";'>human</span>."),
     x = 0,
-    hjust = -0.05,
-    gp = grid::gpar(fontsize = 12))) /
+    hjust = 0,
+    gp = grid::gpar(fontsize = 16))) /
   
   gridtext::richtext_grob(
     text = paste0(
       "Applying a log2 fit to <span style='color:",
       mac_color,
       ";'>macaque</span>, ",
-      "due to reduced data points, displays the same trend."),
+      "due to reduced data points, reveals a similar trend."),
     x = 1,
     hjust = 1.05,
-    gp = grid::gpar(fontsize = 12)) /
+    gp = grid::gpar(fontsize = 16)) /
   
   (plot_expr_all + plot_expr_mac +  plot_layout(axis_titles = "collect",
                                                 widths = c(4, 3))) +
@@ -198,15 +206,18 @@ combined_plot <- wrap_elements(
   plot_layout(heights = c(1, 1, 8)) +
   
   plot_annotation(
-     title = "Global expression over age follows a similar pattern across species",
+     title = "Global expression over age follows the same pattern across species",
      theme = theme(
-       plot.title = element_text(size = 16,
-                                 hjust =0)))
+       plot.title = element_text(size = 20,
+                                 hjust = 0,
+                                 face = "bold")))
   
 
 
 combined_plot
 ```
+
+#### Save
 
 Write final plot to *.png* file.
 

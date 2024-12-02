@@ -6,50 +6,60 @@ execute:
   output: false
 ---
 
-This script will handle the first part of the augmentation, namely, extracting the data of interest, editing naming and observation format, and joining our two data frames into one.
+#### Load
 
-For this, we will make use of `tidyverse` .
+Load library.
 
 ```{r}
 library("tidyverse")
 ```
 
-For the expression data, we need to remove the '\_at' from the gene names. Also, all genes start with 'ENSG' followed by a number, where only the last 6 digits are unique for each gene, and thus we have chosen to remove 'ENS' the non-unique 0s for better readability.
+Load the data sets.
 
 ```{r}
 # Set path for processed data directory
-processed_data_dir <- file.path("..","data")
+processed_data_dir <- file.path("..",
+                                "data")
 
 # Load the expr dataset
 expr_data <- read_tsv(file = file.path(processed_data_dir,
                                          "02.1_dat_clean_expr.tsv"),
                       show_col_types = FALSE)
-
-# Apply above described augmentatitons
-expr_data_augment <- expr_data |>
-  rename_with(~ sub("00000", "", .), starts_with("ENSG")) |>
-  rename_with(~ gsub("ENS|_at", "", .), starts_with("ENSG"))
-```
-
-For the phenotype data, we extract the columns 'geo_accession', 'organism_ch1', 'age:ch1', 'sex:ch1.1', 'tissue:ch1.2' an rename the columns - in opposite order.
-
-```{r}
 # Load the pheno dataset
 pheno_data <- read_tsv(file = file.path(processed_data_dir,
                                          "02.2_dat_clean_pheno.tsv"),
                        show_col_types = FALSE)
+```
 
-# extract above columns
+#### Augment
+
+For the expression data, we remove the '\_at' from the gene names. Also, all genes start with 'ENSG' followed by a number, where only the last 6 digits are unique for each gene. We thus remove 'ENS' and the non-unique 0s for better readability.
+
+```{r}
+expr_data_augment <- expr_data |>
+  rename_with(~ sub("00000", "", .),
+              starts_with("ENSG")) |>
+  rename_with(~ gsub("ENS|_at", "", .),
+              starts_with("ENSG"))
+```
+
+For the phenotype data, we rename and extract the columns `geo_accession`, `organism_ch1`, `age:ch1`, `sex:ch1.1`, and `tissue:ch1.2`.
+
+```{r}
 pheno_data_filter <- pheno_data |>
   rename(sample = geo_accession,
          species = organism_ch1,
          age = `age:ch1`,
          sex = `sex:ch1`,
          tissue = `tissue:ch1`) |>
-  dplyr::select(sample, species, age, sex, tissue)
+  dplyr::select(sample,
+                species,
+                age,
+                sex,
+                tissue)
 ```
 
-We also change the observations of new 'Age' column to only contain number, substitute Male and Female to M and F, and change the Latin name for the species.
+Change the observations of new 'Age' column to numbera, substitute Male and Female for M and F, and change the Latin name for the species.
 
 ```{r}
 pheno_data_augment <- pheno_data_filter |>
@@ -62,7 +72,7 @@ pheno_data_augment <- pheno_data_filter |>
                              species == "Macaca mulatta" ~ "Macaque"))
 ```
 
-Finally, we join the two data frames by the shared column 'sample'.
+Finally, we join the two data frames by the shared column 'sample' and deselect the tissues originating from the *caudate nucleus*.
 
 ```{r}
 pheno_expr_data_joined <- full_join(pheno_data_augment,
@@ -73,7 +83,9 @@ pheno_expr_data_joined <- full_join(pheno_data_augment,
   mutate(log_age = log2(age + 1))
 ```
 
-We finish by writing a new *03_dat_joined.tsv* file.
+#### Save
+
+Write data to .*tsv* file.
 
 ```{r}
 pheno_expr_data_joined |>

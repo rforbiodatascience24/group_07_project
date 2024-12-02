@@ -3101,68 +3101,82 @@ vertical-align: -.125em;
 </header>
 
 
-<p>This script will handle the first part of the augmentation, namely, extracting the data of interest, editing naming and observation format, and joining our two data frames into one.</p>
-<p>For this, we will make use of <code>tidyverse</code> .</p>
+<section id="load" class="level4">
+<h4 class="anchored" data-anchor-id="load">Load</h4>
+<p>Load library.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;tidyverse&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>For the expression data, we need to remove the ‘_at’ from the gene names. Also, all genes start with ‘ENSG’ followed by a number, where only the last 6 digits are unique for each gene, and thus we have chosen to remove ‘ENS’ the non-unique 0s for better readability.</p>
+<p>Load the data sets.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set path for processed data directory</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>processed_data_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>,<span class="st">&quot;data&quot;</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the expr dataset</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>expr_data <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                                         <span class="st">&quot;02.1_dat_clean_expr.tsv&quot;</span>),</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply above described augmentatitons</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>expr_data_augment <span class="ot">&lt;-</span> expr_data <span class="sc">|&gt;</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">sub</span>(<span class="st">&quot;00000&quot;</span>, <span class="st">&quot;&quot;</span>, .), <span class="fu">starts_with</span>(<span class="st">&quot;ENSG&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">gsub</span>(<span class="st">&quot;ENS|_at&quot;</span>, <span class="st">&quot;&quot;</span>, .), <span class="fu">starts_with</span>(<span class="st">&quot;ENSG&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>processed_data_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;data&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the expr dataset</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>expr_data <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                                         <span class="st">&quot;02.1_dat_clean_expr.tsv&quot;</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the pheno dataset</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>pheno_data <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                                         <span class="st">&quot;02.2_dat_clean_pheno.tsv&quot;</span>),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                       <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>For the phenotype data, we extract the columns ‘geo_accession’, ‘organism_ch1’, ‘age:ch1’, ‘sex:ch1.1’, ‘tissue:ch1.2’ an rename the columns - in opposite order.</p>
+</section>
+<section id="augment" class="level4">
+<h4 class="anchored" data-anchor-id="augment">Augment</h4>
+<p>For the expression data, we remove the ‘_at’ from the gene names. Also, all genes start with ‘ENSG’ followed by a number, where only the last 6 digits are unique for each gene. We thus remove ‘ENS’ and the non-unique 0s for better readability.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the pheno dataset</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pheno_data <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                                         <span class="st">&quot;02.2_dat_clean_pheno.tsv&quot;</span>),</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># extract above columns</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>pheno_data_filter <span class="ot">&lt;-</span> pheno_data <span class="sc">|&gt;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">sample =</span> geo_accession,</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">species =</span> organism_ch1,</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">age =</span> <span class="st">`</span><span class="at">age:ch1</span><span class="st">`</span>,</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">sex =</span> <span class="st">`</span><span class="at">sex:ch1</span><span class="st">`</span>,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">tissue =</span> <span class="st">`</span><span class="at">tissue:ch1</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(sample, species, age, sex, tissue)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>expr_data_augment <span class="ot">&lt;-</span> expr_data <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">sub</span>(<span class="st">&quot;00000&quot;</span>, <span class="st">&quot;&quot;</span>, .),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>              <span class="fu">starts_with</span>(<span class="st">&quot;ENSG&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">gsub</span>(<span class="st">&quot;ENS|_at&quot;</span>, <span class="st">&quot;&quot;</span>, .),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>              <span class="fu">starts_with</span>(<span class="st">&quot;ENSG&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We also change the observations of new ‘Age’ column to only contain number, substitute Male and Female to M and F, and change the Latin name for the species.</p>
+<p>For the phenotype data, we rename and extract the columns <code>geo_accession</code>, <code>organism_ch1</code>, <code>age:ch1</code>, <code>sex:ch1.1</code>, and <code>tissue:ch1.2</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pheno_data_augment <span class="ot">&lt;-</span> pheno_data_filter <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">D&quot;</span>, <span class="st">&quot;&quot;</span>, age) <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>           <span class="fu">parse_number</span>() <span class="sc">/</span> <span class="fl">365.24</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">sex =</span> <span class="fu">case_when</span>(sex <span class="sc">==</span> <span class="st">&quot;Female&quot;</span> <span class="sc">~</span> <span class="st">&quot;F&quot;</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                         sex <span class="sc">==</span> <span class="st">&quot;Male&quot;</span> <span class="sc">~</span> <span class="st">&quot;M&quot;</span>),</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">species =</span> <span class="fu">case_when</span>(species <span class="sc">==</span> <span class="st">&quot;Homo sapiens&quot;</span> <span class="sc">~</span> <span class="st">&quot;Human&quot;</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                             species <span class="sc">==</span> <span class="st">&quot;Pan troglodytes&quot;</span> <span class="sc">~</span> <span class="st">&quot;Chimpanzee&quot;</span>,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                             species <span class="sc">==</span> <span class="st">&quot;Macaca mulatta&quot;</span> <span class="sc">~</span> <span class="st">&quot;Macaque&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pheno_data_filter <span class="ot">&lt;-</span> pheno_data <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">sample =</span> geo_accession,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">species =</span> organism_ch1,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">age =</span> <span class="st">`</span><span class="at">age:ch1</span><span class="st">`</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">sex =</span> <span class="st">`</span><span class="at">sex:ch1</span><span class="st">`</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">tissue =</span> <span class="st">`</span><span class="at">tissue:ch1</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(sample,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                species,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                age,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                sex,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                tissue)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Finally, we join the two data frames by the shared column ‘sample’.</p>
+<p>Change the observations of new ‘Age’ column to numbera, substitute Male and Female for M and F, and change the Latin name for the species.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pheno_expr_data_joined <span class="ot">&lt;-</span> <span class="fu">full_join</span>(pheno_data_augment,</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                                    expr_data_augment,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">by =</span> <span class="st">&quot;sample&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(tissue <span class="sc">!=</span> <span class="st">&quot;caudate nucleus of the brain&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>tissue) <span class="sc">|&gt;</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log_age =</span> <span class="fu">log2</span>(age<span class="sc">+</span><span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pheno_data_augment <span class="ot">&lt;-</span> pheno_data_filter <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">D&quot;</span>, <span class="st">&quot;&quot;</span>, age) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>           <span class="fu">parse_number</span>() <span class="sc">/</span> <span class="fl">365.24</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">sex =</span> <span class="fu">case_when</span>(sex <span class="sc">==</span> <span class="st">&quot;Female&quot;</span> <span class="sc">~</span> <span class="st">&quot;F&quot;</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                         sex <span class="sc">==</span> <span class="st">&quot;Male&quot;</span> <span class="sc">~</span> <span class="st">&quot;M&quot;</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">species =</span> <span class="fu">case_when</span>(species <span class="sc">==</span> <span class="st">&quot;Homo sapiens&quot;</span> <span class="sc">~</span> <span class="st">&quot;Human&quot;</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                             species <span class="sc">==</span> <span class="st">&quot;Pan troglodytes&quot;</span> <span class="sc">~</span> <span class="st">&quot;Chimpanzee&quot;</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                             species <span class="sc">==</span> <span class="st">&quot;Macaca mulatta&quot;</span> <span class="sc">~</span> <span class="st">&quot;Macaque&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We finish by writing a new <em>03_dat_joined.tsv</em> file.</p>
+<p>Finally, we join the two data frames by the shared column ‘sample’ and deselect the tissues originating from the <em>caudate nucleus</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pheno_expr_data_joined <span class="sc">|&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;03_dat_joined.tsv&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pheno_expr_data_joined <span class="ot">&lt;-</span> <span class="fu">full_join</span>(pheno_data_augment,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                                    expr_data_augment,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">by =</span> <span class="st">&quot;sample&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(tissue <span class="sc">!=</span> <span class="st">&quot;caudate nucleus of the brain&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>tissue) <span class="sc">|&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log_age =</span> <span class="fu">log2</span>(age <span class="sc">+</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="save" class="level4">
+<h4 class="anchored" data-anchor-id="save">Save</h4>
+<p>Write data to .<em>tsv</em> file.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pheno_expr_data_joined <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;03_dat_joined.tsv&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
 
 </main>
 <!-- /main column -->

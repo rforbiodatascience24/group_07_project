@@ -3101,16 +3101,17 @@ vertical-align: -.125em;
 </header>
 
 
-<section id="load-prepare" class="level4">
-<h4 class="anchored" data-anchor-id="load-prepare">Load &amp; Prepare</h4>
+<section id="load" class="level4">
+<h4 class="anchored" data-anchor-id="load">Load</h4>
+<p>For the heterochrony test, we use the functions described in <em>99_proj_func.R</em>.</p>
 <p>Load libraries.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;tidyverse&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;broom&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;15_proj_func.R&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;99_proj_func.R&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Load data sets.</p>
+<p>Load the data sets.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set path for processed data directory</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>processed_data_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>,<span class="st">&quot;data&quot;</span>)</span>
@@ -3122,7 +3123,7 @@ vertical-align: -.125em;
 </div>
 </section>
 <section id="estimate-timing-differences" class="level4">
-<h4 class="anchored" data-anchor-id="estimate-timing-differences"><strong>Estimate Timing Differences</strong>:</h4>
+<h4 class="anchored" data-anchor-id="estimate-timing-differences"><strong>Estimate Timing Differences</strong></h4>
 <ul>
 <li><p>Introduce an “age-shift” or “expression-shift” between species to align the expression curves.</p></li>
 <li><p>Evaluate whether these shifts significantly improve the model fit using F-test.</p></li>
@@ -3151,10 +3152,11 @@ vertical-align: -.125em;
 <h4 class="anchored" data-anchor-id="classify-heterochronic-genes"><strong>Classify Heterochronic Genes</strong></h4>
 <p>Based on the direction and magnitude of shifts:</p>
 <ul>
-<li><p><strong>Neotenic</strong>: Original species’ expression resembles younger target species.</p></li>
-<li><p><strong>Accelerated</strong>: Original species’ expression resembles older target species.</p></li>
-<li><p><strong>Undefined</strong>: No significant improvement found or unable to determine from model.</p></li>
+<li><p><strong>Neotenic</strong>: Original species’ expression resembles younger target species. Defined as a positive shift in age or expression.</p></li>
+<li><p><strong>Accelerated</strong>: Original species’ expression resembles older target species. Defined as a negative shift in age or expression.</p></li>
+<li><p><strong>Undefined</strong>: Unable to determine from model. Handles <code>NAs</code>.</p></li>
 </ul>
+<p>Genes that do not display a significant improvement in fit by the shift model, are classified as <strong>Non-significant</strong>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Human vs chimp and reciprocal</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>human_chimp_class <span class="ot">&lt;-</span> human_chimp_shift <span class="sc">|&gt;</span></span>
@@ -3202,6 +3204,7 @@ vertical-align: -.125em;
 <span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(mac_human_shift,</span>
 <span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;genes&quot;</span> <span class="ot">=</span> <span class="st">&quot;gene&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Calculate proportion of genes for each classification and combine data into two data frames containing species interaction and their reciprocal.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>human_chimp_recip <span class="ot">&lt;-</span> human_chimp_table  <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(classification) <span class="sc">|&gt;</span></span>
@@ -3223,6 +3226,9 @@ vertical-align: -.125em;
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>              <span class="fu">rename</span>(<span class="at">mac_n =</span> n),</span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">join_by</span>(classification))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="save" class="level4">
+<h4 class="anchored" data-anchor-id="save">Save</h4>
 <p>Write results to .<em>tsv</em> files.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>human_chimp_recip <span class="sc">|&gt;</span></span>
@@ -3233,13 +3239,13 @@ vertical-align: -.125em;
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;08.2_hum_mac_class.tsv&quot;</span>))</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>human_chimp_shift <span class="sc">|&gt;</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>p_value,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>shift_p_value,</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                <span class="sc">-</span>rss_diff) <span class="sc">|&gt;</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(data)) <span class="sc">|&gt;</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;08.3_hum_chi_shift.tsv&quot;</span>))</span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>human_mac_shift <span class="sc">|&gt;</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>p_value,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>shift_p_value,</span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                <span class="sc">-</span>rss_diff) <span class="sc">|&gt;</span>  </span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(data)) <span class="sc">|&gt;</span></span>
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_tsv</span>(<span class="at">file =</span> <span class="fu">file.path</span>(processed_data_dir,</span>

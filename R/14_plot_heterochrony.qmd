@@ -1,14 +1,14 @@
 ---
 title: "Heterochrony, plots"
-format: html
+output: html
 execute:
   echo: true
   output: false
 ---
 
-### Load & Prepare
+### Load
 
-We begin with loading the necessary libraries for plot formation:
+Load necessary libraries for plot formation.
 
 ```{r}
 library("tidyverse")
@@ -34,6 +34,10 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
                                          "09_col_pal.tsv"),
                      show_col_types = FALSE)
 ```
+
+#### Prepare
+
+Define the colors used for the plots.
 
 ```{r}
 hum_color <- color_palette |>
@@ -61,11 +65,12 @@ altern_color <- color_palette |>
 
 ```
 
-### Subplots
+#### Plots
 
-First, we recreate the plots from the report to visualize the percentages, however, since we only have data for a single tissue, we just replicate the \_\_\_\_. We also add the human vs macaque classification data.
+Plot proportion of genes within each class, as done in *Somel et al*. We have chosen to only focus on the data for the prefrontal cortex. However, we add the human vs macaque classification data.
 
 ```{r}
+# Human vs chimp and reciprocal
 chimp_class_plot <- hum_chimp |>
   pivot_longer(
     cols = c(hum_proportion,
@@ -79,11 +84,11 @@ chimp_class_plot <- hum_chimp |>
   geom_bar(stat = "identity",
            position = "dodge",
            color = "black") +
-  scale_y_continuous(limit = c(0,100)) +
+  scale_y_continuous(limit = c(0, 75)) +
   labs(
     title = NULL,
     x = NULL,
-    y = "Genes Assigned to Categories (%)",
+    y = "Proportion of classified genes (%)",
     fill = "Species") +
   scale_x_discrete(
     labels = c("chimp_proportion" = "Chimpanzee",
@@ -95,12 +100,14 @@ chimp_class_plot <- hum_chimp |>
         panel.grid.minor = element_blank(),
         axis.line.x = element_blank(),
         axis.ticks.x =element_blank(),
-        axis.text.x = element_text(color = c(hum_color,
-                                             chimp_color),
+        axis.text.x = element_text(color = "black",
                                    size = 12,
-                                   face = "bold")) +
+                                   face = "italic"),
+        axis.title.y = element_text(size = 12,
+                                    face = "italic")) +
   scale_fill_manual(values = altern_color)
 
+# Human vs mac and reciprocal
 mac_class_plot <- hum_mac |>
   pivot_longer(
     cols = c(hum_proportion,
@@ -114,7 +121,7 @@ mac_class_plot <- hum_mac |>
   geom_bar(stat = "identity",
            position = "dodge",
            color = "black") +
-  scale_y_continuous(limit = c(0,100)) +
+  scale_y_continuous(limit = c(0, 75)) +
   labs(
     title = NULL,
     x = NULL,
@@ -131,8 +138,7 @@ mac_class_plot <- hum_mac |>
         axis.line.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.text.y = element_blank(),
-        axis.text.x = element_text(color = c(hum_color,
-                                             mac_color),
+        axis.text.x = element_text(color = "black",
                                    size = 12,
                                    face = "bold")) +
   scale_fill_manual(values = altern_color)
@@ -142,45 +148,48 @@ chimp_class_plot
 mac_class_plot
 ```
 
-### Final plot
-
-...
+Combine plots.
 
 ```{r}
 combined_plot <- wrap_elements(
   full =
   gridtext::richtext_grob(
     text = paste0(
-      "by Phyloontogentic Catagories: <span style='color:",
+      "Unexpectedly, the class of <span style='color:",
       altern_color |>
         pluck(1),
-      ";'>accelerated </span>, <span style='color:",
+      ";'>accelerated</span> genes constitutes close to 50%,
+      <br>
+      along with <span style='color:",
+      altern_color |>
+        pluck(4),
+      ";'>non-significant</span>, while <span style='color:",
       altern_color |>
         pluck(2),
-      ";'>neogenic </span>, and <span style='color:",
-      altern_color |>
-        pluck(3),
-      ";'>undefined </span>."),
+      ";'>neogenic</span> genes represent less than 10%."),
     x = 0,
     hjust = -0.05,
-    gp = grid::gpar(fontsize = 12))) /
+    gp = grid::gpar(fontsize = 16))) /
   
   (chimp_class_plot + mac_class_plot) +
   
-  plot_layout(heights = c(1, 9)) +
+  plot_layout(heights = c(2, 8)) +
   
   plot_annotation(
-     title = "Gene Distribution ",
+     title = "Classification after heterochrony test reveals surprising results ",
      theme = theme(
-       plot.title = element_text(size = 12,
-                                 hjust =0)))
+       plot.title = element_text(size = 20,
+                                 hjust = 0,
+                                 face = "bold")))
   
 
 
 combined_plot
 ```
 
-Lastly, we write final plot to *.png* file.
+#### Save
+
+Write final plot to *.png* file.
 
 ```{r}
 ggsave(file = file.path(processed_data_dir,

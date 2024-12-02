@@ -6,34 +6,42 @@ execute:
   output: false
 ---
 
+### Load
+
 This document contains the specifications used for the plots of this project. We use the `RColorBrewer` package to define a set of colors.
+
+We begin with loading the necessary libraries.
 
 ```{r}
 library("tidyverse")
 library("RColorBrewer")
-library("ggplot2")
 ```
 
-Our data contains two main groups of variables, 'species' and 'attributes', and one alternating variable that requires distinction by color. We thus use a tricolor palette consisting of the secondary colors purple, green, and orange.
+#### Base colors
 
-Within each secondary color, we define a spectrum to vary within our groups.
+Our data contains two main groups of variables, 'species' and 'attributes', and one alternating variable that requires distinction by color. We use a tricolor palette consisting of the secondary colors purple, green, and orange.
+
+Within each secondary color, a spectrum is defined to vary colors within groups.
 
 ```{r}
-species_base_colors <- colorRampPalette(brewer.pal(9, "Greens"))(3)
+species_base_colors <- colorRampPalette(brewer.pal(9,
+                                                   "Greens"))(3)
 
 species_colors <- rgb(colorRamp(species_base_colors)
                       (seq(0.4, 1,
                            length.out = length(species_base_colors))),
                       maxColorValue = 255)
   
-attribute_base_colors <- colorRampPalette(brewer.pal(9, "Purples"))(3)
+attribute_base_colors <- colorRampPalette(brewer.pal(9,
+                                                     "Purples"))(3)
 
 attribute_colors <- rgb(colorRamp(attribute_base_colors)
                       (seq(0.4, 1,
                            length.out = length(attribute_base_colors))),
                       maxColorValue = 255)
 
-alternative_base_colors <- colorRampPalette(brewer.pal(9, "Oranges"))(4)
+alternative_base_colors <- colorRampPalette(brewer.pal(9,
+                                                       "Oranges"))(4)
 
 alternative_colors <- rgb(colorRamp(alternative_base_colors)
                       (seq(0.3, 0.9,
@@ -41,7 +49,7 @@ alternative_colors <- rgb(colorRamp(alternative_base_colors)
                       maxColorValue = 255)
 ```
 
-Then we create a data frame with the colors according the their labels.
+Create data frame with colors according to group labels.
 
 ```{r}
 combined_colors <- c(species_colors, attribute_colors, alternative_colors)
@@ -53,6 +61,8 @@ group_labels <- c(
 color_palette <- data.frame(group = group_labels,
                             color = combined_colors)
 ```
+
+#### Example
 
 Example plot using the color palette to assign a category to `Subgroup`.
 
@@ -81,6 +91,8 @@ example |>
     scale_fill_manual(values = color_palette |>
                         pull(color))
 ```
+
+#### Save
 
 Write data to *.tsv* file.
 
