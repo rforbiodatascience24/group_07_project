@@ -19,6 +19,7 @@ format:
 knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/clipboard-990918093.png")
 ```
 
+---
 
 **Using expression of X genes from Y samples of prefrontal cortex, we examine:**
 
@@ -32,6 +33,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/04_description_plots.png")
 ```
 
+---
 
 **Examining the influence of age, sex, and species on gene expression:**
 
@@ -45,6 +47,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/10_PCA.png")
 ```
 
+---
 
 **Comparing global gene expression to sexual maturity:**
 
@@ -68,6 +71,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code3.png")
 ```
 
+---
 
 **Determining heterochrony between species:**
 
@@ -79,6 +83,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/shift_test.png")
 ```
 
+---
 
 -   PVE Overview
 
@@ -88,6 +93,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/12_expr_attr.png")
 ```
 
+---
 
 -   Global gene expression profiles.
 
@@ -97,6 +103,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/11_glob_expr.png")
 ```
 
+---
 
 -   Heterochrony results.
 -   Gene Expression Trajectories Highlighting Heterochrony
@@ -107,12 +114,15 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/14_heterochrony_plot")
 ```
 
+---
 
 **Discussion and perspectives**
 
 -   Neotenic delays in the prefrontal cortex.
 -   Liability f animal models for studying neurodevelopmental disorders 
 -   Comparison with other primates.
+
+---
 
 **Conclusions:**
 
