@@ -10,6 +10,7 @@ Load packages
 
 ```{r}
 library(tidyverse)
+library(patchwork)
 ```
 
 Loading cleaned and augmented data and set colour pallets:
@@ -82,23 +83,24 @@ sex_plot <- pheno_expr_data_joined |>
         legend.position = "none") +
   labs(title = "Distribution of Age",
        subtitle = "of <span style='color:#8ECF8F'>chimpanzees</span>,
-       <span style='color:#459051'>humans</span> and <span style='color:#00441B'>macaque</span> in dataset") +
+       <span style='color:#459051'>humans</span> and <span style='color:#00441B'>macaque</span>") +
   scale_fill_manual(values = color_palette |>
                       filter(group == "Species") |>
                       pull(color))
 
 ```
 
+Combining the two plots:
+
+```{r}
+description_plots <- species_plot + sex_plot
+```
+
 ```{r}
 ggsave(file = file.path(processed_data_dir,
-                        "04_species_plot.png"),
-       plot = species_plot,
+                        "04_description_plots.png"),
+       plot = description_plots,
        width = 12,
        height = 8)
 
-ggsave(file = file.path(processed_data_dir,
-                        "04_sex_plot.png"),
-       plot = sex_plot,
-       width = 12,
-       height = 8)
 ```
