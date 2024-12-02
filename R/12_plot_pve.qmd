@@ -95,8 +95,9 @@ hum_chimp_donut <- mlc_proportions |>
   geom_text(aes(label = paste0(round(human_chimp),
                                "%")), 
             position = position_stack(vjust = 0.5),
-            size = 3,
-            color = "white") +
+            size = 4,
+            color = "black",
+            face = "italic") +
   scale_fill_manual(values = altern_color,
                     name = NULL) +
   theme(legend.position = "none")
@@ -115,8 +116,9 @@ hum_mac_donut <- mlc_proportions |>
   geom_text(aes(label = paste0(round(human_macaque),
                                "%")), 
             position = position_stack(vjust = 0.5),
-            size = 3,
-            color = "white") +
+            size = 4,
+            color = "black",
+            face = "italic") +
   scale_fill_manual(values = altern_color,
                     name = NULL) +
   theme(legend.position = "none")
@@ -164,6 +166,7 @@ pve_plot <- pve_data |>
   theme(
     axis.title.y = element_blank(),
     axis.text.y = element_text(vjust = -1.5,
+                               size = 12,
                                face = "italic"),
     plot.margin = margin(0, 0, 0, 0))
 
@@ -186,7 +189,7 @@ combined_plot <- wrap_elements(
         ";'>sex</span> compared to the other chimpanzee and macaque, "),
       x = 0,
       hjust = -0.05,
-      gp = grid::gpar(fontsize = 12))) /
+      gp = grid::gpar(fontsize = 16))) /
   
   (pve_plot + 
      
@@ -209,7 +212,7 @@ combined_plot <- wrap_elements(
          x = 0.5,
          y = 0.4,
          hjust = 0.5,
-         gp = grid::gpar(fontsize = 12))) /
+         gp = grid::gpar(fontsize = 16))) /
   
       donut_combined + plot_layout(heights = c(2, 8))) +
      
@@ -220,8 +223,9 @@ combined_plot <- wrap_elements(
      title =
        "PVE by attributes appear similar in Chimpanzee and Macaque",
      theme = theme(
-       plot.title = element_text(size = 16,
-                                 hjust = 0)))
+       plot.title = element_text(size = 20,
+                                 hjust = 0,
+                                 face = "bold")))
    
 
 combined_plot
@@ -238,3 +242,4 @@ ggsave(file = file.path(processed_data_dir,
        width = 12,
        height = 8)
 ```
+

@@ -101,7 +101,9 @@ plot_pc_pve <- pve_data_prep |>
     panel.grid.minor.x = element_blank(),
     panel.grid.major.y = element_blank(),
     panel.grid.minor.y = element_blank(),
-    axis.text.x = element_blank()) +
+    axis.text.x = element_blank(),
+    axis.title = element_text(size = 12,
+                              face = "italic")) +
   scale_fill_manual(values = color_palette |>
                       filter(group == "Attributes") |>
                       pull(color))
@@ -134,7 +136,7 @@ proj_plots <- plot_grid(
   rel_widths = c(1, 1, 1),
   align = "hv") |>
   ggdraw() +
-  theme(plot.background = element_rect(fill = "#F6F6F6",
+  theme(plot.background = element_rect(fill = "#F5F5F5",
                                        color = NA),
         plot.margin = margin(0,0,0,0))
 ```
@@ -152,15 +154,16 @@ combined_plot <- plot_pc_pve +
     bottom = 0.4) +
   
   plot_annotation(
-    title = "PCA reveals clear trends of expression's dependencies on attributes",
+    title = "PCA reveals trends of expression's dependencies on attributes",
     theme = theme(
-      plot.title = element_text(size = 16,
-                                hjust = 0),
+      plot.title = element_text(size = 20,
+                                hjust = 0,
+                                face = "bold"),
       plot.margin = margin(10, 10, 10, 10))) +
   
   geom_richtext(
     aes(x = -0.01,
-        y = 1.05),
+        y = 1.1),
     label = paste(
       "The main PVE is by the attributes <span style='color:",
       age_color,
@@ -169,19 +172,19 @@ combined_plot <- plot_pc_pve +
       species_color,
       ";'>species</span>..."),
     hjust = 0,
-    size = 4,
+    size = 5,
     label.color = NA,
     fill = NA) +
   
   geom_richtext(
     aes(x = 1.01,
-        y = -0.05),
+        y = -0.1),
     label = paste(
       "...whereas <span style='color:",
       sex_color,
       ";'>sex</span> is mainly represented in the PCs with lower influence."),
     hjust = 1,
-    size = 4,
+    size = 5,
     label.color = NA,
     fill = NA)
 
@@ -190,7 +193,7 @@ combined_plot <- plot_pc_pve +
 combined_plot
 ```
 
-#### SAve
+#### Save
 
 Write final plot to *.png* file.
 
@@ -201,3 +204,4 @@ ggsave(file = file.path(processed_data_dir,
        width = 12,
        height = 8)
 ```
+

@@ -84,7 +84,7 @@ chimp_class_plot <- hum_chimp |>
   geom_bar(stat = "identity",
            position = "dodge",
            color = "black") +
-  scale_y_continuous(limit = c(0,100)) +
+  scale_y_continuous(limit = c(0, 75)) +
   labs(
     title = NULL,
     x = NULL,
@@ -95,15 +95,16 @@ chimp_class_plot <- hum_chimp |>
                "hum_proportion" = "Human")) +
   theme_minimal() +
   theme(legend.position = "none",
-        text = element_text(size = 10,
-                            face = "italic"),
+        text = element_text(size = 12),
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank(),
         axis.line.x = element_blank(),
         axis.ticks.x =element_blank(),
         axis.text.x = element_text(color = "black",
                                    size = 12,
-                                   face = "bold")) +
+                                   face = "italic"),
+        axis.title.y = element_text(size = 12,
+                                    face = "italic")) +
   scale_fill_manual(values = altern_color)
 
 # Human vs mac and reciprocal
@@ -120,7 +121,7 @@ mac_class_plot <- hum_mac |>
   geom_bar(stat = "identity",
            position = "dodge",
            color = "black") +
-  scale_y_continuous(limit = c(0,100)) +
+  scale_y_continuous(limit = c(0, 75)) +
   labs(
     title = NULL,
     x = NULL,
@@ -168,7 +169,7 @@ combined_plot <- wrap_elements(
       ";'>neogenic</span> genes represent less than 10%."),
     x = 0,
     hjust = -0.05,
-    gp = grid::gpar(fontsize = 12))) /
+    gp = grid::gpar(fontsize = 16))) /
   
   (chimp_class_plot + mac_class_plot) +
   
@@ -177,8 +178,9 @@ combined_plot <- wrap_elements(
   plot_annotation(
      title = "Classification after heterochrony test reveals surprising results ",
      theme = theme(
-       plot.title = element_text(size = 16,
-                                 hjust = 0)))
+       plot.title = element_text(size = 20,
+                                 hjust = 0,
+                                 face = "bold")))
   
 
 
