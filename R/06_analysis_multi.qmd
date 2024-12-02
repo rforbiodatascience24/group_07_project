@@ -80,22 +80,20 @@ aug_mlc_stats <- mlc_data |>
                   names_prefix = "t_stat_pvalue_maca_")
     
     # Determine if age and species are significant predictors
-    age_significant_chimp <- if_else(t_stat_pvalues_chimp$t_stat_pvalue_chimp_age < 0.05, "yes", "no")
-    species_significant_chimp <- if_else(t_stat_pvalues_chimp$t_stat_pvalue_chimp_human_chimp_species < 0.05, "yes", "no")
+    t_stat_pvalues_chimp <- t_stat_pvalues_chimp |>
+      mutate(age_significant_chimp = if_else(t_stat_pvalue_chimp_age < 0.05, "yes", "no"),
+             species_significant_chimp = if_else(t_stat_pvalue_chimp_human_chimp_species < 0.05, "yes", "no"))
     
-    age_significant_maca <- if_else(t_stat_pvalues_maca$t_stat_pvalue_maca_age < 0.05, "yes", "no")
-    species_significant_maca <- if_else(t_stat_pvalues_maca$t_stat_pvalue_maca_human_maca_species < 0.05, "yes", "no")
+    t_stat_pvalues_maca <- t_stat_pvalues_maca |>
+      mutate(age_significant_maca = if_else(t_stat_pvalue_maca_age < 0.05, "yes", "no"),
+             species_significant_maca = if_else(t_stat_pvalue_maca_human_maca_species < 0.05, "yes", "no"))
     
     # Combine the results into a single dataframe
     tibble(
       f_stat_pvalue_chimp = f_stat_pvalue_chimp,
       f_stat_pvalue_maca = f_stat_pvalue_maca,
       t_stat_pvalues_chimp,
-      t_stat_pvalues_maca,
-      age_significant_chimp = age_significant_chimp,
-      species_significant_chimp = species_significant_chimp,
-      age_significant_maca = age_significant_maca,
-      species_significant_maca = species_significant_maca
+      t_stat_pvalues_maca
     )
   })
 
