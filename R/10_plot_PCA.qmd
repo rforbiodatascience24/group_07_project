@@ -6,9 +6,9 @@ execute:
   output: false
 ---
 
-### Load & Prepare
+#### Load
 
-For the principal component analysis (PCA), the expression data is visualized projected onto the PCs, along the proportion of variance explained (PVE) for each component.
+Load necessary libraries for plot formation.
 
 ```{r}
 library("tidyverse")
@@ -38,7 +38,9 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
                      show_col_types = FALSE)
 ```
 
-Define the colors used for plotting.
+#### Prepare
+
+Define the colors used for the plots.
 
 ```{r}
 age_color <- color_palette |>
@@ -76,7 +78,7 @@ pve_data_prep <- pve_data |>
 
 ```
 
-### Subplots
+### Plots
 
 Plot the VE for each PC, colored by the PVE by attributes.
 
@@ -137,8 +139,6 @@ proj_plots <- plot_grid(
         plot.margin = margin(0,0,0,0))
 ```
 
-### Final Plot
-
 Combine plots to reveal trend of attribute influence on PC VE.
 
 ```{r}
@@ -189,6 +189,8 @@ combined_plot <- plot_pc_pve +
 
 combined_plot
 ```
+
+#### SAve
 
 Write final plot to *.png* file.
 
