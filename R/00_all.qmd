@@ -76,7 +76,7 @@ source("99_proj_func.R")
 
 ## The Analyses
 
-The purpose of the analysis is to follow in the path of *Somel et al.*, but applying our own curiosity. We aim to examine gene expression in postnatal development in Human, Ape, and Monkey byÆ
+The purpose of the analysis is to follow in the path of *Somel et al.*, but applying our own curiosity. We aim to examine gene expression in postnatal development in Human, Ape, and Monkey by
 
 -   uncovering he influence of age, sex, and species on gene expression
 
