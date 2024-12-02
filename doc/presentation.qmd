@@ -54,21 +54,15 @@ knitr::include_graphics("images/10_PCA.png")
 
 -   Using cubic regression models.
 
+
 ```{r}
-#| label: Cubic code
-#| fig-align: "left"
+#| fig.show: "hold"
+#| out.width: "33%"
+
 knitr::include_graphics("images/cube_reg_code.png")
-```
-
-```{r}
-#| label: Cubic code2
-#| fig-align: "left"
+  
 knitr::include_graphics("images/cube_reg_code2.png")
-```
-
-```{r}
-#| label: Cubic code3
-#| fig-align: "left"
+  
 knitr::include_graphics("images/cube_reg_code3.png")
 ```
 
