@@ -1,7 +1,6 @@
 ---
 title: "Comprehensive Analysis Report"
 output: html
-output-dir: results
 execute:
   echo: true
   output: false
@@ -21,7 +20,9 @@ library("quarto")
 
 ### Loading
 
-The first step involves loading the raw data into the analysis environment.
+The first step involves loading the raw data into the analysis environment. The data set *GSE11512* is made available by NCBI's Gene Expression Omnibus (<https://www.bioconductor.org/packages//2.10/bioc/html/GEOquery.html>), and formatted according to GEO data set standards (<https://www.bioconductor.org/packages//2.10/bioc/html/Biobase.html>).
+
+The data are saved in a sub directory of *data* named *\_raw*.
 
 ```{r}
 quarto::quarto_render("01_load.qmd")
@@ -29,7 +30,7 @@ quarto::quarto_render("01_load.qmd")
 
 ### Cleaning
 
-This section cleans the raw data by ... and preparing it for further analysis.
+Currently, the saved data sets are sub data sets of interest extracted from the overall structure of a GEO data set. This section cleans the raw data by creating tidy tibbles and pivoting them according to their purpose.
 
 ```{r}
 quarto::quarto_render("02_clean.qmd")
@@ -37,7 +38,7 @@ quarto::quarto_render("02_clean.qmd")
 
 ### Augmenting
 
-Here, we augment and join the datasets as necessary for downstream analyses.
+Here, we augment the data sets by removing unecessary columns, formating data types, renaming column headers, and adding new columns with variables used further down the analysis.
 
 ```{r}
 quarto::quarto_render("03_augment_joined.qmd")
@@ -45,25 +46,27 @@ quarto::quarto_render("03_augment_joined.qmd")
 
 ## The data
 
+The data are obtained from *Somel et al.: Transcriptional neoteny in the human brain (2009)*. The main focus of the data set is expression of 7958 genes in species Human, Chimpanzee, and Macaque. All gene expression levels are measured from brain tissue of deceased samples, of varying age and sex.
+
 ### Color palette
 
-...
+The variables can be sorted into 3 groups of variables, as seen in the following step. We want to define a custom color palette based on a tricolor palette of secondary colors. This allows us to reuse the same HTML colors throughout the plots, without editing each script if a color is changed.
 
 ```{r}
 quarto::quarto_render("09_plot_specs.qmd")
 ```
 
-### Decription
+### Description
 
-...
+We prepare for the analyses, by getting an overview of the basic summary statistics of our data.
 
 ```{r}
-#quarto::quarto_render("04_describe.qmd")
+quarto::quarto_render("04_describe.qmd")
 ```
 
 ## The functions
 
-...
+Throughout the analysis and plots, we will make use of an array of customized functions, to ensure clean and efficient code during iterating step. Details of function parameters and outputs can be found in *15_proj_func.R*.
 
 ```{r}
 source("15_proj_func.R")
@@ -71,9 +74,19 @@ source("15_proj_func.R")
 
 ## The Analyses
 
+The purpose of the analysis is to follow in the path of *Somel et al.*, but applying our own curiosity. We aim to examine gene expression in postnatal development in Human, Ape, and Monkey byÆ
+
+-   uncovering he influence of age, sex, and species on gene expression
+
+-   comparing global gene expression to sexual maturity
+
+-   determining heterochrony between species
+
+The following methods of analysis are selected from the paper to aid us in our exploration.
+
 ### PCA & PVE
 
-...
+For uncovering he influence of age, sex, and species on gene expression, the start by an analysis of principal components (PCA). From this we create projections of our data onto the PCs, to identify trends in attributes. Furthermore, we calculate the proportion of variance explained (PVE) of the attributes age, sex, and species for each PC, and finally the PVE of attributes age and sex for each species.
 
 ```{r}
 quarto::quarto_render("05_analysis_PCA.qmd")
@@ -81,7 +94,7 @@ quarto::quarto_render("05_analysis_PCA.qmd")
 
 ### Multiple linear regression
 
-...
+To further explore the variation in gene expression, we proceed with a multiple linear regression analysis, in which we use an F-test to identify genes, whose expressions are significantly influenced by age, sex, or both.
 
 ```{r}
 quarto::quarto_render("06_analysis_multi.qmd")
@@ -89,7 +102,7 @@ quarto::quarto_render("06_analysis_multi.qmd")
 
 ### Cubic regression
 
-...
+In order to compare global gene expression to sexual maturity, we fit a cubic regression model to our data, from which we extract the coefficients. We continue by calculating distances among the samples displaying a significant change in expression to obtain a measure of expression variation. From this, we determined the percent change in global gene expression over age for each species.
 
 ```{r}
 quarto::quarto_render("07_analysis_cube.qmd")
@@ -97,7 +110,7 @@ quarto::quarto_render("07_analysis_cube.qmd")
 
 ### Heterochronic expression test
 
-...
+For determining heterochrony between species, we used the cubic model as a base modeling of gene expression trajectories. We then apply varying "shifts" in age and expression of a target species, through a method we have named the *shift model*. The model evaluates how well the shifts changes the trajectories of the target species to match to original species using an F-test. Depending on the results of the statistics and the optimal age- and expression-shift, genes are classified as original species neogenic, accelerated, unclassified, or non-significant compared to the target species.
 
 ```{r}
 quarto::quarto_render("08_analysis_heterochrony.qmd")
@@ -105,9 +118,11 @@ quarto::quarto_render("08_analysis_heterochrony.qmd")
 
 ## The Plots
 
+The following plots are chosen in order to best display the findings of our analyses with our aim in mind. They are partly inspired by the paper this project is based on, but we also incorporate other elements to better visualize the parts of our research that varies from the original analyses.
+
 ### PCA
 
-...
+For the PCA, the projected data are plotted over varying PCs, to explore visual patterns in the influence of the attributes. Similarly, we include the PVE in a classic 'variance explained by PCs'-plot.
 
 ```{r}
 quarto::quarto_render("10_plot_PCA.qmd")
@@ -115,7 +130,7 @@ quarto::quarto_render("10_plot_PCA.qmd")
 
 ### Global expression
 
-...
+The global expression is plotted for each species, with a regression line, and a visualization of the age of sexual maturity for optimal comparison.
 
 ```{r}
 quarto::quarto_render("11_plot_global_expr.qmd")
@@ -123,24 +138,30 @@ quarto::quarto_render("11_plot_global_expr.qmd")
 
 ### PVE and significant expression
 
-...
+The purpose of this plot is to view the PVE for each species alongside the proportion of genes displaying a significant change in expression for each combination of species.
 
 ```{r}
 quarto::quarto_render("12_plot_pve.qmd")
 ```
 
-### Shift model
-
-...
-
-```{r}
-quarto::quarto_render("13_plot_shift_model.qmd")
-```
-
 ### Expression classification
 
-...
+The final aim of this project is displayed by comparing classification results side by side, as in the original analysis performed in the paper, but with the added comparison between human and macaque.
 
 ```{r}
 quarto::quarto_render("14_plot_heterochrony.qmd")
 ```
+
+## Conclusion
+
+This project has provided a combination of scripts, relevant for exploring gene expression in postnatal brains of humans, chimpanzees, and macaques and uncovering key developmental and differential expression patterns.
+
+-   PCA uncovers the influence of age, sex, and species on expression.
+
+-    Cubic regression reveals changes tied developmental phases, such as sexual maturity.
+
+-   Multiple regression analysis, along with PVE, elucidate age- and sex-related expression variability.
+
+-   Heterochronic analysis and classification highlight shifts in developmental timing, shedding light on evolutionary variations between species.
+
+Finally, we successfully replicated key findings and plots from *Somel et al.*, while also introducing modifications to certain analyses and visualizations. These adjustments allowed us to explore alternative interpretations and draw complementary conclusions.

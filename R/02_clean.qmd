@@ -6,7 +6,7 @@ execute:
   output: false
 ---
 
-Load `tidyverse` library for tidying and cleaning data (<https://tidyverse.tidyverse.org/>).
+Load `tidyverse` library for tidying and cleaning data.
 
 ```{r}
 library("tidyverse")
