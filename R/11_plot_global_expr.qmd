@@ -6,9 +6,9 @@ execute:
   output: false
 ---
 
-### Load & Prepare
+#### Load
 
-For the ...
+Load necessary libraries for plot formation.
 
 ```{r}
 library("tidyverse")
@@ -18,7 +18,7 @@ library("gridtext")
 library("ggtext")
 ```
 
-We load the data sets.
+Load the data sets.
 
 ```{r}
 # Set path for processed data directory
@@ -32,6 +32,10 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
                                          "09_col_pal.tsv"),
                      show_col_types = FALSE)
 ```
+
+#### Prepare
+
+Define the colors used for the plots.
 
 ```{r}
 chimp_color <- color_palette |>
@@ -48,7 +52,7 @@ mac_color <- color_palette |>
   pull(color)
 ```
 
-### Subplots
+#### Plots
 
 The global gene expression for each sample is plotted, color-coded by species.
 
@@ -166,7 +170,7 @@ plot_expr_mac <- expr_data |>
 plot_expr_mac
 ```
 
-### Final Plot
+Combine plots.
 
 ```{r}
 combined_plot <- wrap_elements(
@@ -207,6 +211,8 @@ combined_plot <- wrap_elements(
 
 combined_plot
 ```
+
+#### Save
 
 Write final plot to *.png* file.
 
