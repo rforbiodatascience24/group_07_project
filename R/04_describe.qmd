@@ -6,16 +6,23 @@ execute:
   output: false
 ---
 
-Load packages
+#### Load
+
+Load packages.
 
 ```{r}
-library(tidyverse)
-library(patchwork)
+library("tidyverse")
+library("patchwork")
+library("ggtext")
 ```
 
-Loading cleaned and augmented data and set colour pallets:
+Load data and color palettes.
 
 ```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..",
+                                "data")
+
 # Data
 pheno_expr_data_joined <- read_tsv(file = file.path(processed_data_dir,
                              "03_dat_joined.tsv"),
@@ -27,7 +34,9 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
                      show_col_types = FALSE)
 ```
 
-Number of observations and variables in the cleaned and augmented data set
+#### Plot descriptions
+
+Number of observations and variables in the data set.
 
 ```{r}
 # Number of samples
@@ -44,6 +53,7 @@ str_glue("Number of genes {pheno_expr_data_joined |>
          ncol() - 4}")
 ```
 
+<<<<<<< HEAD
 Setting up the desired colors for the graphics:
 
 ```{r}
@@ -53,6 +63,9 @@ species_color <- color_palette |>
 ```
 
 Plotting of the number of individuals by sex and species
+=======
+Plot number of individuals by sex and species.
+>>>>>>> aef086724facf5446f973a8a275769eeeb4c8d67
 
 ```{r}
 species_plot <- pheno_expr_data_joined |>
@@ -60,15 +73,17 @@ species_plot <- pheno_expr_data_joined |>
                      fill = sex)) +
   geom_bar(color = "black") +
   theme_minimal() +
-  theme(plot.title.position = "plot",
-        legend.position = "none",
-        panel.grid.minor = element_blank(),
-        panel.grid.major = element_blank(),
-        plot.subtitle = element_markdown(size = 12)) +
-  labs(title = "Distribution of Species",
-       subtitle = "By <span style='color:#9E3706'>male</span> and <span style='color:#DE580C'>female</span>",
-       y = element_blank()) +
-    scale_fill_manual(values = color_palette |>
+  theme(
+    plot.title.position = "plot",
+    legend.position = "none",
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    plot.subtitle = element_markdown(size = 12)) +
+  labs(
+    title = "Distribution of Species",
+   subtitle = "By <span style='color:#9E3706'>male</span> and <span style='color:#DE580C'>female</span>",
+   y = element_blank()) +
+  scale_fill_manual(values = color_palette |>
                       filter(group == "Alternative") |>
                       slice_tail(n = 2) |>
                       pull(color))
@@ -76,7 +91,7 @@ species_plot
 
 ```
 
-Plotting of the distribution of population of dataset by age:
+Plot distribution of population of data set by age:
 
 ```{r}
 sex_plot <- pheno_expr_data_joined |>
@@ -84,22 +99,24 @@ sex_plot <- pheno_expr_data_joined |>
                        fill = species)) +
   geom_boxplot() +
   theme_minimal() +
-  theme(plot.title.position = "plot",
-        panel.grid.minor = element_blank(),
-        panel.grid.major = element_blank(),
-        axis.text.y = element_blank(),
-        plot.subtitle = element_markdown(size = 12),
-        legend.position = "none") +
-  labs(title = "Distribution of Age",
-       subtitle = "of <span style='color:#8ECF8F'>chimpanzees</span>,
-       <span style='color:#459051'>humans</span> and <span style='color:#00441B'>macaque</span>") +
+  theme(
+    plot.title.position = "plot",
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    axis.text.y = element_blank(),
+    plot.subtitle = element_markdown(size = 12),
+    legend.position = "none") +
+  labs(
+    title = "Distribution of Age",
+   subtitle = "of <span style='color:#8ECF8F'>chimpanzees</span>,
+   <span style='color:#459051'>humans</span> and <span style='color:#00441B'>macaque</span>") +
   scale_fill_manual(values = color_palette |>
                       filter(group == "Species") |>
                       pull(color))
 
 ```
 
-Combining the two plots created earlier:
+Combine plots.
 
 ```{r}
 description_plots <- wrap_elements(
@@ -136,11 +153,14 @@ description_plots
 
 ```
 
+#### Save
+
+Write final plot to *.png* file.
+
 ```{r}
 ggsave(file = file.path(processed_data_dir,
                         "04_description_plots.png"),
        plot = description_plots,
        width = 12,
        height = 8)
-
 ```
