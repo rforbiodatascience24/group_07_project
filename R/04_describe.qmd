@@ -22,7 +22,7 @@ pheno_expr_data_joined <- read_tsv(file = file.path(processed_data_dir,
 
 # Color palette
 color_palette <- read_tsv(file = file.path(processed_data_dir,
-                                         "04_col_pal.tsv"),
+                                         "09_col_pal.tsv"),
                      show_col_types = FALSE)
 ```
 
@@ -64,7 +64,6 @@ species_plot <- pheno_expr_data_joined |>
                       slice_tail(n = 2) |>
                       pull(color))
 
-species_plot
 ```
 
 Distribution of population of dataset by age:
@@ -88,7 +87,6 @@ sex_plot <- pheno_expr_data_joined |>
                       filter(group == "Species") |>
                       pull(color))
 
-sex_plot
 ```
 
 ```{r}
