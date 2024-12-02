@@ -57,6 +57,22 @@ sex_color <- color_palette |>
 altern_color <- color_palette |>
   filter(group == "Alternative") |>
   pull(color)
+null_color <- color_palette |>
+  filter(group == "Alternative") |>
+  slice(1) |>
+  pull(color) 
+s_color<- color_palette |>
+  filter(group == "Alternative") |>
+  slice(2) |>
+  pull(color)
+a_color<- color_palette |>
+  filter(group == "Alternative") |>
+  slice(3) |>
+  pull(color)
+as_color <- color_palette |>
+  filter(group == "Alternative") |>
+  slice(4) |>
+  pull(color)
 ```
 
 #### Plots
@@ -109,11 +125,7 @@ hum_mac_donut <- mlc_proportions |>
 # Combine donuts
 donut_combined <- hum_chimp_donut + hum_mac_donut +
   plot_layout(ncol = 2) +
-  plot_annotation() +
-  theme(
-    legend.position = "bottom",
-    legend.text = element_text(size = 8),
-    legend.title = element_blank())
+  plot_annotation()
 
 hum_chimp_donut
 hum_mac_donut
@@ -163,12 +175,13 @@ combined_plot <- wrap_elements(
   full = 
     gridtext::richtext_grob(
       text = paste0(
-        "A description of the attributes <span style='color:",
+        "In human <span style='color:",
         age_color,
-        ";'>age</span> and ",
-        "<span style='color:",
+        ";'>age</span> constiutes a bigger proportion of explained variance
+        <br>
+        than <span style='color:",
         sex_color,
-        ";'>sex</span>."),
+        ";'>sex</span> compared to the other chimpanzee and macaque, "),
       x = 0,
       hjust = 0,
       gp = grid::gpar(fontsize = 12))) /
@@ -178,18 +191,32 @@ combined_plot <- wrap_elements(
      (wrap_elements(
        full = gridtext::richtext_grob(
          text = paste0(
-           "Another description of <span style='color:",
-           attr_color,
-           ";'>attributes</span>."),
+           "which appear to share similar patterns in the
+           <br>
+           percent of genes significantly dependent on
+           <br>
+           <span style='color:",
+           a_color,
+           ";'>age</span>, <span style='color:",
+           s_color,
+           ";'>species</span>, <span style='color:",
+           as_color,
+           ";'>both</span>, or <span style='color:",
+           null_color,
+           ";'>neither</span>."),
          x = 0,
+         y = 0.5,
          hjust = 0,
          gp = grid::gpar(fontsize = 12))) /
   
-      donut_combined + plot_layout(heights = c(2, 8)))) +
+      donut_combined + plot_layout(heights = c(2, 8))) +
+     
+     plot_layout(widths = c(2, 3))) +
   
   plot_layout(heights = c(1, 9)) +
   plot_annotation(
-     title = "Title",
+     title =
+       "PVE by attributes appear similar in Chimpanzee and Macaque",
      theme = theme(
        plot.title = element_text(size = 16)))
    
