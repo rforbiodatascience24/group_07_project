@@ -6,13 +6,15 @@ execute:
   output: false
 ---
 
-Load `tidyverse` library for tidying and cleaning data.
+#### Load
+
+Load library.
 
 ```{r}
 library("tidyverse")
 ```
 
-Create tibble of `pheno_data` and `expr_data`. Tidy `expr_data` into a wide data set with `gene` as columns.
+Load the data set.
 
 ```{r}
 # Set path for processed data directory
@@ -26,6 +28,14 @@ expr_data <- read.table(file = file.path(processed_data_dir,
                         row.names = 1,
                         check.names = FALSE)
 
+
+```
+
+#### Clean
+
+Create tibble of `pheno_data` and `expr_data`. Tidy `expr_data` into a wide data set with `gene` as columns.
+
+```{r}
 #Tidy expression data
 expr_data_tidy <- expr_data |>
   as_tibble(rownames = "gene")
@@ -54,7 +64,9 @@ pheno_data_tidy <- pheno_data |>
   as_tibble()
 ```
 
-Write into each their *dat_clean.tsv* file.
+#### Save
+
+Write data to .*tsv* files.
 
 ```{r}
 # Write cleaned expression data to TSV file

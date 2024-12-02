@@ -16,6 +16,8 @@ s204668, NorbertAuroraBalint,
 
 s233415, bbd52
 
+https://raw.githack.com/rforbiodatascience24/group_07_project/main/doc/presentation.html
+
 # To do, all
 
 -   Add yourself at the top of this doc

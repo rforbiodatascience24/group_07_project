@@ -10,6 +10,8 @@ execute:
 
 This report combines all the steps in the analysis pipeline, from data loading and cleaning to advanced analyses and visualizations. Each step is accompanied by a brief description of its purpose and methods.
 
+To ensure proper calling of `select()` throughout the script, we use `dplyr::select()`.
+
 We start by loading `quarto`, used for rendering the files.
 
 ```{r}
@@ -38,7 +40,7 @@ quarto::quarto_render("02_clean.qmd")
 
 ### Augmenting
 
-Here, we augment the data sets by removing unecessary columns, formating data types, renaming column headers, and adding new columns with variables used further down the analysis.
+Here, we augment the data, namely by extracting the data of interest, editing naming and observation format, and joining our two data frames into one that is ready for use for downstream analyses.
 
 ```{r}
 quarto::quarto_render("03_augment_joined.qmd")
@@ -94,7 +96,7 @@ quarto::quarto_render("05_analysis_PCA.qmd")
 
 ### Multiple linear regression
 
-To further explore the variation in gene expression, we proceed with a multiple linear regression analysis, in which we use an F-test to identify genes, whose expressions are significantly influenced by age, sex, or both.
+To further explore the variation in gene expression, we proceed with a multiple linear regression analysis, in which multivariable regression is done on each gene to determine whether any of the two factors age, or species are apply a significant change in the expression. An F-test to identify genes, whose expressions are significantly influenced, and the proportion of genes belonging to each of the four groups both, neither, one, or the other, is calculated.
 
 ```{r}
 quarto::quarto_render("06_analysis_multi.qmd")
@@ -158,7 +160,7 @@ This project has provided a combination of scripts, relevant for exploring gene 
 
 -   PCA uncovers the influence of age, sex, and species on expression.
 
--    Cubic regression reveals changes tied developmental phases, such as sexual maturity.
+-   Cubic regression reveals changes tied developmental phases, such as sexual maturity.
 
 -   Multiple regression analysis, along with PVE, elucidate age- and sex-related expression variability.
 
