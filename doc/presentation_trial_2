@@ -1,215 +1,167 @@
+cat(
+  "
 ---
-title: "Transcriptional Neoteny in the Human Brain"
-author: "Group 7"
+title: \"Transcriptional Neoteny in the Human Brain\"
+author: \"Group 7\"
 format:
   revealjs:
     theme: dark
 editor: visual
 ---
-
-```{r}
-library("tidyverse")   
-library("broom")       
-library("patchwork")   
-library("cowplot")     
-library("ggtext")      
-library("gridtext")    
-library("GEOquery")    
-library("Biobase")
-source("../group_07_project/R/15_proj_func.R")
-```
-
----
-# Introduction
-```{r}
-introduction_text <- "
-Evolution can be explained by developmental timing differences, 
-with neoteny proposed as a mechanism contributing to cognitive traits. 
-The study analyzes gene expression during postnatal brain development in humans, 
-chimpanzees, and macaques to explore neotenic shifts.
 "
-cat(introduction_text)
+)
 
-# Biological Insight
-biological_insight <- "
-Human prefrontal cortex development shows delayed gene expression, influencing neural plasticity.
+
+cat(
+  "
+# Slide 0:
+
+- **Group Number**: Group 7
+- **Group Members**:
+  - Anne Sofie Jokumsen (s244028)
+  - Sophia Cash (s225099)
+  - Norbert Bálint (s204668)
+  - Madeline Shah (s241901)
+  - Bedri Duraksoy (s233415)
+---
 "
-cat(biological_insight)
+)
 
-# Objective
-objective <- "
-Analyze datasets using PCA, regression, and heterochrony tests to reveal insights into gene expression shifts.
+
+cat(
+  "
+# Slide 1:
+
+**Examining Gene Expression in Postnatal Development of Humans, Apes, and Monkeys**
+
+- Neoteny as a potential driver for cognitive traits.
+- Analyzing gene expression during postnatal brain development.
+
+![Paper Image](../doc/images/clipboard-990918093.png)
+---
 "
-cat(objective)
-```
----
-# Materials and Methods
-```{r}
-data_overview <- "
-Data Overview:
-- Source: Somel et al. (2009), GEO datasets (GSE11528, GSE11512, GSE15163).
-- Samples:
-  - Humans: 39 (0–47 years).
-  - Chimpanzees: 14 (0–44 years).
-  - Macaques: 9 (1–18 years).
+)
 
-Pipeline:
-	1.	Data cleaning and augmentation.
-	2.	Principal Component Analysis (PCA).
-	3.	Regression models for age and species effects.
-	4.	Heterochrony tests to detect timing shifts.
+
+cat(
+  "
+# Slide 2:
+
+**Using expression of X genes from Y samples of prefrontal cortex, we examine:**
+
+- Influence of attributes
+- Global expression levels
+- Differential expression trajectories
+
+![Figure 04](../data/figure_04.png)
+---
 "
-
-cat(data_overview)
-```
-```{r}
-quarto::quarto_render(input = 
-            "../group_07_project/R/01_load.qmd")
-```
----
-# Preparing the Data: Cleaning and Augmentation
-
-## Step 1: Data Cleaning
-- Addressed missing values and inconsistencies.
-- Verified dataset structure and variables.
-
-```{r}
-
-quarto::quarto_render(
-  input = "../group_07_project/R/02_clean.qmd"
 )
-```
----
 
-## Step 2: Augmentation
-- Merged datasets across species.
-- Derived variables for age and expression scaling.
-```{r}
-quarto::quarto_render(
-  input = "../group_07_project/R/03_augment_joined.qmd"
+
+cat(
+  "
+# Slide 3:
+
+**Examining the influence of age, sex, and species on gene expression:**
+
+- Principal Component Analysis (PCA)
+- Proportion of Variance Explained (PVE)
+- Multiple regression
+---
+"
 )
-```
+
+
+cat(
+  "
+# Slide 4:
+
+**Comparing global gene expression to sexual maturity:**
+
+- Using cubic regression models.
 ---
-
-# Decoding Variance: PCA Highlights Developmental Patterns
-
-## Principal Component Analysis
-- Identified major sources of expression variance.
-## **Key Result**:
-- PCA separated species along Components 1 and 2.
-
-**Visualization**:
-```{r}
-quarto::quarto_render(
-  input = "../group_07_project/R/05_analysis_PCA.qmd"
+"
 )
-```
+
+
+cat(
+  "
+# Slide 5:
+
+**Determining heterochrony between species:**
+
+- Using heterochrony tests, shift models, and classification approaches.
+
+![Example Image from Paper](../data/example_paper_image.png)
 ---
-
-# How Much Do Components Explain? Variance Quantified (PVE)
-
--	Quantified contribution of components to overall variance.
-
-**Visualization**:
-
-![PVE Visualization](../group_07_project/data/12_expr_attr.png)
----
-
-# PCA Insights: Unique Developmental Trajectories in Humans
-
-## Key Insights:
-
--	PCA Component 1: Correlates with age-related changes.
--	PCA Component 2: Captures species-specific variation.
-
-Biological Finding:
--	Humans exhibit unique developmental trajectories in PCA space.
-
-**Visualization**:
-
-![PCA Results](../group_07_project/data/10_PCA.png)
-
----
-# From Trends to Insights: Regression Models and Expression Patterns
-
-## Multiple Linear Regression
-
--	Explored age and species effects on gene expression.
-
-**Visualization**:
-```{r}
-quarto::quarto_render(
-  input = "../group_07_project/R/06_analysis_multi.qmd"
+"
 )
-```
+
+# Results
+cat(
+  "
+# Slide 6:
+
+- PCA Insights
+![Figure 10](../data/10_PCA.png)
+
+- PVE Overview
+![Figure 12](../data/12_expr_attr.png)
 ---
-
-## Cubic Regression
-
--	Better fit for nonlinear patterns in gene expression.
-
-**Visualization**:
-
-```{r}
-quarto::quarto_render(
-  input = "../group_07_project/R/07_analysis_cube.qmd"
+"
 )
-```
+
+cat(
+  "
+# Slide 7:
+
+- Global gene expression profiles.
+
+![Figure 11](../data/11_glob_expr.png)
 ---
+"
+)
 
-# Comparing Species: Global Trends in Neural Expression
+cat(
+  "
+# Slide 8:
 
-## Overview
+- Heterochrony results.
 
--	Compared global expression profiles across species.
-
-## Key Insight:
--	Humans show delayed expression of neural plasticity genes.
-
-**Visualization**:
-
-![Global Expression Plot](../group_07_project/data/11_glob_expr.png)
+![Figure 14](../data/14_heterochrony_plot.png)
+- Gene Expression Trajectories Highlighting Heterochrony
+![Figure 14](../data/gene_exHC.jpeg)
 ---
+"
+)
 
-# Gene Expression Timing: Detecting Shifts and Neotenic Trends
 
-## Shift Function
+cat(
+  "
+# Slide 9:
 
--	Analyzed expression timing changes within genes.
+**Discussion Points:**
 
-**Visualization**:
-
-![Shift Model Plot](../group_07_project/data/13_plot_shift_model.png)
+- Neotenic delays in the prefrontal cortex.
+- Evolutionary implications for prolonged neural plasticity.
+- Comparison with other primates.
 ---
+"
+)
 
-# Gene Expression Timing: Detecting Shifts and Neotenic Trends
+cat(
+  "
+# Slide 10:
 
--	Detected neotenic shifts in 38% of genes.
+**Conclusions:**
 
-**Visualization**:
-
-![Heterochrony Plot](../group_07_project/data/14_heterochrony_plot.png)
+- **Key Findings**:
+  - Delayed prefrontal cortex gene expression in humans.
+  - Insights into evolutionary mechanisms of cognitive traits.
+- **Future Directions**:
+  - Functional validation of implicated genes and pathways.
+  - Exploration of broader phylogenetic trends.
 ---
-
-# Mapping Gene Expression: Insights Across Evolutionary Scales
-
-## Insights
-
-###	Distribution of genes shows phylogenetic and ontogenetic trends.
-###	Neural plasticity genes enriched in neotenic shifts.
----
-
-# Key Findings and Future Directions in Brain Evolution
-
-##	Neotenic Delays:
--	Observed in prefrontal cortex gene expression.
-## Evolutionary Significance:
--	Delayed development enhances cognitive capacity.
-## Future Directions:
-- Functional validation of key genes and pathways.
----
-# References
-
-- Somel, M., Liu, X., Tang, L., Yan, Z., Hu, H., Guo, S., … & Khaitovich, P. (2009). Transcriptional neoteny in the human brain. Proceedings of the National Academy of Sciences, 106(14), 5743-5748.
----
-
+"
+)
