@@ -83,7 +83,11 @@ species_plot <- pheno_expr_data_joined |>
     legend.position = "none",
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
-    plot.subtitle = element_markdown(size = 12)) +
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(size = 12,
+                              face = "italic"),
+    plot.subtitle = element_markdown(size = 16
+                                     ,)) +
   labs(y = element_blank()) +
   scale_fill_manual(values = color_palette |>
                       filter(group == "Alternative") |>
@@ -106,7 +110,10 @@ sex_plot <- pheno_expr_data_joined |>
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
     axis.text.y = element_blank(),
-    plot.subtitle = element_markdown(size = 12),
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(size = 12,
+                              face = "italic"),
+    plot.subtitle = element_markdown(size = 16),
     legend.position = "none") +
   scale_fill_manual(values = color_palette |>
                       filter(group == "Species") |>
@@ -139,16 +146,18 @@ description_plots <- wrap_elements(
       ";'>female</span>."),
     x = 0,
     hjust = -0.05,
-    gp = grid::gpar(fontsize = 12))) /
+    gp = grid::gpar(fontsize = 16))) /
   
-  (species_plot + sex_plot) +
+  (species_plot + sex_plot +
+     
+     plot_layout(width = c(4, 6))) +
   
   plot_layout(heights = c(1, 9)) +
   
   plot_annotation(
-     title = "Distributions of Species (left) and Age (right)",
+     title = "Distributions of species (left) and age (right)",
      theme = theme(
-       plot.title = element_text(size = 14,
+       plot.title = element_text(size = 20,
                                  hjust =0)))
   
 
