@@ -80,6 +80,7 @@ as_color <- color_palette |>
 Donut plots for significant genes within categories.
 
 ```{r}
+#Norberts bit
 # Human vs chimp
 hum_chimp_donut <- mlc_proportions |>
   ggplot(aes(x = 2, 
@@ -161,7 +162,8 @@ pve_plot <- pve_data |>
   coord_flip() +
   theme(
     axis.title.y = element_blank(),
-    axis.text.y = element_text(vjust = -1.5),
+    axis.text.y = element_text(vjust = -1.5,
+                               face = "italic"),
     plot.margin = margin(0, 0, 0, 0))
 
 pve_plot
@@ -182,7 +184,7 @@ combined_plot <- wrap_elements(
         sex_color,
         ";'>sex</span> compared to the other chimpanzee and macaque, "),
       x = 0,
-      hjust = 0,
+      hjust = -0.05,
       gp = grid::gpar(fontsize = 12))) /
   
   (pve_plot + 
@@ -203,9 +205,9 @@ combined_plot <- wrap_elements(
            ";'>both</span>, or <span style='color:",
            null_color,
            ";'>neither</span>."),
-         x = 0,
-         y = 0.5,
-         hjust = 0,
+         x = 0.5,
+         y = 0.4,
+         hjust = 0.5,
          gp = grid::gpar(fontsize = 12))) /
   
       donut_combined + plot_layout(heights = c(2, 8))) +
@@ -217,7 +219,8 @@ combined_plot <- wrap_elements(
      title =
        "PVE by attributes appear similar in Chimpanzee and Macaque",
      theme = theme(
-       plot.title = element_text(size = 16)))
+       plot.title = element_text(size = 16,
+                                 hjust = 0)))
    
 
 combined_plot
