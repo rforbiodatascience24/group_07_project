@@ -88,7 +88,7 @@ hum_chimp_donut <- mlc_proportions |>
              fill = category)) +
   geom_bar(stat = "identity", 
            width = 1, 
-           color = "white") +
+           color = "black") +
   coord_polar(theta = "y") +
   theme_void() +
   xlim(0.5, 2.5) +
@@ -108,7 +108,7 @@ hum_mac_donut <- mlc_proportions |>
              fill = category)) +
   geom_bar(stat = "identity", 
            width = 1, 
-           color = "white") +
+           color = "black") +
   coord_polar(theta = "y") +
   theme_void() +
   xlim(0.5, 2.5) +
@@ -142,7 +142,8 @@ pve_plot <- pve_data |>
              fill = attribute)) +
   geom_bar(stat = "identity",
            position = "dodge",
-           show.legend = FALSE) +
+           show.legend = FALSE,
+           color = "black") +
   labs(title = NULL,
        x = NULL,
        y = NULL) +

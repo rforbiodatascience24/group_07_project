@@ -88,20 +88,20 @@ chimp_class_plot <- hum_chimp |>
   labs(
     title = NULL,
     x = NULL,
-    y = "Genes Assigned to Categories (%)",
+    y = "Proportion of classified genes (%)",
     fill = "Species") +
   scale_x_discrete(
     labels = c("chimp_proportion" = "Chimpanzee",
                "hum_proportion" = "Human")) +
   theme_minimal() +
   theme(legend.position = "none",
-        text = element_text(size = 12),
+        text = element_text(size = 10,
+                            face = "italic"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank(),
         axis.line.x = element_blank(),
         axis.ticks.x =element_blank(),
-        axis.text.x = element_text(color = c(hum_color,
-                                             chimp_color),
+        axis.text.x = element_text(color = "black",
                                    size = 12,
                                    face = "bold")) +
   scale_fill_manual(values = altern_color)
@@ -137,8 +137,7 @@ mac_class_plot <- hum_mac |>
         axis.line.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.text.y = element_blank(),
-        axis.text.x = element_text(color = c(hum_color,
-                                             mac_color),
+        axis.text.x = element_text(color = "black",
                                    size = 12,
                                    face = "bold")) +
   scale_fill_manual(values = altern_color)
@@ -155,29 +154,31 @@ combined_plot <- wrap_elements(
   full =
   gridtext::richtext_grob(
     text = paste0(
-      "by Phyloontogentic Catagories: <span style='color:",
+      "Unexpectedly, the class of <span style='color:",
       altern_color |>
         pluck(1),
-      ";'>accelerated </span>, <span style='color:",
+      ";'>accelerated</span> genes constitutes close to 50%,
+      <br>
+      along with <span style='color:",
+      altern_color |>
+        pluck(4),
+      ";'>non-significant</span>, while <span style='color:",
       altern_color |>
         pluck(2),
-      ";'>neogenic </span>, and <span style='color:",
-      altern_color |>
-        pluck(3),
-      ";'>undefined </span>."),
+      ";'>neogenic</span> genes represent less than 10%."),
     x = 0,
     hjust = -0.05,
     gp = grid::gpar(fontsize = 12))) /
   
   (chimp_class_plot + mac_class_plot) +
   
-  plot_layout(heights = c(1, 9)) +
+  plot_layout(heights = c(2, 8)) +
   
   plot_annotation(
-     title = "Gene Distribution ",
+     title = "Classification after heterochrony test reveals surprising results ",
      theme = theme(
-       plot.title = element_text(size = 12,
-                                 hjust =0)))
+       plot.title = element_text(size = 16,
+                                 hjust = 0)))
   
 
 
