@@ -27,3 +27,12 @@ Click the following link to access the presentation:
 In order to load our dataset, run the script 01_load.qmd. It loads the
 data using the `GEOquery` package from the [Bioconductor
 Website](https://www.bioconductor.org/packages//2.10/bioc/html/GEOquery.html).
+
+# Our Code
+
+We have split up our code into several subsections to organize the
+workflow. We start with loading, cleaning, and augmenting the data to
+prepare it for analyzing. Then we perform a PCA, a cube analysis, a
+multi-linear correlation model, and a heterochrony analysis. After that,
+we have several files for plots following the analyses. These combined
+make up the framework for our results.
