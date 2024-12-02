@@ -40,11 +40,15 @@ The study analyzes gene expression during postnatal brain development in humans,
 ### Step 1: Data Cleaning
 - Addressed missing values and inconsistencies.
 - Verified dataset structure and variables.
-
+```{r}
+quarto::quarto_render(input = "02_clean.qmd")
+```
 ### Step 2: Augmentation
 - Merged datasets across species.
 - Derived variables for age and expression scaling.
-
+```{r}
+quarto::quarto_render(input = "03_augment_joined.qmd")
+```
 ---
 
 ## PCA and Explained Variance
