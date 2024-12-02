@@ -80,8 +80,8 @@ as_color <- color_palette |>
 Donut plots for significant genes within categories.
 
 ```{r}
-#Norberts bit
-# Human vs chimp
+
+# Create a donut chart for human vs chimp comparison
 hum_chimp_donut <- mlc_proportions |>
   ggplot(aes(x = 2, 
              y = human_chimp, 
@@ -101,7 +101,7 @@ hum_chimp_donut <- mlc_proportions |>
                     name = NULL) +
   theme(legend.position = "none")
 
-#Human vs macaque
+# Create a donut chart for human vs macaque comparison
 hum_mac_donut <- mlc_proportions |>
   ggplot(aes(x = 2, 
              y = human_macaque, 
