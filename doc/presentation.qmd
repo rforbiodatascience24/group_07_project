@@ -105,7 +105,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 ```{r}
 #| label: Heter
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/14_heterochrony_plot")
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/14_heterochrony_plot.png")
 ```
 
 ---
