@@ -112,7 +112,9 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 **Conclusions:**
 
 -   **Key Findings**:
-    -   Delayed prefrontal cortex gene expression in humans.
+    -   Age is the main factor in change of gene expression 
+    -   Delayed prefrontal cortex gene expression in humans
+    -   The dominant percentage of global expression change happens in early development (similarities between human and chimp)
     -   Insights into evolutionary mechanisms of cognitive traits.
 -   **Future Directions**:
     -   Functional validation of implicated genes and pathways.
