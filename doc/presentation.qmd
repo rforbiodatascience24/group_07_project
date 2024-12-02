@@ -15,19 +15,18 @@ format:
     -   Madeline Shah (s241901)
     -   Bedri Duraksoy (s233415)
 
-```{r}
-#| label: Research Paper in Focus
-#| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/clipboard-990918093.png")
-
-```
-
 # Slide 1:
 
 **Examining Gene Expression in Postnatal Development of Humans, Apes, and Monkeys**
 
 -   Neoteny as a potential driver for cognitive traits.
 -   Analyzing gene expression during postnatal brain development.
+
+```{r}
+#| label: Research Paper in Focus
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/clipboard-990918093.png")
+```
 
 # Slide 2:
 
