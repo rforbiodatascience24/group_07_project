@@ -1,0 +1,42 @@
+---
+title: "Transcriptional Neoteny in the Human Brain"
+author: "Group 7"
+format: revealjs
+editor: visual
+---
+
+# Introduction
+
+Evolution can be explained by developmental timing differences, with neoteny proposed as a mechanism contributing to cognitive traits. 
+The study analyzes gene expression during postnatal brain development in humans, chimpanzees, and macaques to explore neotenic shifts.
+
+**Biological Insight**:
+- Human prefrontal cortex development shows delayed gene expression, influencing neural plasticity.
+
+**Objective**:
+- Analyze datasets using PCA, regression, and heterochrony tests to reveal insights into gene expression shifts.
+
+---
+
+## Materials and Methods
+
+### Data Overview
+
+- **Source**: Somel et al. (2009), GEO accession numbers: GSE11528, GSE11512, GSE15163.
+- **Samples**:
+  - 39 humans (0–47 years).
+  - 14 chimpanzees (0–44 years).
+  - 9 rhesus macaques (1–18 years).
+
+**Pipeline**:
+1. Data loading and cleaning.
+2. PCA to identify major expression patterns.
+3. Regression analyses to test age and species effects.
+4. Heterochrony tests to detect timing shifts.
+
+```{r}
+library("quarto")
+
+quarto::quarto_render(
+  input = "01_load.qmd"
+)
