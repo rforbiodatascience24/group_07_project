@@ -1,0 +1,267 @@
+---
+title: "Proportion of variance explained, plots"
+output: html
+execute:
+  echo: true
+  output: false
+---
+
+### Load & Prepare
+
+For the...
+
+```{r}
+library("tidyverse")
+library("broom")
+library("patchwork")
+library("gridtext")
+library("ggtext")
+```
+
+Load the data sets.
+
+```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the data sets
+
+pve_data <- read_tsv(file = file.path(processed_data_dir,
+                                      "05.3_dat_pve.tsv"),
+                     show_col_types = FALSE)
+# chimp_mult_data <- read_tsv(file = file.path(processed_data_dir,
+#                                            "06.1_dat_mult_chimp.tsv"),
+#                           show_col_types = FALSE)
+# mac_mult_data <- read_tsv(file = file.path(processed_data_dir,
+#                                            "06.2_dat_mult_mac.tsv"),
+#                           show_col_types = FALSE)
+mlc_proportions <- read_tsv(file = file.path(processed_data_dir,
+                                           "06.2_dat_mlc_proportions.tsv"),
+                          show_col_types = FALSE)
+color_palette <- read_tsv(file = file.path(processed_data_dir,
+                                         "09_col_pal.tsv"),
+                     show_col_types = FALSE)
+
+```
+
+Define the colors used for the plots
+
+```{r}
+attr_color <- color_palette |>
+  filter(group == "Attributes") |>
+  pull(color)
+age_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(1) |>
+  pull(color)
+sex_color <- color_palette |>
+  filter(group == "Attributes") |>
+  slice(2) |>
+  pull(color)
+altern_color <- color_palette |>
+  filter(group == "Alternative") |>
+  pull(color)
+```
+
+### Subplots
+
+Donut plots for significant genes within categories.
+
+```{r}
+#Norberts bit
+# Human vs chimp
+hum_chimp_donut <- mlc_proportions |>
+  ggplot(aes(x = 2, 
+             y = human_chimp, 
+             fill = category)) +
+  geom_bar(stat = "identity", 
+           width = 1, 
+           color = "white") +
+  coord_polar(theta = "y") +
+  theme_void() +
+  xlim(0.5, 2.5) +
+  geom_text(aes(label = paste0(round(human_chimp), "%")), 
+            position = position_stack(vjust = 0.5),
+            size = 3,
+            color = "white") +
+  scale_fill_manual(values = altern_color,
+                    name = NULL) +
+  theme(legend.position = "none")
+
+#Human vs macaque
+hum_mac_donut <- mlc_proportions |>
+  ggplot(aes(x = 2, 
+             y = human_macaque, 
+             fill = category)) +
+  geom_bar(stat = "identity", 
+           width = 1, 
+           color = "white") +
+  coord_polar(theta = "y") +
+  theme_void() +
+  xlim(0.5, 2.5) +
+  geom_text(aes(label = paste0(round(human_macaque), "%")), 
+            position = position_stack(vjust = 0.5),
+            size = 3,
+            color = "white") +
+  scale_fill_manual(values = altern_color,
+                    name = NULL) +
+  theme(legend.position = "none")
+
+
+# Combine donuts
+donut_combined <- hum_chimp_donut + hum_mac_donut +
+  plot_layout(ncol = 2) +
+  plot_annotation() +
+  theme(
+    legend.position = "bottom",
+    legend.text = element_text(size = 8),
+    legend.title = element_blank())
+
+hum_chimp_donut
+hum_mac_donut
+donut_combined
+
+```
+
+
+```{r}
+# # Human vs chimp
+# hum_chimp_donut <- chimp_mult_data |>
+#   ggplot(aes(x = 2, 
+#              y = proportion, 
+#              fill = category)) +
+#   geom_bar(stat = "identity", 
+#            width = 1, 
+#            color = "white") +
+#   coord_polar(theta = "y") +
+#   theme_void() +
+#   xlim(0.5, 2.5) +
+#   geom_text(aes(label = paste0(round(proportion), "%")), 
+#             position = position_stack(vjust = 0.5),
+#             size = 3,
+#             color = "white") +
+#   scale_fill_manual(values = altern_color,
+#                     name = NULL) +
+#   theme(legend.position = "none")
+# 
+# #Human vs macaque
+# hum_mac_donut <- mac_mult_data |>
+#   ggplot(aes(x = 2, 
+#              y = n, 
+#              fill = category)) +
+#   geom_bar(stat = "identity", 
+#            width = 1, 
+#            color = "white") +
+#   coord_polar(theta = "y") +
+#   theme_void() +
+#   xlim(0.5, 2.5) +
+#   geom_text(aes(label = paste0(round(proportion), "%")), 
+#             position = position_stack(vjust = 0.5),
+#             size = 3,
+#             color = "white") +
+#   scale_fill_manual(values = altern_color,
+#                     name = NULL) +
+#   theme(legend.position = "none")
+# 
+# 
+# # Combine donuts
+# donut_combined <- hum_chimp_donut + hum_mac_donut +
+#   plot_layout(ncol = 2) +
+#   plot_annotation() +
+#   theme(
+#     legend.position = "bottom",
+#     legend.text = element_text(size = 8),
+#     legend.title = element_blank())
+# 
+# hum_chimp_donut
+# hum_mac_donut
+# donut_combined
+```
+
+Bar plot for pve.
+
+```{r}
+pve_plot <- pve_data |>
+  ggplot(aes(x = Species,
+             y = mean_pve * 100,
+             fill = attribute)) +
+  geom_bar(stat = "identity",
+           position = "dodge",
+           show.legend = FALSE) +
+  labs(title = NULL,
+       x = NULL,
+       y = NULL) +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+  ylim(0, 90) +
+  scale_y_continuous(breaks = 50,
+                     limits = c(0, 90),
+                     labels = function(x) paste0(x, "%")) +
+  scale_fill_manual(values = attr_color) +
+  geom_hline(yintercept = 50,
+             linetype = "dashed",
+             color = "gray",
+             linewidth = 0.5) +
+  coord_flip() +
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_text(vjust = -1.5),
+    plot.margin = margin(0, 0, 0, 0))
+
+pve_plot
+```
+
+### Final Plot
+
+Combined plot.
+
+```{r}
+combined_plot <- wrap_elements(
+  full = 
+    gridtext::richtext_grob(
+      text = paste0(
+        "A description of the attributes <span style='color:",
+        age_color,
+        ";'>age</span> and ",
+        "<span style='color:",
+        sex_color,
+        ";'>sex</span>."),
+      x = 0,
+      hjust = 0,
+      gp = grid::gpar(fontsize = 12))) /
+  
+  (pve_plot + 
+     
+     (wrap_elements(
+       full = gridtext::richtext_grob(
+         text = paste0(
+           "Another description of <span style='color:",
+           attr_color,
+           ";'>attributes</span>."),
+         x = 0,
+         hjust = 0,
+         gp = grid::gpar(fontsize = 12))) /
+  
+      donut_combined + plot_layout(heights = c(2, 8)))) +
+  
+  plot_layout(heights = c(1, 9)) +
+  plot_annotation(
+     title = "Title",
+     theme = theme(
+       plot.title = element_text(size = 16)))
+   
+
+combined_plot
+```
+
+Write final plot to *.png* file.
+
+```{r}
+ggsave(file = file.path(processed_data_dir,
+                        "12_expr_attr.png"),
+       plot = combined_plot,
+       width = 12,
+       height = 8)
+```

@@ -1,0 +1,152 @@
+---
+title: "Multiple linear regression"
+output: html
+execute:
+  echo: true
+  output: false
+---
+
+For every gene, multivariable regression is done to determine whether any of the two factors, age, and species, are significant to change in the expression of that particular gene. Later, the proportion of significant genes will be presented.
+
+```{r}
+library("tidyverse")
+library("broom")
+```
+
+We load the data set.
+
+```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the dataset
+data <- read_tsv(file = file.path(processed_data_dir,
+                                         "03_dat_joined.tsv"),
+                 show_col_types = FALSE)
+```
+
+Since one of the factors (species) is categorical, the first step is to represent these variables with numeric values, 0 and 1.
+
+```{r}
+mlc_data <- data |>
+  mutate(
+    human_chimp_num = case_when(
+      species == "Human" ~ 0,
+      species == "Chimpanzee" ~ 1,
+      TRUE ~ NA_real_),
+    human_mac_num = case_when(
+      species == "Human" ~ 0,
+      species == "Macaque" ~ 1,
+      TRUE ~ NA_real_)) |>
+  pivot_longer(cols = starts_with("G"),
+               names_to = "gene",
+               values_to = "expr")
+```
+
+The data are applied a linear model comparing the log transformed expression to the attributes, for each pair of species.
+
+```{r}
+mlc_model <- mlc_data |>
+  group_by(gene) |>
+  nest() |>
+  mutate(
+    hum_chimp_model = map(.x = data,
+                          .f = ~ lm(log2(expr) ~ log_age * human_chimp_num,
+                                    data = .x |>
+                                      filter(species %in% c("Human",
+                                                            "Chimpanzee")))),
+    hum_mac_model = map(.x = data,
+                        .f = ~ lm(log2(expr) ~ log_age * human_mac_num,
+                                  data = .x |>
+                                    filter(species %in% c("Human",
+                                                          "Macaque")))))
+```
+
+ANOVA F-test is performed and model coefficients are extracted.
+
+```{r}
+mlc_anova <- mlc_model |>
+  mutate(
+    hum_chimp_fstats = map(hum_chimp_model,
+                           glance),
+    hum_chimp_coeff = map(hum_chimp_model,
+                          tidy),
+    hum_mac_fstats = map(hum_mac_model,
+                         glance),
+    hum_mac_coeff = map(hum_mac_model,
+                        tidy))
+```
+
+The statistics are extracted
+
+```{r}
+mlc_stats <- mlc_anova |>
+  dplyr::select(gene,
+                hum_chimp_coeff,
+                hum_mac_coeff) |>
+  pivot_longer(cols = starts_with("hum_"),
+               names_to = "model_type",
+               values_to = "coefficients") |>
+  unnest(coefficients) |>
+  filter(term %in% c("log_age",
+                     "human_chimp_num",
+                     "human_mac_num",
+                     "log_age:human_chimp_num",
+                     "log_age:human_mac_num")) |>
+  mutate(significant = p.value < 0.05)
+```
+
+Create a table summarizing the significance of the expression for each gene for each combination and assign to category.
+
+```{r}
+hum_chimp_summary <- mlc_stats |>
+  filter(model_type == "hum_chimp_coeff") |>
+  group_by(gene) |>
+  summarise(
+    age_sig = any(term == "log_age" & significant),
+    spec_sig = any(term == "human_chimp_num" & significant),
+    .groups = "drop") |>
+  mutate(
+    category = case_when(
+      age_sig & spec_sig ~ "Age+/Sp+",
+      age_sig & !spec_sig ~ "Age+/Sp–",
+      !age_sig & spec_sig ~ "Age–/Sp+",))
+
+hum_mac_summary <- mlc_stats |>
+  filter(model_type == "hum_mac_coeff") |>
+  group_by(gene) |>
+  summarise(
+    age_sig = any(term == "log_age" & significant),
+    spec_sig = any(term == "human_mac_num" & significant),
+    .groups = "drop") |>
+  mutate(
+    category = case_when(
+      age_sig & spec_sig ~ "Age+/Sp+",
+      age_sig & !spec_sig ~ "Age+/Sp–",
+      !age_sig & spec_sig ~ "Age–/Sp+",
+      TRUE ~ "Age–/Sp–"))
+```
+
+Count the number of genes for each category and create table for human vs chimpanzee and vs macaque.
+
+```{r}
+hum_chimp_final <- hum_chimp_summary |>
+  count(category) |>
+  mutate(proportion = n / sum(n) * 100)
+
+hum_mac_final <- hum_mac_summary |>
+  count(category) |>
+  mutate(proportion = n / sum(n) * 100)
+```
+
+Write data to *.tsv* files.
+
+```{r}
+hum_chimp_final |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "06.1_dat_mult_chimp.tsv"))
+
+hum_mac_final |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "06.2_dat_mult_mac.tsv"))
+```

@@ -1,6 +1,6 @@
 project:
   output-dir: "Results"
 
-output-defaults:
+format:
   html:
-    standalone: true
+    embed-resources: true

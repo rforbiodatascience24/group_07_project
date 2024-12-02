@@ -82,7 +82,7 @@ example |>
                         pull(color))
 ```
 
-We finish by writing the data frame to *04_color_pal.tsv*.
+Write data to *.tsv* file.
 
 ```{r}
 # Set path for processed data directory
@@ -90,6 +90,6 @@ processed_data_dir <- file.path("..","data")
 
 color_palette |>
   write_tsv(file = file.path(processed_data_dir,
-                             "04_col_pal.tsv"))
+                             "09_col_pal.tsv"))
 
 ```

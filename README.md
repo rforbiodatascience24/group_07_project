@@ -12,7 +12,7 @@ s225099, Soph-DTU,
 
 s241901, madelineshah4,
 
-[student id], [GitHub username],
+s204668, NorbertAuroraBalint,
 
 [student id], [GitHub username]
 

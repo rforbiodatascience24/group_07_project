@@ -16,7 +16,7 @@ library("dplyr")
 library("broom")
 library("patchwork")
 
-source("99_proj_func.R")
+source("15_proj_func.R")
 ```
 
 We load the data set.
@@ -132,8 +132,6 @@ var_explained_pc_all <- pca_results_df |>
   dplyr::select(-data)
 ```
 
-We then we calculate and plot the PVE.
-
 Since sex is mainly represented in the principal components with the least variance explained, and we don't want these to skew our further analysis, we filter our data for principal components with a variance explained over 1%.
 
 ```{r}
@@ -157,7 +155,7 @@ var_explained_pc <- pca_thres_df |>
       .f = ~ calculate_var_explained(
         data_frame = .x,
         principal_component = "value",
-        factors= c("log_age", "species_num", "sex_num")))) |>
+        attributes = c("log_age", "species_num", "sex_num")))) |>
   unnest(cols = c(var_explained)) |>
   dplyr::select(-data)
 ```
@@ -167,25 +165,45 @@ var_explained_pc <- pca_thres_df |>
 
 var_explained_human <- pca_thres_df |>
   apply_variance_explained(spec = "Human",
-                           fact = c("log_age", "sex_num"))
+                           attr = c("log_age", "sex_num"))
 
 var_explained_chimp <- pca_thres_df |>
   apply_variance_explained(spec = "Chimpanzee",
-                           fact = c("log_age", "sex_num"))
+                           attr = c("log_age", "sex_num"))
 
 var_explained_macaque <- pca_thres_df |>
   apply_variance_explained(spec = "Macaque",
-                           fact = c("log_age", "sex_num"))
+                           attr = c("log_age", "sex_num"))
+```
+
+```{r}
+pve_human <- var_explained_human |>
+  calculate_pve() |>
+  mutate(Species = "Human")
+
+pve_chimp <- var_explained_chimp |>
+  calculate_pve() |>
+  mutate(Species = "Chimpanzee")
+
+pve_macaque <- var_explained_macaque |>
+  calculate_pve() |>
+  mutate(Species = "Macaque")
+
+pve_summary <- bind_rows(pve_human,
+                         pve_chimp,
+                         pve_macaque)
 ```
 
 ```{r}
 #| output: false
 
-pca_results_df |>
+pca_proj_df |>
   write_tsv(file = file.path(processed_data_dir,
                              "05.1_dat_pca.tsv"))
-
+var_explained_pc_all |>
+  write_tsv(file = file.path(processed_data_dir,
+                             "05.2_dat_pve_pc.tsv"))
 pve_summary |>
   write_tsv(file = file.path(processed_data_dir,
-                             "05.2_dat_pve.tsv"))
+                             "05.3_dat_pve.tsv"))
 ```

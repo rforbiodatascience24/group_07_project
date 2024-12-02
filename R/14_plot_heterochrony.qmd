@@ -1,0 +1,191 @@
+---
+title: "Heterochrony, plots"
+format: html
+execute:
+  echo: true
+  output: false
+---
+
+### Load & Prepare
+
+We begin with loading the necessary libraries for plot formation:
+
+```{r}
+library("tidyverse")
+library("broom")
+library("patchwork")
+```
+
+Load the data sets.
+
+```{r}
+# Set path for processed data directory
+processed_data_dir <- file.path("..","data")
+
+# Load the data set and color palette
+hum_chimp <- read_tsv(file = file.path(processed_data_dir,
+                                         "08.1_hum_chi_class.tsv"),
+                      show_col_types = FALSE)
+hum_mac <- read_tsv(file = file.path(processed_data_dir,
+                                         "08.2_hum_mac_class.tsv"),
+                      show_col_types = FALSE)
+
+color_palette <- read_tsv(file = file.path(processed_data_dir,
+                                         "09_col_pal.tsv"),
+                     show_col_types = FALSE)
+```
+
+```{r}
+hum_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(1) |>
+  pull(color)
+
+chimp_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(2) |>
+  pull(color)
+
+mac_color <- color_palette |>
+  filter(group == "Species") |>
+  slice(3) |>
+  pull(color)
+
+# spec_color <- c(Human = hum_color,
+#                Chimpanzee = chimp_color,
+#                Macaque = mac_color)
+
+altern_color <- color_palette |>
+  filter(group == "Alternative") |>
+  pull(color)
+
+```
+
+### Subplots
+
+First, we recreate the plots from the report to visualize the percentages, however, since we only have data for a single tissue, we just replicate the \_\_\_\_. We also add the human vs macaque classification data.
+
+```{r}
+chimp_class_plot <- hum_chimp |>
+  pivot_longer(
+    cols = c(hum_proportion,
+             chimp_proportion),
+    names_to = "species",
+    values_to = "proportion") |>
+  
+  ggplot(aes(x = species,
+             y = proportion,
+             fill = classification)) +
+  geom_bar(stat = "identity",
+           position = "dodge",
+           color = "black") +
+  scale_y_continuous(limit = c(0,100)) +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = "Genes Assigned to Categories (%)",
+    fill = "Species") +
+  scale_x_discrete(
+    labels = c("chimp_proportion" = "Chimpanzee",
+               "hum_proportion" = "Human")) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        text = element_text(size = 12),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line.x = element_blank(),
+        axis.ticks.x =element_blank(),
+        axis.text.x = element_text(color = c(hum_color,
+                                             chimp_color),
+                                   size = 12,
+                                   face = "bold")) +
+  scale_fill_manual(values = altern_color)
+
+mac_class_plot <- hum_mac |>
+  pivot_longer(
+    cols = c(hum_proportion,
+             mac_proportion),
+    names_to = "species",
+    values_to = "proportion") |>
+  
+  ggplot(aes(x = species,
+             y = proportion,
+             fill = classification)) +
+  geom_bar(stat = "identity",
+           position = "dodge",
+           color = "black") +
+  scale_y_continuous(limit = c(0,100)) +
+  labs(
+    title = NULL,
+    x = NULL,
+    y = NULL,
+    fill = "Species") +
+  scale_x_discrete(
+    labels = c("mac_proportion" = "Macaque",
+               "hum_proportion" = "Human")) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        text = element_text(size = 12),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_text(color = c(hum_color,
+                                             mac_color),
+                                   size = 12,
+                                   face = "bold")) +
+  scale_fill_manual(values = altern_color)
+  
+
+chimp_class_plot
+mac_class_plot
+```
+
+### Final plot
+
+...
+
+```{r}
+combined_plot <- wrap_elements(
+  full =
+  gridtext::richtext_grob(
+    text = paste0(
+      "by Phyloontogentic Catagories: <span style='color:",
+      altern_color |>
+        pluck(1),
+      ";'>accelerated </span>, <span style='color:",
+      altern_color |>
+        pluck(2),
+      ";'>neogenic </span>, and <span style='color:",
+      altern_color |>
+        pluck(3),
+      ";'>undefined </span>."),
+    x = 0,
+    hjust = -0.05,
+    gp = grid::gpar(fontsize = 12))) /
+  
+  (chimp_class_plot + mac_class_plot) +
+  
+  plot_layout(heights = c(1, 9)) +
+  
+  plot_annotation(
+     title = "Gene Distribution ",
+     theme = theme(
+       plot.title = element_text(size = 12,
+                                 hjust =0)))
+  
+
+
+combined_plot
+```
+
+Lastly, we write final plot to *.png* file.
+
+```{r}
+ggsave(file = file.path(processed_data_dir,
+                        "14_heterochrony_plot.png"),
+       plot = combined_plot,
+       width = 12,
+       height = 8)
+```

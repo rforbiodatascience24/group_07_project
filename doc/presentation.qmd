@@ -1,7 +1,8 @@
 ---
 title: "Group 07 Project"
 author: "s244028, s225099, s204668, s241901, s233415"
-format: 
+
+format:
   revealjs:
     theme: dark
 ---
@@ -25,7 +26,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 
 ## Multiple Regression and Explained Varience
 
-## Global Expression Analysis 
+## Global Expression Analysis
 
 ## Shift Function
 
