@@ -1,18 +1,24 @@
 ---
 title: "Heterochrony expression test"
 output: html
-output-dir: results
 execute:
   echo: true
   output: false
 ---
 
+#### Load & Prepare
+
+Load libraries.
+
 ```{r}
 library("tidyverse")
 library("broom")
+library("splines")
 
 source("15_proj_func.R")
 ```
+
+Load data sets.
 
 ```{r}
 #| output: false
@@ -26,45 +32,64 @@ data_cube <- read_tsv(file = file.path(processed_data_dir,
                       show_col_types = FALSE)
 ```
 
-**Estimate Timing Differences**:
+#### **Estimate Timing Differences**:
 
 -   Introduce an "age-shift" or "expression-shift" between species to align the expression curves.
 
--   Evaluate whether these shifts significantly improve the model fit (e.g., F-test or likelihood ratio test).
+-   Evaluate whether these shifts significantly improve the model fit using F-test.
 
 ```{r}
 #| warning: false
 
+# Human vs chimp and reciprocal
 human_chimp_shift <- data_cube |>
   apply_shift_model(original_species = "Human",
                     compared_species = "Chimpanzee")
 
+chimp_human_shift <- data_cube |>
+  apply_shift_model(original_species = "Chimpanzee",
+                    compared_species = "Human")
+
+# Human vs macaque and reciprocal
 human_mac_shift <- data_cube |>
   apply_shift_model(original_species = "Human",
                     compared_species = "Macaque")
+
+mac_human_shift <- data_cube |>
+  apply_shift_model(original_species = "Macaque",
+                    compared_species = "Human")
 ```
 
-**Classify Heterochronic Genes**:
+#### **Classify Heterochronic Genes**
 
--   Based on the direction and magnitude of shifts:
+Based on the direction and magnitude of shifts:
 
-    -   **Human Neoteny**: Human expression resembles younger target species.
+-   **Neotenic**: Original species' expression resembles younger target species.
 
-    -   **Human Acceleration**: Human expression resembles target species.
+-   **Accelerated**: Original species' expression resembles older target species.
 
-    -   **Target Species Neoteny/Acceleration**: Reciprocal classification.
+-   **Undefined**: No significant improvement found or unable to determine from model.
 
 ```{r}
+# Human vs chimp and reciprocal
 human_chimp_class <- human_chimp_shift |>
   class_model()
 
+chimp_human_class <- chimp_human_shift |>
+  class_model()
+
+# Human vs macaque and reciprocal
 human_mac_class <- human_mac_shift |>
+  class_model()
+
+mac_human_class <- mac_human_shift |>
   class_model()
 ```
 
 Add classifications to shift data frame.
 
 ```{r}
+# Human vs chimp and reciprocal
 human_chimp_table <- human_chimp_class |>
   enframe(name = "classification",
           value = "genes") |>
@@ -72,34 +97,69 @@ human_chimp_table <- human_chimp_class |>
   left_join(human_chimp_shift,
             by = c("genes" = "gene"))
 
+chimp_human_table <- chimp_human_class |>
+  enframe(name = "classification",
+          value = "genes") |>
+  unnest(cols = c(genes)) |>
+  left_join(chimp_human_shift,
+            by = c("genes" = "gene"))
+
+# Human vs macaque and reciprocal
 human_mac_table <- human_mac_class |>
   enframe(name = "classification",
           value = "genes") |>
   unnest(cols = c(genes)) |>
   left_join(human_mac_shift,
             by = c("genes" = "gene"))
+
+mac_human_table <- mac_human_class |>
+  enframe(name = "classification",
+          value = "genes") |>
+  unnest(cols = c(genes)) |>
+  left_join(mac_human_shift,
+            by = c("genes" = "gene"))
+```
+
+```{r}
+human_chimp_recip <- human_chimp_table  |>
+  count(classification) |>
+  mutate(hum_proportion = n / sum(n) * 100) |>
+  rename(hum_n = n) |>
+  left_join(chimp_human_table |>
+              count(classification) |>
+              mutate(chimp_proportion = n / sum(n) * 100) |>
+              rename(chimp_n = n),
+            by = join_by(classification))
+
+human_mac_recip <- human_mac_table  |>
+  count(classification) |>
+  mutate(hum_proportion = n / sum(n) * 100) |>
+  rename(hum_n = n) |>
+  left_join(mac_human_table |>
+              count(classification) |>
+              mutate(mac_proportion = n / sum(n) * 100) |>
+              rename(mac_n = n),
+            by = join_by(classification))
 ```
 
 Write results to .*tsv* files.
 
 ```{r}
-human_chimp_table |>
-  dplyr::select(-data) |>
+human_chimp_recip |>
   write_tsv(file = file.path(processed_data_dir,
-                             "08.1_hum_chi_hetchron.tsv"))
-human_mac_table |>
-  dplyr::select(-data) |>
+                             "08.1_hum_chi_class.tsv"))
+human_mac_recip |>
   write_tsv(file = file.path(processed_data_dir,
-                             "08.2_hum_mac_hetchron.tsv"))
+                             "08.2_hum_mac_class.tsv"))
 
 human_chimp_shift |>
-  dplyr::select(-p_value,
+  dplyr::select(-shift_p_value,
                 -rss_diff) |>
   unnest(cols = c(data)) |>
   write_tsv(file = file.path(processed_data_dir,
                              "08.3_hum_chi_shift.tsv"))
 human_mac_shift |>
-  dplyr::select(-p_value,
+  dplyr::select(-shift_p_value,
                 -rss_diff) |>  
   unnest(cols = c(data)) |>
   write_tsv(file = file.path(processed_data_dir,

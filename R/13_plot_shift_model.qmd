@@ -31,10 +31,10 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
 ```
 
 ```{r}
-modeled_expr = intercept +
-  poly1 * log_age +
-  poly2 * log_age^2 +
-  poly3 * log_age^3
+# modeled_expr = intercept +
+#   poly1 * log_age +
+#   poly2 * log_age^2 +
+#   poly3 * log_age^3
 ```
 
 Write final plot to *.png* file.
@@ -43,7 +43,7 @@ Write final plot to *.png* file.
 # ggsave(file = file.path(processed_data_dir,
 #                         "13_test.png"),
 #        plot = combined,
-#        width = 6,
-#        height = 4,
-#        dpi = 300)
+#        plot = combined_plot,
+#        width = 12,
+#        height = 8)
 ```

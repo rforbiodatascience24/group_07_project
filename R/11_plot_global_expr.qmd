@@ -1,11 +1,12 @@
 ---
 title: "Global expression, plots"
 output: html
-output-dir: results
 execute:
   echo: true
   output: false
 ---
+
+### Load & Prepare
 
 For the ...
 
@@ -46,6 +47,8 @@ mac_color <- color_palette |>
   slice(3) |>
   pull(color)
 ```
+
+### Subplots
 
 The global gene expression for each sample is plotted, color-coded by species.
 
@@ -162,6 +165,8 @@ plot_expr_mac <- expr_data |>
 
 plot_expr_mac
 ```
+
+### Final Plot
 
 ```{r}
 combined_plot <- wrap_elements(

@@ -70,7 +70,7 @@ pheno_expr_data_joined <- full_join(pheno_data_augment,
                                     by = "sample") |>
   filter(tissue != "caudate nucleus of the brain") |>
   dplyr::select(-tissue) |>
-  mutate(log_age = log2(age+1))
+  mutate(log_age = log2(age + 1))
 ```
 
 We finish by writing a new *03_dat_joined.tsv* file.
