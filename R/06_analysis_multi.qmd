@@ -100,24 +100,36 @@ aug_mlc_stats <- mlc_data |>
     
      # Determine if age and species are significant predictors
     t_stat_pvalues_chimp <- t_stat_pvalues_chimp |>
-      mutate(age_significant_chimp = if_else(t_stat_pvalue_chimp_age < 0.05, "yes", "no"),
-             species_significant_chimp = if_else(t_stat_pvalue_chimp_human_chimp_species < 0.05, "yes", "no"))
+      mutate(
+        
+        age_significant_chimp = if_else(
+          t_stat_pvalue_chimp_age < 0.05,
+          "yes",
+          "no"),      
+        species_significant_chimp = if_else(
+          t_stat_pvalue_chimp_human_chimp_species < 0.05,
+          "yes",
+          "no"))
     
     t_stat_pvalues_maca <- t_stat_pvalues_maca |>
-      mutate(age_significant_maca = if_else(t_stat_pvalue_maca_age < 0.05, "yes", "no"),
-             species_significant_maca = if_else(t_stat_pvalue_maca_human_maca_species < 0.05, "yes", "no"))
+      mutate(
+        age_significant_maca = if_else(
+          t_stat_pvalue_maca_age < 0.05,
+          "yes",
+          "no"),
+        species_significant_maca = if_else(
+          t_stat_pvalue_maca_human_maca_species < 0.05,
+          "yes",
+          "no"))
     
     # Combine the results into a single dataframe
     tibble(
       f_stat_pvalue_chimp = f_stat_pvalue_chimp,
       f_stat_pvalue_maca = f_stat_pvalue_maca,
       t_stat_pvalues_chimp,
-      t_stat_pvalues_maca
-    )
+      t_stat_pvalues_maca)
+    
   })
-
-#aug_mlc_stats
-
 ```
 
 Find the fraction of all genes that are significantly predicted by age, species or both.
@@ -185,6 +197,7 @@ mlc_results <- tibble(
                "Age+/Sp-",
                "Age-/Sp+",
                "Age-/Sp-"),
+  
   human_chimp = c(pull(aug_prop_significant,
                        var = "prop_both_significant_chimp"),
                   pull(aug_prop_significant,
@@ -193,6 +206,7 @@ mlc_results <- tibble(
                        var = "prop_only_species_significant_chimp"),
                   pull(aug_prop_significant,
                        var = "prop_none_significant_chimp")),
+  
   human_macaque = c(pull(aug_prop_significant,
                          var = "prop_both_significant_maca"),
                     pull(aug_prop_significant,
