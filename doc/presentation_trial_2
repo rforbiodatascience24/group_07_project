@@ -66,6 +66,7 @@ cat(
 **Examining the influence of age, sex, and species on gene expression:**
 
 - Principal Component Analysis (PCA)
+![Figure 10](../data/10_PCA.png)
 - Proportion of Variance Explained (PVE)
 - Multiple regression
 ---
@@ -103,8 +104,6 @@ cat(
   "
 # Slide 6:
 
-- PCA Insights
-![Figure 10](../data/10_PCA.png)
 
 - PVE Overview
 ![Figure 12](../data/12_expr_attr.png)
