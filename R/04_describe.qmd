@@ -44,11 +44,11 @@ str_glue("Number of genes {pheno_expr_data_joined |>
          ncol() - 4}")
 ```
 
-Number of individuals by sex and species
+Plotting of the number of individuals by sex and species
 
 ```{r}
 species_plot <- pheno_expr_data_joined |>
-  ggplot(mapping = aes(x = fct_infreq(species),
+  ggplot(mapping = aes(y = species,
                      fill = sex)) +
   geom_bar(color = "black") +
   theme_minimal() +
@@ -59,7 +59,7 @@ species_plot <- pheno_expr_data_joined |>
         plot.subtitle = element_markdown(size = 12)) +
   labs(title = "Distribution of Species",
        subtitle = "By <span style='color:#9E3706'>male</span> and <span style='color:#DE580C'>female</span>",
-       x = element_blank()) +
+       y = element_blank()) +
     scale_fill_manual(values = color_palette |>
                       filter(group == "Alternative") |>
                       slice_tail(n = 2) |>
@@ -67,7 +67,7 @@ species_plot <- pheno_expr_data_joined |>
 
 ```
 
-Distribution of population of dataset by age:
+Plotting of the distribution of population of dataset by age:
 
 ```{r}
 sex_plot <- pheno_expr_data_joined |>
@@ -90,10 +90,11 @@ sex_plot <- pheno_expr_data_joined |>
 
 ```
 
-Combining the two plots:
+Combining the two plots created earlier:
 
 ```{r}
 description_plots <- species_plot + sex_plot
+
 ```
 
 ```{r}
