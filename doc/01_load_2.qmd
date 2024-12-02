@@ -1,0 +1,7 @@
+quarto::quarto_render(
+  input = "02_clean.qmd"
+)
+
+quarto::quarto_render(
+  input = "03_augment_joined.qmd"
+)
