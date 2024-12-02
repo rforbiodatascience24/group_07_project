@@ -53,7 +53,19 @@ str_glue("Number of genes {pheno_expr_data_joined |>
          ncol() - 4}")
 ```
 
+<<<<<<< HEAD
+Setting up the desired colors for the graphics:
+
+```{r}
+species_color <- color_palette |>
+  filter(group == "Alternative") |>
+  pull(color)
+```
+
+Plotting of the number of individuals by sex and species
+=======
 Plot number of individuals by sex and species.
+>>>>>>> aef086724facf5446f973a8a275769eeeb4c8d67
 
 ```{r}
 species_plot <- pheno_expr_data_joined |>
@@ -107,7 +119,37 @@ sex_plot <- pheno_expr_data_joined |>
 Combine plots.
 
 ```{r}
-description_plots <- species_plot + sex_plot
+description_plots <- wrap_elements(
+  full =
+  gridtext::richtext_grob(
+    text = paste0(
+      "for <span style='color:",
+      species_color |>
+        pluck(1),
+      ";'>chimpanzees </span>, <span style='color:",
+      altern_color |>
+        pluck(2),
+      ";'>humans </span>, and <span style='color:",
+      altern_color |>
+        pluck(3),
+      ";'>, macaques </span>."),
+    x = 0,
+    hjust = -0.05,
+    gp = grid::gpar(fontsize = 12))) /
+  
+  (species_plot + sex_plot) +
+  
+  plot_layout(heights = c(1, 9)) +
+  
+  plot_annotation(
+     title = "Distributions of Species and Age",
+     theme = theme(
+       plot.title = element_text(size = 12,
+                                 hjust =0)))
+  
+
+description_plots
+
 
 ```
 
