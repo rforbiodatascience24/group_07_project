@@ -6,9 +6,9 @@ execute:
   output: false
 ---
 
-### Load & Prepare
+### Load
 
-For the...
+Load necessary libraries for plot formation.
 
 ```{r}
 library("tidyverse")
@@ -38,7 +38,9 @@ color_palette <- read_tsv(file = file.path(processed_data_dir,
 
 ```
 
-Define the colors used for the plots
+#### Prepare
+
+Define the colors used for the plots.
 
 ```{r}
 attr_color <- color_palette |>
@@ -57,7 +59,7 @@ altern_color <- color_palette |>
   pull(color)
 ```
 
-### Subplots
+#### Plots
 
 Donut plots for significant genes within categories.
 
@@ -74,7 +76,8 @@ hum_chimp_donut <- mlc_proportions |>
   coord_polar(theta = "y") +
   theme_void() +
   xlim(0.5, 2.5) +
-  geom_text(aes(label = paste0(round(human_chimp), "%")), 
+  geom_text(aes(label = paste0(round(human_chimp),
+                               "%")), 
             position = position_stack(vjust = 0.5),
             size = 3,
             color = "white") +
@@ -93,7 +96,8 @@ hum_mac_donut <- mlc_proportions |>
   coord_polar(theta = "y") +
   theme_void() +
   xlim(0.5, 2.5) +
-  geom_text(aes(label = paste0(round(human_macaque), "%")), 
+  geom_text(aes(label = paste0(round(human_macaque),
+                               "%")), 
             position = position_stack(vjust = 0.5),
             size = 3,
             color = "white") +
@@ -152,9 +156,7 @@ pve_plot <- pve_data |>
 pve_plot
 ```
 
-### Final Plot
-
-Combined plot.
+Combine plots.
 
 ```{r}
 combined_plot <- wrap_elements(
@@ -195,6 +197,8 @@ combined_plot <- wrap_elements(
 combined_plot
 ```
 
+#### Save
+
 Write final plot to *.png* file.
 
 ```{r}
@@ -204,3 +208,4 @@ ggsave(file = file.path(processed_data_dir,
        width = 12,
        height = 8)
 ```
+
