@@ -14,7 +14,7 @@ s241901, madelineshah4,
 
 s204668, NorbertAuroraBalint,
 
-[student id], [GitHub username]
+s233415, bbd52
 
 # To do, all
 
