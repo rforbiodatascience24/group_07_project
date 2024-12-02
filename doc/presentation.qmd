@@ -65,19 +65,19 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 ```{r}
 #| label: Cubic code
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code")
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code.png")
 ```
 
 ```{r}
 #| label: Cubic code2
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code2")
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code2.png")
 ```
 
 ```{r}
 #| label: Cubic code3
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code3")
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code3.png")
 ```
 
 # Slide 5:
@@ -86,18 +86,42 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 
 -   Using heterochrony tests, shift models, and classification approaches.
 
+```{r}
+#| label: Shift test
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/shift_test.png")
+```
+
 # Slide 6:
 
 -   PVE Overview
 
-#  Slide 7:
+```{r}
+#| label: PVE
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/12_expr_attr.png")
+```
+
+# Slide 7:
 
 -   Global gene expression profiles.
+
+```{r}
+#| label: Global expression
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/11_glob_expr.png")
+```
 
 # Slide 8:
 
 -   Heterochrony results.
 -   Gene Expression Trajectories Highlighting Heterochrony
+
+```{r}
+#| label: Heter
+#| fig-align: "left"
+knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/14_heterochrony_plot")
+```
 
 # Slide 9:
 
@@ -112,7 +136,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 **Conclusions:**
 
 -   **Key Findings**:
-    -   Age is the main factor in change of gene expression 
+    -   Age is the main factor in change of gene expression
     -   Delayed prefrontal cortex gene expression in humans
     -   The dominant percentage of global expression change happens in early development (similarities between human and chimp)
     -   Insights into evolutionary mechanisms of cognitive traits.
