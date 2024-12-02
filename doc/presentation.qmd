@@ -1,10 +1,11 @@
 ---
 title: "Group 7: Transcriptional Neoteny in the Human Brain"
-author: "Anne Sofie Jokumsen (s244028), Sophia Cash (s225099), Norbert Bálint (s204668), Madeline Shah (s241901), Bedri Duraksoy (s233415))"
-
-format:
+author: "Anne Sofie Jokumsen (s244028), Sophia Cash (s225099), Norbert Bálint (s204668), Madeline Shah (s241901), Bedri Duraksoy (s233415)"
+format: 
   revealjs:
     theme: dark
+execute:
+  enabled: true
 ---
 
 
@@ -16,7 +17,7 @@ format:
 ```{r}
 #| label: Research Paper in Focus
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/clipboard-990918093.png")
+knitr::include_graphics("images/clipboard-990918093.png")
 ```
 
 ---
@@ -30,7 +31,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 ```{r}
 #| label: Descriptive plots
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/04_description_plots.png")
+knitr::include_graphics("images/04_description_plots.png")
 ```
 
 ---
@@ -44,7 +45,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 ```{r}
 #| label: PCA plots
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/10_PCA.png")
+knitr::include_graphics("images/10_PCA.png")
 ```
 
 ---
@@ -56,19 +57,19 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 ```{r}
 #| label: Cubic code
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code.png")
+knitr::include_graphics("images/cube_reg_code.png")
 ```
 
 ```{r}
 #| label: Cubic code2
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code2.png")
+knitr::include_graphics("images/cube_reg_code2.png")
 ```
 
 ```{r}
 #| label: Cubic code3
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/cube_reg_code3.png")
+knitr::include_graphics("images/cube_reg_code3.png")
 ```
 
 ---
@@ -80,7 +81,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 ```{r}
 #| label: Shift test
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/shift_test.png")
+knitr::include_graphics("images/shift_test.png")
 ```
 
 ---
@@ -90,7 +91,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 ```{r}
 #| label: PVE
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/12_expr_attr.png")
+knitr::include_graphics("images/12_expr_attr.png")
 ```
 
 ---
@@ -100,7 +101,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 ```{r}
 #| label: Global expression
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/11_glob_expr.png")
+knitr::include_graphics("images/11_glob_expr.png")
 ```
 
 ---
@@ -111,7 +112,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 ```{r}
 #| label: Heter
 #| fig-align: "left"
-knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files/projects/group_07_project/doc/images/14_heterochrony_plot")
+knitr::include_graphics("images/14_heterochrony_plot")
 ```
 
 ---
@@ -119,7 +120,7 @@ knitr::include_graphics("https://teaching.healthtech.dtu.dk/22100/rstudio1/files
 **Discussion and perspectives**
 
 -   Neotenic delays in the prefrontal cortex.
--   Liability f animal models for studying neurodevelopmental disorders 
+-   Liability of animal models for studying neurodevelopmental disorders 
 -   Comparison with other primates.
 
 ---
