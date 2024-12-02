@@ -35,7 +35,7 @@ The study analyzes gene expression during postnatal brain development in humans,
 
 ---
 
-## Data Cleaning and Augmentation
+## Preparing the Data: Cleaning and Augmentation
 
 ### Step 1: Data Cleaning
 - Addressed missing values and inconsistencies.
@@ -51,13 +51,120 @@ quarto::quarto_render(input = "03_augment_joined.qmd")
 ```
 ---
 
-## PCA and Explained Variance
+## Decoding Variance: PCA Highlights Developmental Patterns
 
 ### Principal Component Analysis
 - Identified major sources of expression variance.
-- **Key Result**:
-  - PCA separated species along Components 1 and 2.
+### **Key Result**:
+- PCA separated species along Components 1 and 2.
 
 **Visualization**:
 ```{r}
 quarto::quarto_render(input = "05_analysis_PCA.qmd")
+```
+---
+
+## How Much Do Components Explain? Variance Quantified (PVE)
+
+-	Quantified contribution of components to overall variance.
+
+**Visualization**:
+```{r}
+quarto::quarto_render(input = "12_plot_pve.qmd")
+```
+---
+
+## PCA Insights: Unique Developmental Trajectories in Humans
+
+### Key Insights:
+
+-	PCA Component 1: Correlates with age-related changes.
+-	PCA Component 2: Captures species-specific variation.
+
+Biological Finding:
+-	Humans exhibit unique developmental trajectories in PCA space.
+
+**Visualization**:
+```{r}
+quarto::quarto_render(input = "10_plot_PCA.qmd")
+```
+---
+## From Trends to Insights: Regression Models and Expression Patterns
+
+### Multiple Linear Regression
+
+-	Explored age and species effects on gene expression.
+
+**Visualization**:
+```{r}
+quarto::quarto_render(input = "06_analysis_multi.qmd")
+```
+### Cubic Regression
+
+-	Better fit for nonlinear patterns in gene expression.
+
+**Visualization**:
+```{r}
+quarto::quarto_render(input = "07_analysis_cube.qmd")
+```
+---
+
+## Comparing Species: Global Trends in Neural Expression
+
+### Overview
+
+-	Compared global expression profiles across species.
+
+### Key Insight:
+-	Humans show delayed expression of neural plasticity genes.
+
+**Visualization**:
+```{r}
+quarto::quarto_render(input = "11_plot_global_expr.qmd")
+```
+---
+
+## Gene Expression Timing: Detecting Shifts and Neotenic Trends
+
+### Shift Function
+
+-	Analyzed expression timing changes within genes.
+
+**Visualization**:
+```{r}
+quarto::quarto_render(input = "13_plot_shift_model.qmd")
+```
+---
+
+## Gene Expression Timing: Detecting Shifts and Neotenic Trends
+
+-	Detected neotenic shifts in 38% of genes.
+
+**Visualization**:
+```{r}
+quarto::quarto_render(input = "14_plot_heterochrony.qmd")
+```
+---
+
+## Mapping Gene Expression: Insights Across Evolutionary Scales
+
+### Insights
+
+-	Distribution of genes shows phylogenetic and ontogenetic trends.
+-	Neural plasticity genes enriched in neotenic shifts.
+---
+
+## Key Findings and Future Directions in Brain Evolution
+
+###	Neotenic Delays:
+-	Observed in prefrontal cortex gene expression.
+### Evolutionary Significance:
+-	Delayed development enhances cognitive capacity.
+### Future Directions:
+- Functional validation of key genes and pathways.
+---
+## References
+
+- Somel, M., Liu, X., Tang, L., Yan, Z., Hu, H., Guo, S., … & Khaitovich, P. (2009). Transcriptional neoteny in the human brain. 
+Proceedings of the National Academy of Sciences, 106(14), 5743-5748.
+---
