@@ -21,22 +21,39 @@ The study analyzes gene expression during postnatal brain development in humans,
 ## Materials and Methods
 
 ### Data Overview
-
-- **Source**: Somel et al. (2009), GEO accession numbers: GSE11528, GSE11512, GSE15163.
+- **Source**: Somel et al. (2009), GEO datasets (GSE11528, GSE11512, GSE15163).
 - **Samples**:
-  - 39 humans (0–47 years).
-  - 14 chimpanzees (0–44 years).
-  - 9 rhesus macaques (1–18 years).
+  - Humans: 39 (0–47 years).
+  - Chimpanzees: 14 (0–44 years).
+  - Macaques: 9 (1–18 years).
 
 **Pipeline**:
-1. Data loading and cleaning.
-2. PCA to identify major expression patterns.
-3. Regression analyses to test age and species effects.
+1. Data cleaning and augmentation.
+2. Principal Component Analysis (PCA).
+3. Regression models for age and species effects.
 4. Heterochrony tests to detect timing shifts.
 
-```{r}
-library("quarto")
+---
 
-quarto::quarto_render(
-  input = "01_load.qmd"
-)
+## Data Cleaning and Augmentation
+
+### Step 1: Data Cleaning
+- Addressed missing values and inconsistencies.
+- Verified dataset structure and variables.
+
+### Step 2: Augmentation
+- Merged datasets across species.
+- Derived variables for age and expression scaling.
+
+---
+
+## PCA and Explained Variance
+
+### Principal Component Analysis
+- Identified major sources of expression variance.
+- **Key Result**:
+  - PCA separated species along Components 1 and 2.
+
+**Visualization**:
+```{r}
+quarto::quarto_render(input = "05_analysis_PCA.qmd")
