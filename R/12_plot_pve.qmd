@@ -64,7 +64,6 @@ altern_color <- color_palette |>
 Donut plots for significant genes within categories.
 
 ```{r}
-#Norberts bit
 # Human vs chimp
 hum_chimp_donut <- mlc_proportions |>
   ggplot(aes(x = 2, 
