@@ -63,6 +63,7 @@ species_plot <- pheno_expr_data_joined |>
                       filter(group == "Alternative") |>
                       slice_tail(n = 2) |>
                       pull(color))
+species_plot
 
 ```
 

@@ -1,7 +1,6 @@
 ---
 title: "Heterochrony expression test"
 output: html
-output-dir: results
 execute:
   echo: true
   output: false
@@ -14,6 +13,7 @@ Load libraries.
 ```{r}
 library("tidyverse")
 library("broom")
+library("splines")
 
 source("15_proj_func.R")
 ```
@@ -153,13 +153,13 @@ human_mac_recip |>
                              "08.2_hum_mac_class.tsv"))
 
 human_chimp_shift |>
-  dplyr::select(-p_value,
+  dplyr::select(-shift_p_value,
                 -rss_diff) |>
   unnest(cols = c(data)) |>
   write_tsv(file = file.path(processed_data_dir,
                              "08.3_hum_chi_shift.tsv"))
 human_mac_shift |>
-  dplyr::select(-p_value,
+  dplyr::select(-shift_p_value,
                 -rss_diff) |>  
   unnest(cols = c(data)) |>
   write_tsv(file = file.path(processed_data_dir,

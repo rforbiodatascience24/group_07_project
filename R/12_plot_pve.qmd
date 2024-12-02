@@ -29,12 +29,6 @@ processed_data_dir <- file.path("..","data")
 pve_data <- read_tsv(file = file.path(processed_data_dir,
                                       "05.3_dat_pve.tsv"),
                      show_col_types = FALSE)
-# chimp_mult_data <- read_tsv(file = file.path(processed_data_dir,
-#                                            "06.1_dat_mult_chimp.tsv"),
-#                           show_col_types = FALSE)
-# mac_mult_data <- read_tsv(file = file.path(processed_data_dir,
-#                                            "06.2_dat_mult_mac.tsv"),
-#                           show_col_types = FALSE)
 mlc_proportions <- read_tsv(file = file.path(processed_data_dir,
                                            "06.2_dat_mlc_proportions.tsv"),
                           show_col_types = FALSE)
@@ -121,61 +115,6 @@ hum_chimp_donut
 hum_mac_donut
 donut_combined
 
-```
-
-
-```{r}
-# # Human vs chimp
-# hum_chimp_donut <- chimp_mult_data |>
-#   ggplot(aes(x = 2, 
-#              y = proportion, 
-#              fill = category)) +
-#   geom_bar(stat = "identity", 
-#            width = 1, 
-#            color = "white") +
-#   coord_polar(theta = "y") +
-#   theme_void() +
-#   xlim(0.5, 2.5) +
-#   geom_text(aes(label = paste0(round(proportion), "%")), 
-#             position = position_stack(vjust = 0.5),
-#             size = 3,
-#             color = "white") +
-#   scale_fill_manual(values = altern_color,
-#                     name = NULL) +
-#   theme(legend.position = "none")
-# 
-# #Human vs macaque
-# hum_mac_donut <- mac_mult_data |>
-#   ggplot(aes(x = 2, 
-#              y = n, 
-#              fill = category)) +
-#   geom_bar(stat = "identity", 
-#            width = 1, 
-#            color = "white") +
-#   coord_polar(theta = "y") +
-#   theme_void() +
-#   xlim(0.5, 2.5) +
-#   geom_text(aes(label = paste0(round(proportion), "%")), 
-#             position = position_stack(vjust = 0.5),
-#             size = 3,
-#             color = "white") +
-#   scale_fill_manual(values = altern_color,
-#                     name = NULL) +
-#   theme(legend.position = "none")
-# 
-# 
-# # Combine donuts
-# donut_combined <- hum_chimp_donut + hum_mac_donut +
-#   plot_layout(ncol = 2) +
-#   plot_annotation() +
-#   theme(
-#     legend.position = "bottom",
-#     legend.text = element_text(size = 8),
-#     legend.title = element_blank())
-# 
-# hum_chimp_donut
-# hum_mac_donut
-# donut_combined
 ```
 
 Bar plot for pve.

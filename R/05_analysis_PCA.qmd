@@ -22,20 +22,18 @@ source("15_proj_func.R")
 We load the data set.
 
 ```{r}
-#| output: false
-
 # Set path for processed data directory
 processed_data_dir <- file.path("..","data")
 
 # Load the dataset
 data <- read_tsv(file = file.path(processed_data_dir,
-                                         "03_dat_joined.tsv"))
+                                         "03_dat_joined.tsv"),
+                 show_col_types = FALSE)
 ```
 
 For the PCA, do numeric encoding of our non-numeric variables of interest and scale our data as preparation.
 
 ```{r}
-#| output: false
 
 # Numeric encoding and extraction
 pca_data <- data |>
@@ -54,7 +52,6 @@ pca_data_scaled <- pca_data |>
 We then apply the `prcomp()` function and save projected data in proper tidy format.
 
 ```{r}
-#| output: false
 
 # Perform PCA
 pca_results <- pca_data_scaled |>
@@ -81,7 +78,6 @@ pca_proj_df <- pca_results |>
 We also save the standard deviation and calculate the variance explained and cumulative variance.
 
 ```{r}
-#| output: false
 
 pca_var_df <- pca_results |> 
   pluck("sdev") |> 
@@ -135,8 +131,6 @@ var_explained_pc_all <- pca_results_df |>
 Since sex is mainly represented in the principal components with the least variance explained, and we don't want these to skew our further analysis, we filter our data for principal components with a variance explained over 1%.
 
 ```{r}
-#| output: false
-
 pca_thres_df <- pca_results_df |>
   filter(variance_explained >= 1)
 ```
@@ -144,8 +138,6 @@ pca_thres_df <- pca_results_df |>
 We repeat the above analysis for the filtered data and for each species.
 
 ```{r}
-#| output: false
-
 var_explained_pc <- pca_thres_df |>
   group_by(PC) |>
   nest() |>
@@ -161,8 +153,6 @@ var_explained_pc <- pca_thres_df |>
 ```
 
 ```{r}
-#| output: false
-
 var_explained_human <- pca_thres_df |>
   apply_variance_explained(spec = "Human",
                            attr = c("log_age", "sex_num"))
@@ -195,8 +185,6 @@ pve_summary <- bind_rows(pve_human,
 ```
 
 ```{r}
-#| output: false
-
 pca_proj_df |>
   write_tsv(file = file.path(processed_data_dir,
                              "05.1_dat_pca.tsv"))

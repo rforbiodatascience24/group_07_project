@@ -111,6 +111,8 @@ significant_data <- data_cube |>
 To obtain a one-dimensional summary measure of expression variation, we calculate the matrix of Euclidean distances among the samples.
 
 ```{r}
+#| warning: false
+
 dist_matrix <- significant_data |>
   dplyr::select(-species,
                 -age,

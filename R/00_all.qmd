@@ -45,6 +45,16 @@ quarto::quarto_render("03_augment_joined.qmd")
 
 ## The data
 
+### Color palette
+
+...
+
+```{r}
+quarto::quarto_render("09_plot_specs.qmd")
+```
+
+### Decription
+
 ...
 
 ```{r}
@@ -94,14 +104,6 @@ quarto::quarto_render("08_analysis_heterochrony.qmd")
 ```
 
 ## The Plots
-
-### Color palette
-
-...
-
-```{r}
-quarto::quarto_render("09_plot_specs.qmd")
-```
 
 ### PCA
 
