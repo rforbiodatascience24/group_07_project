@@ -127,8 +127,12 @@ description_plots <- wrap_elements(
       species_color |>
         pluck(3),
       ";'>macaques </span>",
-      "by <span style='color:", sex_color |> pluck(1), ";'>male</span> and ",
-      "<span style='color:", sex_color |> pluck(2), ";'>female</span>."),
+      "by <span style='color:",
+      sex_color |> pluck(1),
+      ";'>male</span> and ",
+      "<span style='color:",
+      sex_color |> pluck(2),
+      ";'>female</span>."),
     x = 0,
     hjust = -0.05,
     gp = grid::gpar(fontsize = 12))) /
@@ -145,8 +149,6 @@ description_plots <- wrap_elements(
   
 
 description_plots
-
-
 ```
 
 #### Save
