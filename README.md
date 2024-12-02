@@ -43,7 +43,6 @@ As a note, to ensure the proper calling of select(), we use dplyr::select() thro
 
 -  `GEOquery`
 -  `Biobase`
--  `dplyr`
 -  `broom`
 -  `MASS`
 -  `tidyverse`
@@ -52,4 +51,3 @@ As a note, to ensure the proper calling of select(), we use dplyr::select() thro
 -  `gridtext`
 -  `patchwork`
 -  `RColorBrewer`
--  `ggplot2`
